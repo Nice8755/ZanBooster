@@ -31,7 +31,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "1.7.6"
+const appVersion = "1.7.7"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -73,7 +73,7 @@ type app struct {
 	pingMu   sync.Mutex
 	pingStop chan struct{}
 
-	cpuMu                         sync.Mutex
+	cpuMu                          sync.Mutex
 	lastIdle, lastKernel, lastUser uint64
 }
 

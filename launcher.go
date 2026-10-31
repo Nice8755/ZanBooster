@@ -16,7 +16,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 	"unsafe"
 
@@ -28,11 +27,7 @@ import (
 var fivemDefaultBuild = 3258
 
 var (
-	advapi32                 = windows.NewLazySystemDLL("advapi32.dll")
-	pCreateProcessWithTokenW = advapi32.NewProc("CreateProcessWithTokenW")
-	pGetShellWindow          = user32.NewProc("GetShellWindow")
-	pGetWindowThreadPID      = user32.NewProc("GetWindowThreadProcessId")
-	pWritePrivateProfile     = kernel32.NewProc("WritePrivateProfileStringW")
+	pWritePrivateProfile = kernel32.NewProc("WritePrivateProfileStringW")
 )
 
 type serverInfo struct {
@@ -383,45 +378,18 @@ func killFiveM() int {
 	return n
 }
 
-// launchUnelevated เปิดโปรแกรมด้วยสิทธิ์ผู้ใช้ปกติ (FiveM ไม่ควรรันแบบ Admin) โดยยืม token ของ Explorer
+// launchUnelevated เปิดโปรแกรมด้วยสิทธิ์ผู้ใช้ปกติ ผ่าน Explorer (เหมือนผู้ใช้ดับเบิลคลิกเอง)
+// ไม่ใช้ CreateProcessWithTokenW เพราะ process ที่เปิดแบบนั้นจะติดอยู่ใน job ของ Windows
+// ทำให้ FiveM สลับ build / โหลดไฟล์เกมแล้วปิดตัวเองไป (FiveM ต้องใช้ CREATE_BREAKAWAY_FROM_JOB)
 func launchUnelevated(exe, args, dir string) error {
-	cmdline := `"` + exe + `" ` + args
-	hwnd, _, _ := pGetShellWindow.Call()
-	if hwnd != 0 {
-		var pid uint32
-		pGetWindowThreadPID.Call(hwnd, uintptr(unsafe.Pointer(&pid)))
-		if pid != 0 {
-			_ = enablePrivilege("SeImpersonatePrivilege")
-			if hp, err := windows.OpenProcess(windows.PROCESS_QUERY_LIMITED_INFORMATION, false, pid); err == nil {
-				defer windows.CloseHandle(hp)
-				var tok windows.Token
-				if windows.OpenProcessToken(hp, windows.TOKEN_DUPLICATE, &tok) == nil {
-					defer tok.Close()
-					var dup windows.Token
-					access := uint32(windows.TOKEN_QUERY | windows.TOKEN_ASSIGN_PRIMARY | windows.TOKEN_DUPLICATE | windows.TOKEN_ADJUST_DEFAULT | windows.TOKEN_ADJUST_SESSIONID)
-					if windows.DuplicateTokenEx(tok, access, nil, windows.SecurityImpersonation, windows.TokenPrimary, &dup) == nil {
-						defer dup.Close()
-						cl, _ := windows.UTF16PtrFromString(cmdline)
-						wd, _ := windows.UTF16PtrFromString(dir)
-						var si windows.StartupInfo
-						si.Cb = uint32(unsafe.Sizeof(si))
-						var pi windows.ProcessInformation
-						r, _, _ := pCreateProcessWithTokenW.Call(uintptr(dup), 0, 0, uintptr(unsafe.Pointer(cl)), 0, 0,
-							uintptr(unsafe.Pointer(wd)), uintptr(unsafe.Pointer(&si)), uintptr(unsafe.Pointer(&pi)))
-						if r != 0 {
-							windows.CloseHandle(pi.Process)
-							windows.CloseHandle(pi.Thread)
-							return nil
-						}
-					}
-				}
-			}
-		}
+	esc := func(x string) string { return strings.ReplaceAll(x, "%", "%%") }
+	script := "@echo off\r\nchcp 65001 >nul\r\ncd /d \"" + esc(dir) + "\"\r\nstart \"\" \"" + esc(exe) + "\" " + esc(args) + "\r\nexit\r\n"
+	cmdFile := filepath.Join(os.TempDir(), "zanbooster_launch.cmd")
+	if err := os.WriteFile(cmdFile, []byte(script), 0o644); err != nil {
+		return err
 	}
-	// สำรอง: เปิดแบบปกติ
-	cmd := exec.Command(exe)
-	cmd.SysProcAttr = &syscall.SysProcAttr{CmdLine: cmdline}
-	cmd.Dir = dir
+	// explorer.exe ที่ถูกเรียกจากโปรแกรม Admin จะส่งงานต่อให้ Explorer ตัวหลักของผู้ใช้ (สิทธิ์ปกติ)
+	cmd := exec.Command(filepath.Join(os.Getenv("SystemRoot"), "explorer.exe"), cmdFile)
 	return cmd.Start()
 }
 
@@ -452,8 +420,9 @@ func waitFiveM(sec int) bool {
 }
 
 // launchServer
-//   fast = true  : ตั้ง CitizenFX.ini + -b/-pure ให้ตรงกับเซิร์ฟ เปิดเกมรอบเดียว (ใช้เมื่อ build นั้นมีในเครื่องแล้ว)
-//   fast = false : เปิดแบบเดียวกับกดเข้าเซิร์ฟใน FiveM ปกติ ให้ FiveM จัดการโหลด/สลับ build เอง (ชัวร์ที่สุด)
+//
+//	fast = true  : ตั้ง CitizenFX.ini + -b/-pure ให้ตรงกับเซิร์ฟ เปิดเกมรอบเดียว (ใช้เมื่อ build นั้นมีในเครื่องแล้ว)
+//	fast = false : เปิดแบบเดียวกับกดเข้าเซิร์ฟใน FiveM ปกติ ให้ FiveM จัดการโหลด/สลับ build เอง (ชัวร์ที่สุด)
 func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int, pool string, fast bool) launchResult {
 	exe := filepath.Join(fivemDir, "FiveM.exe")
 	if _, err := os.Stat(exe); err != nil {
@@ -484,7 +453,7 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 	}
 	if err := launchUnelevated(exe, args, fivemDir); err != nil || !waitFiveM(20) {
 		// สำรอง: เปิดผ่านลิงก์ fivem:// ของ Windows แบบเดียวกับกดจากเว็บ
-		openURL("fivem://connect/" + connect)
+		exec.Command(filepath.Join(os.Getenv("SystemRoot"), "explorer.exe"), "fivem://connect/"+connect).Start()
 		if !waitFiveM(20) {
 			return launchResult{Message: "เปิด FiveM ไม่ขึ้น ลองเปิด FiveM เองหนึ่งครั้งแล้วกดเข้าใหม่", Cmd: "FiveM.exe " + args}
 		}
