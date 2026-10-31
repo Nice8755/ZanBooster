@@ -798,8 +798,16 @@ func (a *app) checkBuild(fivemDir string, build int) buildCheck {
 	if buildTable == nil {
 		json.Unmarshal(buildsJSON, &buildTable)
 	}
+	if fivemDir == "" {
+		return buildCheck{}
+	}
+	// build ที่เคยเปิดเล่นได้จริงแล้ว = มีไฟล์ครบแน่นอน
+	// 1) ตัวเบื้องหลังจดไว้ตอนเกม build นั้นเปิดได้ 2) FiveM สร้างตัวเกมของ build นั้นไว้ใน cache\subprocess
+	if a.buildSeen(build) || subprocessHasBuild(fivemDir, build) {
+		return buildCheck{Known: true, Cached: true}
+	}
 	files, ok := buildTable[strconv.Itoa(build)]
-	if !ok || fivemDir == "" {
+	if !ok {
 		return buildCheck{}
 	}
 	dir := filepath.Join(fivemDir, "FiveM.app", "data", "game-storage")
@@ -835,6 +843,50 @@ func (a *app) checkBuild(fivemDir string, build int) buildCheck {
 		}
 	}
 	return res
+}
+
+func subprocessHasBuild(fivemDir string, build int) bool {
+	es, err := os.ReadDir(filepath.Join(fivemDir, "FiveM.app", "data", "cache", "subprocess"))
+	if err != nil {
+		return false
+	}
+	tag := fmt.Sprintf("_b%d_", build)
+	for _, e := range es {
+		n := strings.ToLower(e.Name())
+		if strings.Contains(n, tag) && (strings.Contains(n, "gtaprocess") || strings.Contains(n, "gameprocess")) {
+			return true
+		}
+	}
+	return false
+}
+
+func (a *app) seenPath() string { return filepath.Join(a.dataDir, "builds_seen.json") }
+
+func (a *app) buildSeen(build int) bool {
+	var seen map[string]bool
+	if b, err := os.ReadFile(a.seenPath()); err == nil {
+		json.Unmarshal(b, &seen)
+	}
+	return seen[strconv.Itoa(build)]
+}
+
+// markBuildSeen จดว่า build นี้เปิดเล่นได้แล้ว (เรียกจากตัวเบื้องหลังตอนเกมเปิดมาได้สักพัก)
+func (a *app) markBuildSeen(builds ...int) {
+	seen := map[string]bool{}
+	if b, err := os.ReadFile(a.seenPath()); err == nil {
+		json.Unmarshal(b, &seen)
+	}
+	changed := false
+	for _, b := range builds {
+		if k := strconv.Itoa(b); b > 0 && !seen[k] {
+			seen[k], changed = true, true
+		}
+	}
+	if changed {
+		if b, err := json.Marshal(seen); err == nil {
+			os.WriteFile(a.seenPath(), b, 0o644)
+		}
+	}
 }
 
 func totalMB(files []buildFile) float64 {

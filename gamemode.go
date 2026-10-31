@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -361,6 +362,8 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 		gpuS, cpuS    []float64
 		lastEmit      string
 		lastRec       *recoverResult
+		gameSince     time.Time
+		seenMarked    bool
 		pMask, pc, th = perfCoreMask()
 	)
 	stop := func() {
@@ -410,6 +413,18 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 				stop()
 			}
 		} else {
+			if gp == pid && !seenMarked && time.Since(gameSince) > 30*time.Second {
+				// เกมเปิดมาได้แล้ว = ไฟล์ของ build นี้ครบ จดไว้ให้หน้าเซิร์ฟขึ้น ✓
+				seenMarked = true
+				var bs []int
+				if b, _, ok := runningLaunchArgs(); ok {
+					bs = append(bs, b)
+				}
+				if m := regexp.MustCompile(`(?i)_b(\d+)_`).FindStringSubmatch(name); m != nil {
+					bs = append(bs, atoi(m[1]))
+				}
+				a.markBuildSeen(bs...)
+			}
 			if gp != pid { // เกมเพิ่งเปิด หรือ FiveM รีเกมเพื่อสลับ build
 				if pid == 0 {
 					st = gmStatus{Active: true, Since: time.Now().Unix()}
@@ -437,6 +452,7 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 					pq, pqAge = openPdh(), 0
 				}
 				pid = gp
+				gameSince, seenMarked = time.Now(), false
 				st.Game = name
 				if cfg.Aff && pMask != 0 {
 					if err := setAffinity(gp, pMask); err == nil {
