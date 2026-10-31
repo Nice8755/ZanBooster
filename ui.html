@@ -682,7 +682,7 @@ kbd{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;bor
       <div id="t1">
       <div class="card" style="margin-bottom:14px">
         <div class="ct" style="display:flex;justify-content:space-between;align-items:center">โหมดก่อนเล่น<button class="btn" id="bAppsRefresh" style="padding:6px 12px;font-size:12px">รีเฟรชรายการ</button></div>
-        <div style="color:var(--muted);font-size:13px">กดก่อนเข้าเกม ปิดโปรแกรมที่กินเครื่อง ล้างแคชแรม และดัน Priority ให้ FiveM ถ้าเกมเปิดอยู่</div>
+        <div style="color:var(--muted);font-size:13px">กดก่อนเข้าเกม ปิดเฉพาะโปรแกรมที่ติ๊กไว้ (Browser กับ Spotify ไม่ปิดเป็นค่าเริ่มต้น ฟังเพลงต่อได้) ล้างแคชแรม และดัน Priority ให้ FiveM</div>
         <div class="applist" id="appList"><div class="empty">กำลังดูโปรแกรมที่เปิดอยู่...</div></div>
         <div class="pre-opts">
           <div class="chk on" id="optMem"><span class="box"></span>ล้างแคชแรม (Standby)</div>
@@ -1337,23 +1337,25 @@ $('#bGfxRestore').onclick = async () => {
 };
 
 /* ================= pre-game ================= */
-let appSel = new Set(), appsCache = [];
+let appsCache = [];
+// Browser กับเพลง ไม่ปิดเป็นค่าเริ่มต้น (หลายคนเปิดฟังเพลงระหว่างเล่น) ติ๊กเองได้ และจำไว้ใน settings
+const KEEP_DEFAULT = new Set(['chrome', 'msedge', 'firefox', 'opera', 'brave', 'spotify']);
+const appOn = id => { const c = settings.closeApps || {}; return id in c ? !!c[id] : !KEEP_DEFAULT.has(id.toLowerCase()); };
 async function loadApps() {
   const r = await run('ListApps'); appsCache = r?.apps || [];
   if (!appsCache.length) { $('#appList').innerHTML = '<div class="empty">ไม่มีโปรแกรมที่ควรปิดเปิดอยู่</div>'; return; }
-  appsCache.forEach(a => { if (!appSel.has('x' + a.id)) { appSel.add(a.id); appSel.add('x' + a.id); } });
   renderApps();
 }
 function renderApps() {
-  $('#appList').innerHTML = appsCache.map(a => `<div class="appi ${appSel.has(a.id) ? 'on' : ''}" data-id="${a.id}"><span class="box"></span>${esc(a.name)}<small>${a.mb.toLocaleString()} MB</small></div>`).join('');
-  $$('.appi').forEach(el => el.onclick = () => { const id = el.dataset.id; appSel.has(id) ? appSel.delete(id) : appSel.add(id); renderApps(); });
+  $('#appList').innerHTML = appsCache.map(a => `<div class="appi ${appOn(a.id) ? 'on' : ''}" data-id="${a.id}"><span class="box"></span>${esc(a.name)}<small>${a.mb.toLocaleString()} MB</small></div>`).join('');
+  $$('.appi').forEach(el => el.onclick = () => { const id = el.dataset.id; settings.closeApps = Object.assign({}, settings.closeApps, { [id]: !appOn(id) }); window.saveSettings(JSON.stringify(settings)); renderApps(); });
 }
 $('#bAppsRefresh').onclick = loadApps;
 $('#optMem').onclick = () => $('#optMem').classList.toggle('on');
 $('#optPrio').onclick = () => $('#optPrio').classList.toggle('on');
 async function preGame() {
-  const ids = appsCache.filter(a => appSel.has(a.id)).map(a => a.id);
-  if (ids.length && !await confirmBox('ปิดโปรแกรม', 'จะปิด ' + appsCache.filter(a => appSel.has(a.id)).map(a => a.name).join(', ') + '\nงานที่ยังไม่ได้เซฟในโปรแกรมพวกนี้จะหาย', 'ปิดเลย')) return;
+  const ids = appsCache.filter(a => appOn(a.id)).map(a => a.id);
+  if (ids.length && !await confirmBox('ปิดโปรแกรม', 'จะปิด ' + appsCache.filter(a => appOn(a.id)).map(a => a.name).join(', ') + '\nงานที่ยังไม่ได้เซฟในโปรแกรมพวกนี้จะหาย', 'ปิดเลย')) return;
   const parts = [];
   if (ids.length) { const r = await run('CloseApps', ids.join(',')); if (r?.ok) parts.push(`ปิดโปรแกรม ${r.n} ตัว ได้แรมคืน ${r.mb.toLocaleString()} MB`); }
   if ($('#optMem').classList.contains('on')) {
@@ -1493,7 +1495,7 @@ window.loadSettings().then(t => { try { settings = JSON.parse(t) || {}; } catch 
 $('#optAutoPrio').onclick = () => { $('#optAutoPrio').classList.toggle('on'); settings.autoPrio = $('#optAutoPrio').classList.contains('on'); window.saveSettings(JSON.stringify(settings)); };
 $('#optPreJoin').onclick = () => { $('#optPreJoin').classList.toggle('on'); settings.preJoin = $('#optPreJoin').classList.contains('on'); window.saveSettings(JSON.stringify(settings)); };
 async function prepareBeforeJoin() {
-  const r = await run('ListApps'); const apps = (r?.apps || []).filter(a => !appSel.size || appSel.has(a.id) || !appSel.has('x' + a.id));
+  const r = await run('ListApps'); const apps = (r?.apps || []).filter(a => appOn(a.id));
   const parts = [];
   if (apps.length) { const c = await run('CloseApps', apps.map(a => a.id).join(',')); if (c?.ok) parts.push(`ปิดโปรแกรม ${c.n} ตัว`); }
   const m = await window.purgeMemory(); if (m?.ok) parts.push(`ล้างแคชแรม ${Math.round(m.freedMB).toLocaleString()} MB`);
