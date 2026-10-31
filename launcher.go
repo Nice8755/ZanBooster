@@ -29,6 +29,8 @@ var fivemDefaultBuild = 3258
 var (
 	pWritePrivateProfile = kernel32.NewProc("WritePrivateProfileStringW")
 	pGetPrivateProfile   = kernel32.NewProc("GetPrivateProfileStringW")
+	pOpenFileMapping     = kernel32.NewProc("OpenFileMappingW")
+	pRtlMoveMemory       = kernel32.NewProc("RtlMoveMemory")
 )
 
 type serverInfo struct {
@@ -376,15 +378,60 @@ func normPool(s string) string {
 	return string(b)
 }
 
+// runningLaunchArgs อ่านคำสั่งเปิดเกมที่ FiveM ใช้จริงจาก shared memory "CfxInitState"
+// (CfxState.h: int x4, bool x4, wchar initPathGame/initPathLauncher/gameDirectory/gameExePath[1024], initCommandLine[2048])
+// XBR_EarlySelect ต่อ -b / -pure_ จาก ini ไว้ในนี้แล้ว ถ้าเปิดด้วย -b หรือลิงก์ที่มี build จะไม่อ่าน PureLevel จาก ini
+// คืนค่า build, pure ที่เกมใช้อยู่ และ ok=false ถ้าอ่านไม่ได้
+func runningLaunchArgs() (build, pure int, ok bool) {
+	const off, n = 20 + 4*2048, 2048
+	for _, name := range []string{"CFX__CFXGame_SharedData_CfxInitState", "CFX_cl2_CFXGame_SharedData_CfxInitState"} {
+		p, _ := windows.UTF16PtrFromString(name)
+		h, _, _ := pOpenFileMapping.Call(windows.FILE_MAP_READ, 0, uintptr(unsafe.Pointer(p)))
+		if h == 0 {
+			continue
+		}
+		addr, err := windows.MapViewOfFile(windows.Handle(h), windows.FILE_MAP_READ, 0, 0, off+n*2)
+		if err != nil || addr == 0 {
+			windows.CloseHandle(windows.Handle(h))
+			continue
+		}
+		u := make([]uint16, n)
+		pRtlMoveMemory.Call(uintptr(unsafe.Pointer(&u[0])), addr+off, n*2)
+		cli := windows.UTF16ToString(u)
+		windows.UnmapViewOfFile(addr)
+		windows.CloseHandle(windows.Handle(h))
+		if !strings.Contains(strings.ToLower(cli), "fivem") {
+			continue // รูปแบบข้อมูลไม่ตรง (FiveM อาจเปลี่ยนโครงสร้าง) ไปใช้ ini แทน
+		}
+		build = fivemDefaultBuild
+		for _, a := range strings.Fields(strings.ReplaceAll(cli, `"`, " ")) {
+			al := strings.ToLower(a)
+			if i := strings.Index(al, "pure_"); i >= 0 && pure == 0 {
+				pure = atoi(al[i+5 : i+6])
+			}
+			if strings.HasPrefix(al, "-b") && len(al) > 2 {
+				if b := atoi(al[2:]); b > 0 {
+					build = b
+				}
+			}
+		}
+		return build, pure, true
+	}
+	return 0, 0, false
+}
+
 // gameMismatch บอกว่าเกมที่เปิดอยู่ตั้งค่าไม่ตรงกับที่เซิร์ฟต้องการ (ต้องเปิดเกมใหม่)
-// FiveM อ่าน build / pure / pool / default build จาก CitizenFX.ini ตอนเปิดเกม (CrossBuildLaunch.cpp)
-// และเขียน ini ก่อนรีเกมเองทุกครั้ง ค่าใน ini จึงตรงกับเกมที่กำลังเปิดอยู่
+// build / pure อ่านจากเกมที่เปิดอยู่จริง (CfxInitState) ถ้าอ่านไม่ได้ใช้ CitizenFX.ini
+// pool / default build อ่านจาก ini (FiveM ใช้ค่าจาก ini ตอนเปิดเกม และเขียน ini ก่อนรีเกมเองทุกครั้ง)
 // เงื่อนไขเหมือน NetLibrary.cpp: build ต่าง, pure ของเซิร์ฟสูงกว่า, pool ต่าง, exe build ต่าง
 func gameMismatch(fivemDir string, build, pure, effDefault int, pool string) string {
 	ini := filepath.Join(fivemDir, "FiveM.app", "CitizenFX.ini")
 	def := strconv.Itoa(fivemDefaultBuild)
-	curBuild := atoi(readIni(ini, "Game", "SavedBuildNumber", def))
-	curPure := atoi(readIni(ini, "Game", "PureLevel", "0"))
+	curBuild, curPure, ok := runningLaunchArgs()
+	if !ok {
+		curBuild = atoi(readIni(ini, "Game", "SavedBuildNumber", def))
+		curPure = atoi(readIni(ini, "Game", "PureLevel", "0"))
+	}
 	curPool := normPool(readIni(ini, "Game", "PoolSizesIncrease", ""))
 	curDef := atoi(readIni(ini, "Game", "DefaultBuild", def))
 	var why []string
