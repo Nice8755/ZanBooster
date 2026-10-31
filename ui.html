@@ -1628,7 +1628,7 @@ async function refreshServers() {
   $('#liveTxt').textContent = 'สด · ' + new Date().toTimeString().slice(0, 8);
 }
 // ติดตามจำนวนคนแบบสด: ดึง dynamic.json ทุก 3 วินาที แล้วอัปเดตเฉพาะตัวเลข (ไม่วาดรายการใหม่)
-let liveBusy = false;
+let liveBusy = false, liveN = 0;
 function countTo(el, from, to, max) {
   const t0 = performance.now(), d = 700;
   const f = now => { const k = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(from + (to - from) * e) + (max ? '/' + max : ''); if (k < 1) requestAnimationFrame(f); };
@@ -1656,6 +1656,8 @@ async function liveTick() {
       if (png && v.ping) { png.style.display = ''; png.className = 'tg png ' + (v.ping < 60 ? 'g' : v.ping < 120 ? 'm' : 'b'); const t = $(`#slist [data-pngt="${i}"]`); if (t) t.textContent = Math.round(v.ping) + ' ms'; }
     }));
     $('#liveTxt').textContent = 'สด · ' + new Date().toTimeString().slice(0, 8);
+    // เช็ก build ที่โหลดแล้วทุก ~15 วินาที (ตัวเบื้องหลังจดไว้ตอนเกมเปิดได้) วาดใหม่เฉพาะตอนสถานะเปลี่ยน
+    if (++liveN % 5 === 0) { const before = JSON.stringify(buildState); await checkBuilds(); if (JSON.stringify(buildState) !== before) renderServers(); }
   } finally { liveBusy = false; }
 }
 async function joinServer(i, btn, force = false) {

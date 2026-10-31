@@ -623,6 +623,7 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 	// เกมเปิดอยู่ที่หน้าเมนู และค่าตรงกับเซิร์ฟแล้ว: ส่ง IP เข้าไปเลย ไม่ต้องรีเกม
 	if pid, _ := gtaProcess(); !force && pid != 0 && (menuReady() || gameWindowVisible(pid)) {
 		step("เกมเปิดอยู่ ส่ง IP เข้าไปเลย")
+		a.markBuildSeen(build) // ค่าเกมตรงกับเซิร์ฟ = build นี้อยู่ในเครื่องแล้ว
 		if r, done := sendConnect(fivemDir, link, time.Now().Add(-2*time.Second), 1, step); done {
 			r.Mode = "ไม่รีเกม"
 			return r
@@ -714,6 +715,8 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 		time.Sleep(700 * time.Millisecond)
 	}
 
+	// เกมขึ้นหน้าเมนูได้ = FiveM โหลดไฟล์ของ build นี้ครบแล้ว
+	a.markBuildSeen(build)
 	if r, done := sendConnect(fivemDir, link, start, 3, step); done {
 		r.Mode = mode
 		return r
