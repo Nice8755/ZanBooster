@@ -884,8 +884,7 @@ const TWEAKS = [
   { id: 'PrioSep', cat: 'input', rec: true, title: 'ให้ CPU ตอบสนองหน้าต่างเกมเร็วขึ้น', desc: 'ปรับ Win32PrioritySeparation เป็น 0x26 เกมที่เปิดอยู่จะได้รอบ CPU ถี่ขึ้น' },
   { id: 'MouseAccel', cat: 'input', rec: true, title: 'ปิดเร่งความเร็วเมาส์', desc: 'ขยับเมาส์เท่าเดิม เป้าไปเท่าเดิมทุกครั้ง เล็งง่ายขึ้น' },
   { id: 'UsbSuspend', cat: 'input', rec: true, title: 'ไม่ให้ Windows พักพอร์ต USB', desc: 'กันเมาส์ คีย์บอร์ด หูฟัง สะดุดหรือหลุดไปแป๊บหนึ่ง' },
-  { id: 'FastAltTab', cat: 'input', rec: true, conflict: 'FSO', title: 'Fullscreen แต่ Alt-Tab ไว', desc: 'เล่นโหมด Fullscreen ได้เฟรมกับ input lag เท่าเดิม แต่พับจอได้ทันที ไม่มีจอดำ' },
-  { id: 'FSO', cat: 'input', rec: false, conflict: 'FastAltTab', warn: 'Alt-Tab จอดำ', title: 'Fullscreen Exclusive แบบเดิม', desc: 'บังคับโหมด Exclusive บางเครื่อง input lag ต่ำลงนิดหน่อย แต่พับจอจะดำ 1-3 วินาที ใช้พร้อมกับ Alt-Tab ไว ไม่ได้' },
+  { id: 'FastAltTab', cat: 'input', rec: true, title: 'Fullscreen แต่ Alt-Tab ไว', desc: 'เล่นโหมด Fullscreen ได้เฟรมกับ input lag เท่าเดิม แต่พับจอได้ทันที ไม่มีจอดำ' },
   { id: 'NetThrottle', cat: 'net', rec: true, title: 'ปิด Network Throttling', desc: 'Windows จะจำกัดเน็ตตอนเปิดเพลงหรือวิดีโอ ปิดแล้วปิงแกว่งน้อยลง' },
   { id: 'Nagle', cat: 'net', rec: true, title: 'ส่งแพ็กเก็ตทันที (ปิด Nagle)', desc: 'ไม่ต้องรอรวมแพ็กเก็ตก่อนส่ง ช่วยตอนโหลดเข้าเซิร์ฟและส่วนที่ใช้ TCP' },
   { id: 'Adapter', cat: 'net', rec: false, warn: 'เน็ตหลุดแป๊บหนึ่ง', title: 'ตั้งค่าการ์ดแลน', desc: 'ปิด Interrupt Moderation และโหมดประหยัดไฟของการ์ดแลน ได้ผลกับสายแลน' },
@@ -1048,9 +1047,9 @@ function onStep(ev) {
   el.className = 'st ' + ev.state;
   if (ev.state === 'fail' && ev.m) el.querySelector('em').textContent = ev.m;
   if (ev.state === 'run' && ev.i === 1) $('#mMsg').textContent = 'กำลังปรับ...';
-  if (ev.state === 'run') { el.scrollIntoView({ block: 'nearest' }); log('→ ' + byId[ev.id].title, 'in'); }
-  if (ev.state === 'ok') log('  ✓ ' + byId[ev.id].title, 'ok');
-  if (ev.state === 'fail') log('  ✕ ' + byId[ev.id].title + ': ' + (ev.m || ''), 'er');
+  if (ev.state === 'run') { el.scrollIntoView({ block: 'nearest' }); log('→ ' + (byId[ev.id]?.title || ev.id), 'in'); }
+  if (ev.state === 'ok') log('  ✓ ' + (byId[ev.id]?.title || ev.id), 'ok');
+  if (ev.state === 'fail') log('  ✕ ' + (byId[ev.id]?.title || ev.id) + ': ' + (ev.m || ''), 'er');
   if (ev.state !== 'run') $('#pbar').style.width = (ev.i / ev.n * 100) + '%';
 }
 async function applyIds(ids, title) {

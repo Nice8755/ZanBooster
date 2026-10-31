@@ -1,6 +1,6 @@
 {
-  "version": "1.9.2",
-  "sha256": "8a3e7021f475451d9df4776c1dfaad4e3a52ddc06b82e236bd0c9eb77e2d0b7d",
+  "version": "1.9.3",
+  "sha256": "0f7e9275f3735bc8d6e684adf16e7254a3ee248904c81f100748fe3bd57ec576",
   "file": "release/ZanBooster.exe",
-  "notes": "เพิ่มหน้าวิธีใช้ เด้งตอนเปิดโปรแกรมครั้งแรก และเปิดดูอีกได้ที่ปุ่ม ? มุมขวาบน"
+  "notes": "เอาตัวเลือก Fullscreen Exclusive แบบเดิมออก (ใช้ Fullscreen แต่ Alt-Tab ไว แทน)"
 }
