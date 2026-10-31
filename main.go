@@ -28,7 +28,7 @@ var engineScript []byte
 //go:embed ui.html
 var uiHTML string
 
-const appVersion = "1.7.2"
+const appVersion = "1.7.3"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -102,6 +102,11 @@ func main() {
 	}
 	if maxH := int(sh) * 90 / 100; height > maxH {
 		height = maxH
+	}
+
+	// เครื่องที่ไม่มี WebView2 (เช่น Windows LTSC / Windows ตัดแต่ง) ติดตั้งให้อัตโนมัติ
+	if !hasWebView2() {
+		installWebView2()
 	}
 
 	// ลดทรัพยากรของ WebView2: process เดียวสำหรับหน้าจอ ปิดฟีเจอร์เบื้องหลังที่ไม่ใช้
