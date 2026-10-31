@@ -432,6 +432,35 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
 .cstat small{font-size:11px;color:var(--muted)}
 .cnote{font-size:11.5px;color:var(--muted);line-height:1.5;margin:0 0 12px}
 #cDays .tab{padding:4px 10px;font-size:11.5px}
+
+.guide{width:min(700px,94vw);padding:22px 26px}
+.guide .gh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.guide h3{margin:0;font-family:var(--head);font-size:20px;letter-spacing:1px}.guide h3 span{color:var(--cyan)}
+.gdots{display:flex;gap:6px;margin-top:8px}.gdots i{width:22px;height:4px;border-radius:3px;background:#22304f;transition:.25s}.gdots i.on{background:linear-gradient(90deg,var(--cyan),var(--violet));width:34px}
+.gx{width:32px;height:32px;border-radius:8px;color:var(--muted)}.gx:hover{background:rgba(255,255,255,.06);color:#fff}
+.gpages{position:relative;min-height:330px}
+.gp{display:none;animation:gin .25s ease}.gp.show{display:block}
+@keyframes gin{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+.gt{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;margin-bottom:12px}
+.gt b{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-family:var(--head);color:#021018;background:linear-gradient(135deg,var(--cyan),var(--violet))}
+.gt small{font-size:11.5px;font-weight:400;color:var(--muted);padding:2px 8px;border:1px solid var(--line2);border-radius:20px}
+.guide ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:9px;font-size:13.5px;line-height:1.55;color:#c9d4ec}
+.guide ol li::marker{color:var(--cyan);font-weight:700}
+.guide a[data-gg]{color:var(--cyan);font-weight:700;cursor:pointer;border-bottom:1px dashed rgba(0,229,255,.5)}
+.guide a[data-gg]:hover{color:#fff}
+.guide code{font-family:var(--mono);font-size:12px;padding:1px 6px;border-radius:5px;background:rgba(0,0,0,.4);color:var(--amber)}
+.gchips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.gchips span{padding:8px 10px;border-radius:9px;background:rgba(0,0,0,.28);border:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.4}
+.gchips b{display:block;color:#fff;font-size:13px}
+.gnote,.gtip{margin-top:6px;font-size:12.5px;color:var(--lime)}
+.gtip{margin-top:14px;padding:10px 12px;border-radius:9px;background:rgba(57,255,156,.07);border:1px solid rgba(57,255,156,.25)}
+.gpl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.gpl li{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:9px 12px;border-radius:9px;background:rgba(0,0,0,.25);font-size:12.8px;line-height:1.55}
+.gpl span{color:#c9d4ec}
+.gpl li>a{justify-self:start;align-self:start}
+.guide .gf{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.guide .gf small{font-size:11.5px;color:var(--muted)}.guide .gf div{display:flex;gap:8px}
+#gBack{visibility:hidden}
 </style>
 </head>
 <body>
@@ -448,6 +477,7 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
     <button class="upd" id="bUpd" style="display:none"></button>
     <div class="pill gmpill" id="gmPill" title="โหมดเล่นเกมกำลังทำงาน"><span class="dot"></span>โหมดเล่นเกม</div><div class="pill" id="fivemPill"><span class="dot"></span><span id="fivemTxt">FiveM ยังไม่เปิด</span></div>
     <div class="winbtns">
+      <button class="winbtn" id="bHelp" title="วิธีใช้"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .8c0 1.8-2.5 2.2-2.5 3.8"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg></button>
       <button class="winbtn" id="bMin" title="ย่อ"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 6h10" stroke="currentColor" stroke-width="1.4"/></svg></button>
       <button class="winbtn x" id="bClose" title="ปิด"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1 1 11" stroke="currentColor" stroke-width="1.4"/></svg></button>
     </div>
@@ -706,6 +736,7 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
           <div class="abby" id="abBy"></div>
           <div class="abacts">
             <button class="btn pri" id="bCheckUpd">ตรวจหาอัปเดต</button>
+            <button class="btn" id="bGuide">วิธีใช้</button>
             <button class="btn" id="bReport">ส่งรายงานปัญหา</button>
             <button class="btn" id="bContact" style="display:none">ติดต่อผู้พัฒนา</button>
           </div>
@@ -737,6 +768,44 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
 </div>
 
 <!-- modal -->
+<div class="ov" id="gov"><div class="card modal guide">
+  <div class="gh"><div><h3>วิธีใช้ <span>Zan Booster</span></h3><div class="gdots"><i class="on"></i><i></i><i></i></div></div><button class="gx" id="gX" title="ปิด">✕</button></div>
+  <div class="gpages">
+    <div class="gp show">
+      <div class="gt"><b>1</b>ครั้งแรกที่ใช้ <small>ทำครั้งเดียว</small></div>
+      <ol>
+        <li>คลิกขวาที่ ZanBooster.exe → <b>Run as administrator</b> โปรแกรมต้องใช้สิทธิ์นี้ถึงจะปรับเครื่องได้</li>
+        <li>ไปหน้า <a data-gg="health">ตรวจเครื่อง</a> ดูว่าเครื่องมีจุดไหนต้องแก้</li>
+        <li>ไปหน้า <a data-gg="opt">ปรับแต่ง</a> เลือกค่าที่อยากปรับ แล้วกดใช้ โปรแกรมเก็บค่าเดิมไว้ทุกครั้ง อยากคืนค่ากด "คืนค่า" ได้ตลอด</li>
+        <li>ไปหน้า <a data-gg="gfx">กราฟิกเกม</a> เลือกแบบที่ต้องการ
+          <div class="gchips"><span><b>ลื่นสุด</b>ต่ำสุดทุกอย่าง เน้น FPS</span><span><b>สมดุล</b>คำนวณจากสเปคเครื่อง</span><span><b>สวย</b>สูงสุดเท่าที่เครื่องรับไหว</span></div></li>
+        <li>รีสตาร์ทเครื่อง 1 ครั้ง</li>
+      </ol>
+    </div>
+    <div class="gp">
+      <div class="gt"><b>2</b>ทุกครั้งที่จะเล่น</div>
+      <ol>
+        <li>เปิด Zan Booster → <a data-gg="dash">หน้าหลัก</a></li>
+        <li>ถ้ายังไม่มีเซิร์ฟในรายการ ให้ใส่ IP:Port หรือโค้ด <code>cfx.re/join/xxxxxx</code> แล้วกด <b>เพิ่มเซิร์ฟ</b> รายการจะโชว์ชื่อเซิร์ฟ ธงประเทศ ปิง และจำนวนคนแบบสด</li>
+        <li>กด <b>เข้า</b> ที่เซิร์ฟที่ต้องการ ปุ่มจะบอกว่าทำอะไรอยู่ (เปิดเกม → รอหน้าเมนู → ส่ง IP)
+          <div class="gnote">ถ้าเปิด FiveM ค้างไว้ที่หน้าเมนูก่อน จะเข้าได้เลย ไม่ต้องรีเกม</div></li>
+        <li>พอเข้าเกมแล้ว <b>ปิดหน้าโปรแกรมได้เลย</b> โหมดเล่นเกมยังทำงานต่อจนออกเกม</li>
+      </ol>
+      <div class="gtip">ถ้าติ๊ก "เตรียมเครื่องก่อนเข้า" ไว้ โปรแกรมจะปิดโปรแกรมที่กินเครื่องและล้างแรมให้ก่อนเข้าเซิร์ฟ</div>
+    </div>
+    <div class="gp">
+      <div class="gt"><b>3</b>หน้าอื่น ๆ</div>
+      <ul class="gpl">
+        <li><a data-gg="boost">บูสต์</a><span>กดทีเดียว เครื่องเร็วขึ้นทันทีแบบชั่วคราว</span></li>
+        <li><a data-gg="net">วัดปิง</a><span>ดูปิงกับอาการเน็ตกระตุก</span></li>
+        <li><a data-gg="tools">เครื่องมือ</a><span><b>แท็บ เครื่องมือ:</b> ล้างแคช FiveM, ล้างไฟล์ขยะ, ดัน Priority, เตรียมเครื่องก่อนเล่น<br><b>แท็บ โหมดเล่นเกม:</b> เปิด/ปิดแต่ละข้อได้ ดูว่าอะไรเป็นตัวถ่วง และล้างไฟล์เก่าในแคชเซิร์ฟ (ต้องปิด FiveM ก่อน)<br><b>แท็บ คำแนะนำการตั้งค่า:</b> ทิปปรับในเกมและการ์ดจอ</span></li>
+        <li><a data-gg="log">บันทึก</a><span>ดูว่าโปรแกรมทำอะไรไปบ้าง ถ้ามีปัญหาส่งภาพหน้านี้มาให้ดู</span></li>
+        <li><a data-gg="about">เกี่ยวกับ</a><span>เช็กอัปเดต และส่งรายงานปัญหา</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="gf"><small>เปิดดูอีกครั้งได้ที่ปุ่ม ? มุมขวาบน</small><div><button class="btn" id="gBack">ย้อนกลับ</button><button class="btn pri" id="gNext">ถัดไป</button></div></div>
+</div></div>
 <div class="ov" id="ov"><div class="card modal" id="modal"></div></div>
 <div class="toasts" id="toasts"></div>
 
@@ -1373,7 +1442,7 @@ window.loadRecent().then(t => {
 
 /* ================= settings / pre-join ================= */
 let settings = {};
-window.loadSettings().then(t => { try { settings = JSON.parse(t) || {}; } catch (e) { settings = {}; } $('#optPreJoin').classList.toggle('on', !!settings.preJoin); $('#optAutoPrio').classList.toggle('on', settings.autoPrio !== false); gmPaint(); });
+window.loadSettings().then(t => { try { settings = JSON.parse(t) || {}; } catch (e) { settings = {}; } $('#optPreJoin').classList.toggle('on', !!settings.preJoin); $('#optAutoPrio').classList.toggle('on', settings.autoPrio !== false); gmPaint(); if (!settings.guideSeen) setTimeout(() => guideOpenFn(0), 600); });
 $('#optAutoPrio').onclick = () => { $('#optAutoPrio').classList.toggle('on'); settings.autoPrio = $('#optAutoPrio').classList.contains('on'); window.saveSettings(JSON.stringify(settings)); };
 $('#optPreJoin').onclick = () => { $('#optPreJoin').classList.toggle('on'); settings.preJoin = $('#optPreJoin').classList.contains('on'); window.saveSettings(JSON.stringify(settings)); };
 async function prepareBeforeJoin() {
@@ -1437,13 +1506,36 @@ $('#bCacheOld').onclick = async () => {
   toast(`ลบไฟล์เก่า ${r.deleted.toLocaleString()} ไฟล์ ได้พื้นที่คืน ${gb(r.freedMB)}`, 'ok'); log(`✓ ล้างแคชเซิร์ฟที่ไม่ได้ใช้เกิน ${cDays} วัน: ${r.deleted} ไฟล์ ${gb(r.freedMB)}`, 'ok');
   cachePaint(r);
 };
+
+/* ================= วิธีใช้ (เด้งครั้งแรก) ================= */
+let gPage = 0, guideOpen = false;
+function guideShow(p) {
+  gPage = Math.max(0, Math.min(2, p));
+  $$('#gov .gp').forEach((x, i) => x.classList.toggle('show', i === gPage));
+  $$('#gov .gdots i').forEach((x, i) => x.classList.toggle('on', i === gPage));
+  $('#gBack').style.visibility = gPage ? 'visible' : 'hidden';
+  $('#gNext').textContent = gPage === 2 ? 'เริ่มใช้งาน' : 'ถัดไป';
+}
+function guideOpenFn(p = 0) { guideOpen = true; guideShow(p); $('#gov').classList.add('show'); }
+function guideClose() {
+  guideOpen = false; $('#gov').classList.remove('show');
+  if (!settings.guideSeen) { settings.guideSeen = true; window.saveSettings(JSON.stringify(settings)); }
+}
+$('#gNext').onclick = () => gPage === 2 ? guideClose() : guideShow(gPage + 1);
+$('#gBack').onclick = () => guideShow(gPage - 1);
+$('#gX').onclick = guideClose;
+$('#gov').addEventListener('click', e => { if (e.target.id === 'gov') guideClose(); });
+document.addEventListener('keydown', e => { if (!guideOpen) return; if (e.key === 'Escape') guideClose(); else if (e.key === 'ArrowRight') guideShow(gPage + 1); else if (e.key === 'ArrowLeft') guideShow(gPage - 1); });
+$$('#gov [data-gg]').forEach(a => a.onclick = () => { guideClose(); go(a.dataset.gg); });
+$('#bHelp').onclick = () => guideOpenFn(0);
+$('#bGuide').onclick = () => guideOpenFn(0);
 /* ================= update / about ================= */
 let updInfo = null, promptedVer = null;
 // เด้งถามอัปเดต 1 ครั้งต่อการเปิดโปรแกรม: รอให้งานสแกนตอนเปิดเสร็จ และไม่มีหน้าต่างอื่นค้างอยู่ก่อน
 function promptUpdateOnce() {
   const u = updInfo;
   if (!u?.available || promptedVer === u.latest) return;
-  if (job || $('#ov').classList.contains('show') || !booted) { setTimeout(promptUpdateOnce, 800); return; }
+  if (job || guideOpen || $('#ov').classList.contains('show') || !booted) { setTimeout(promptUpdateOnce, 800); return; }
   promptedVer = u.latest; doUpdate();
 }
 window.onUpdate = u => {
