@@ -75,8 +75,44 @@ func (a *app) checkUpdate() bool {
 		if updateRepo == "" {
 			return
 		}
-		// ช่องทางหลัก: ไฟล์ latest.json ใน repo (อัปเดตได้ด้วยการ push อย่างเดียว)
-		if r, err := ghGet("https://raw.githubusercontent.com/" + updateRepo + "/main/latest.json"); err == nil {
+		// ช่องทางหลัก: GitHub Releases (อัปเดตทันทีที่ปล่อย)
+		resp, err := ghGet("https://api.github.com/repos/" + updateRepo + "/releases/latest")
+		relOK := false
+		if err == nil {
+			defer resp.Body.Close()
+			relOK = resp.StatusCode == 200
+		}
+		if relOK {
+			var rel struct {
+				Tag    string `json:"tag_name"`
+				Body   string `json:"body"`
+				Assets []struct {
+					Name string `json:"name"`
+					URL  string `json:"browser_download_url"`
+					Size int64  `json:"size"`
+				} `json:"assets"`
+			}
+			if json.NewDecoder(resp.Body).Decode(&rel) == nil && rel.Tag != "" {
+				ui.Latest, ui.Notes = strings.TrimPrefix(rel.Tag, "v"), rel.Body
+				for _, as := range rel.Assets {
+					if strings.EqualFold(as.Name, "ZanBooster.exe") {
+						ui.URL, ui.Size = as.URL, as.Size
+					}
+				}
+				// ค่า SHA256 ใส่ไว้ในคำอธิบาย release บรรทัด "SHA256: xxxx"
+				for _, line := range strings.Split(rel.Body, "\n") {
+					if i := strings.Index(strings.ToUpper(line), "SHA256:"); i >= 0 {
+						ui.SHA256 = strings.ToLower(strings.TrimSpace(line[i+7:]))
+					}
+				}
+				ui.Available = ui.URL != "" && newerThan(ui.Latest, appVersion)
+				if ui.URL != "" {
+					return
+				}
+			}
+		}
+		// สำรอง: ไฟล์ latest.json ใน repo (ใส่เวลาต่อท้ายกันแคช)
+		if r, err := ghGet("https://raw.githubusercontent.com/" + updateRepo + "/main/latest.json?t=" + strconv.FormatInt(time.Now().Unix(), 10)); err == nil {
 			var lj struct {
 				Version string `json:"version"`
 				SHA256  string `json:"sha256"`
@@ -95,43 +131,7 @@ func (a *app) checkUpdate() bool {
 				return
 			}
 		}
-		// สำรอง: GitHub Releases
-		resp, err := ghGet("https://api.github.com/repos/" + updateRepo + "/releases/latest")
-		if err != nil {
-			ui.Err = "ต่อ GitHub ไม่ได้"
-			return
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != 200 {
-			ui.Err = fmt.Sprintf("GitHub ตอบ %d", resp.StatusCode)
-			return
-		}
-		var rel struct {
-			Tag    string `json:"tag_name"`
-			Body   string `json:"body"`
-			Assets []struct {
-				Name string `json:"name"`
-				URL  string `json:"browser_download_url"`
-				Size int64  `json:"size"`
-			} `json:"assets"`
-		}
-		if json.NewDecoder(resp.Body).Decode(&rel) != nil {
-			ui.Err = "อ่านข้อมูลเวอร์ชันไม่ได้"
-			return
-		}
-		ui.Latest, ui.Notes = strings.TrimPrefix(rel.Tag, "v"), rel.Body
-		for _, as := range rel.Assets {
-			if strings.EqualFold(as.Name, "ZanBooster.exe") {
-				ui.URL, ui.Size = as.URL, as.Size
-			}
-		}
-		// ค่า SHA256 ใส่ไว้ในคำอธิบาย release บรรทัด "SHA256: xxxx"
-		for _, line := range strings.Split(rel.Body, "\n") {
-			if i := strings.Index(strings.ToUpper(line), "SHA256:"); i >= 0 {
-				ui.SHA256 = strings.ToLower(strings.TrimSpace(line[i+7:]))
-			}
-		}
-		ui.Available = ui.URL != "" && newerThan(ui.Latest, appVersion)
+		ui.Err = "ต่อ GitHub ไม่ได้"
 	}()
 	return true
 }

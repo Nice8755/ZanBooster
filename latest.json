@@ -1,6 +1,6 @@
 {
-  "version": "1.7.5",
-  "sha256": "9aeeb5f0a7fb2e84095f710f924b0db29f7b4c0abf341bcd284a55970a21aec2",
+  "version": "1.7.6",
+  "sha256": "0b952884662aeb8a5626bf519e6c3782d1c2d5724f88633e7c5468ede225262b",
   "file": "release/ZanBooster.exe",
-  "notes": "Power Plan ใหม่: ZAN Project Optimizer\n- บูสต์เครื่องจะใช้ Power Plan ของ ZAN (Extreme Profile) แทน Ultimate Performance\n- ใครบูสต์ไว้แล้ว กดบูสต์เครื่องอีกครั้งเพื่อเปลี่ยนเป็นตัวใหม่"
+  "notes": "อัปเดตได้ทันที\n- เช็กเวอร์ชันใหม่จาก GitHub Releases ตรง ๆ ไม่ต้องรอแคช\n- มีเวอร์ชันใหม่จะเด้งถามอัปเดตเองตอนเปิดโปรแกรม\n- เปิดโปรแกรมทิ้งไว้ก็เช็กให้ทุก 30 นาที"
 }
