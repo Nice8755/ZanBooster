@@ -1,6 +1,6 @@
 {
-  "version": "2.2.0",
-  "sha256": "c8d7960d7ce4fa6f338fab3618a1985e6a02331183653e1914c044305c49addd",
+  "version": "2.2.1",
+  "sha256": "27d8f94f7679fb4de45ecc69aa3b6a2eb54b9496e2937f8b1c6198bd21c3adea",
   "file": "release/ZanBooster.exe",
-  "notes": "ตั้งค่าไดรเวอร์ NVIDIA / AMD ให้ FPS สูงสุดทุกเกม (คืนค่าได้) + ล็อก FPS, ปิด Memory Integrity, ให้ FiveM ใช้การ์ดจอแยก, ตรวจ overlay และ Memory Integrity ในหน้าตรวจเครื่อง"
+  "notes": "การ์ดเซิร์ฟแบบใหม่: ไอคอนใหญ่ขึ้นมีกรอบนีออน, จำนวนคนตัวใหญ่ + แถบแบบแบ่งช่อง + เปอร์เซ็นต์, ปิงมีขีดสัญญาณ"
 }

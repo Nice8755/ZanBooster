@@ -557,6 +557,58 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan)!im
 .tw{padding:13px 16px}
 .hsum{padding:10px 18px!important;margin-bottom:10px!important}.hsum .big{font-size:34px}
 .hlist{gap:8px!important}.hrow.ok{padding-top:9px;padding-bottom:9px}.hrow.ok .hi{width:26px;height:26px}
+
+/* ===== การ์ดเซิร์ฟแบบใหม่ ===== */
+.slist{gap:10px!important}
+.sc{grid-template-columns:72px minmax(0,1fr) 250px auto!important;gap:18px!important;padding:14px 16px 14px 14px!important;border-radius:14px!important;
+  background:linear-gradient(100deg,rgba(0,229,255,.05),rgba(8,12,24,.6) 35%,rgba(139,92,255,.05))!important;border:1px solid rgba(0,229,255,.16)!important;overflow:hidden}
+.sc:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(0,229,255,.06),transparent);transform:translateX(-100%);transition:transform .6s}
+.sc:hover:after{transform:translateX(100%)}
+.sc .sic{width:72px!important;height:72px!important;border-radius:16px!important;padding:2px;background:linear-gradient(135deg,var(--cyan),var(--violet) 55%,var(--mag))!important;box-shadow:0 0 22px rgba(0,229,255,.25)!important;overflow:visible!important;position:relative}
+.sc .sic .sicin{width:100%;height:100%;border-radius:14px;overflow:hidden;display:grid;place-items:center;background:#0b1222;font-family:var(--head);font-weight:700;font-size:22px;color:var(--cyan)}
+.sc .sic img{width:100%;height:100%;object-fit:cover;display:block}
+.sc .smid{min-width:0}
+.sc .sn{gap:9px}
+.sc .sn b{font-size:15.5px!important;font-weight:700!important;letter-spacing:.2px}
+.sc .sn img.flag{width:24px;height:16px}
+.sc .row3{margin-top:10px!important;gap:7px!important}
+.sc .tg{font-size:11.5px;padding:3px 9px;border-radius:7px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.06)}
+.sc .tg.png{display:inline-flex;align-items:center;gap:6px;font-family:var(--head);font-weight:600}
+.sc .tg.png.g{color:var(--lime)}.sc .tg.png.m{color:var(--amber)}.sc .tg.png.b{color:var(--red)}
+.sig{display:inline-flex;align-items:flex-end;gap:2px;height:11px}
+.sig i{width:3px;border-radius:1px;background:currentColor;opacity:.9}
+.sig i:nth-child(1){height:4px}.sig i:nth-child(2){height:6px}.sig i:nth-child(3){height:8px}.sig i:nth-child(4){height:11px}
+.png.m .sig i:nth-child(4){opacity:.2}.png.b .sig i:nth-child(3),.png.b .sig i:nth-child(4){opacity:.2}
+.sc .plcol{gap:6px!important}
+.sc .pl{align-items:baseline!important;gap:6px!important}
+.sc .pl b{font-family:var(--head)!important;font-size:28px!important;font-weight:700!important;line-height:1;color:#fff;letter-spacing:.5px;
+  background:linear-gradient(180deg,#fff,#9ff3ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 10px rgba(0,229,255,.35))}
+.sc .pmax{font-family:var(--head);font-size:13px;color:var(--muted)}
+.sc .pl .dl{font-size:12px!important;margin-left:auto}
+.pseg{position:relative;height:9px;border-radius:3px;background:#141d33;overflow:hidden;
+  -webkit-mask:repeating-linear-gradient(90deg,#000 0 7px,transparent 7px 9px);mask:repeating-linear-gradient(90deg,#000 0 7px,transparent 7px 9px)}
+.pseg i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--violet) 60%,var(--mag));box-shadow:0 0 12px rgba(0,229,255,.6);transition:width .7s}
+.pseg i.hot{background:linear-gradient(90deg,var(--amber),var(--mag))}
+.psub{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.psub span:last-child{font-family:var(--head);color:#c6d2ea}
+.sc .join{display:inline-flex;align-items:center;gap:6px;padding:12px 18px!important;border-radius:11px!important;font-size:14px!important;box-shadow:0 0 18px rgba(0,229,255,.35)}
+.sc .join svg{width:15px;height:15px;transition:transform .15s}
+.sc .join:hover svg{transform:translateX(3px)}
+.sc.off .pl b{background:none;-webkit-text-fill-color:var(--red);color:var(--red);font-size:20px!important;filter:none}
+.sc.off .sic{filter:grayscale(1);opacity:.6}
+
+.sc{grid-template-columns:76px minmax(0,1fr) auto!important;align-items:center}
+.sc .sic{width:76px!important;height:76px!important}
+.sc .srow{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:16px;align-items:end;margin-top:8px}
+.sc .srow .row3{margin-top:0!important;flex-wrap:wrap!important;overflow:visible!important;align-self:center}
+.sc .sn b{font-size:16px!important}
+
+.sc .sn .tg.png{margin-left:auto;flex:none}
+.sc .srow{grid-template-columns:minmax(0,1fr) 220px}
+.sc .srow .row3{flex-wrap:nowrap!important;overflow:hidden!important}
+.sc .srow{grid-template-columns:minmax(0,1fr) 196px;gap:12px}
+.sc .srow .tg{font-size:11px;padding:2px 7px}
+.sc .srow .row3{gap:5px!important}
 </style>
 </head>
 <body>
@@ -1531,15 +1583,23 @@ function renderServers() {
   $('#slist').innerHTML = servers.map((v, i) => {
     const pct = v.maxPlayers ? Math.min(100, v.players / v.maxPlayers * 100) : 0;
     const icon = v.icon ? `<img src="${v.icon}">` : esc((v.name || '?').replace(/[^A-Za-z0-9ก-๙]/g, '').slice(0, 2).toUpperCase() || '5M');
+    const pq = v.ping ? (v.ping < 60 ? 'g' : v.ping < 120 ? 'm' : 'b') : 'g';
+    const fill = pct >= 85 ? ' hot' : '';
     return `<div class="sc ${v.offline ? 'off' : ''}" data-i="${i}">
       <button class="rm" data-rm="${i}" title="ลบออก">✕</button>
-      <div class="sic">${icon}</div>
-      <div style="min-width:0">
-        <div class="sn">${flagImg(v.country)}<b title="${esc(v.name)}">${esc(v.name)}</b></div>
-        <div class="row3"><span class="tg png" data-png="${i}"${v.ping ? '' : ' style="display:none"'}>${Math.round(v.ping || 0)} ms</span>${v.build ? (() => { const c = buildState[v.build]; return c?.known && !c.cached ? `<span class="tg warnb" title="เข้าครั้งแรก FiveM จะโหลดไฟล์ของ build นี้ครั้งเดียว">b${v.build} · โหลด ${gb(c.missingMB)}</span>` : `<span class="tg${c?.cached ? ' okb' : ''}">b${v.build}${c?.cached ? ' ✓' : ''}</span>`; })() : ''}${v.pure ? `<span class="tg">Pure ${v.pure}</span>` : ''}${v.poolCount ? '<span class="tg">Pool+</span>' : ''}</div>
+      <div class="sic"><span class="sicin">${icon}</span></div>
+      <div class="smid">
+        <div class="sn">${flagImg(v.country)}<b title="${esc(v.name)}">${esc(v.name)}</b><span class="tg png ${pq}" data-png="${i}"${v.ping ? '' : ' style="display:none"'}><span class="sig"><i></i><i></i><i></i><i></i></span><span data-pngt="${i}">${Math.round(v.ping || 0)} ms</span></span></div>
+        <div class="srow">
+          <div class="row3">${v.build ? (() => { const c = buildState[v.build]; return c?.known && !c.cached ? `<span class="tg warnb" title="เข้าครั้งแรก FiveM จะโหลดไฟล์ของ build นี้ครั้งเดียว">b${v.build} ⬇ ${gb(c.missingMB)}</span>` : `<span class="tg${c?.cached ? ' okb' : ''}">b${v.build}${c?.cached ? ' ✓' : ''}</span>`; })() : ''}${v.pure ? `<span class="tg">Pure ${v.pure}</span>` : ''}${v.poolCount ? '<span class="tg">Pool+</span>' : ''}</div>
+          <div class="plcol">
+        <div class="pl"><b data-pl="${i}">${v.offline ? 'OFFLINE' : (v.players ?? '-')}</b>${v.offline ? '' : `<span class="pmax" data-pmax="${i}">/ ${v.maxPlayers || '-'}</span>`}<em class="dl" data-dl="${i}"></em></div>
+        <div class="pseg"><i class="${fill}" data-bar="${i}" style="width:${pct}%"></i></div>
+        <div class="psub"><span>${v.offline ? 'เซิร์ฟไม่ตอบ' : 'ผู้เล่นออนไลน์'}</span><span data-pct="${i}">${v.offline ? '' : Math.round(pct) + '%'}</span></div>
       </div>
-      <div class="plcol"><div class="pl"><b data-pl="${i}">${v.offline ? 'ออฟไลน์' : (v.players ?? '-') + (v.maxPlayers ? '/' + v.maxPlayers : '')}</b><small>${v.offline ? '' : 'คน'}</small><em class="dl" data-dl="${i}"></em></div><div class="pbar"><i data-bar="${i}" style="width:${pct}%"></i></div></div>
-      <button class="join" data-join="${i}">เข้า</button></div>`;
+        </div>
+      </div>
+      <button class="join" data-join="${i}">เข้า<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button></div>`;
   }).join('');
   $$('#slist [data-rm]').forEach(b => b.onclick = async e => { e.stopPropagation(); const v = servers[+b.dataset.rm]; if (!await confirmBox('ลบเซิร์ฟ', `ลบ "${v.name}" ออกจากรายการ?`, 'ลบ')) return; servers.splice(+b.dataset.rm, 1); saveServers(); renderServers(); });
   $$('#slist [data-join]').forEach(b => b.onclick = e => { e.stopPropagation(); joinServer(+b.dataset.join, b); });
@@ -1586,11 +1646,14 @@ async function liveTick() {
       if (v.offline) { v.offline = false; Object.assign(v, { players: st.players, maxPlayers: st.maxPlayers || v.maxPlayers, ping: st.ping }); renderServers(); return; }
       const old = v.players ?? st.players; v.players = st.players; v.maxPlayers = st.maxPlayers || v.maxPlayers; v.ping = st.ping;
       if (b && old !== v.players) {
-        countTo(b, old, v.players, v.maxPlayers);
+        countTo(b, old, v.players, 0);
         if (dl) { const d = v.players - old; dl.textContent = (d > 0 ? '+' : '') + d; dl.className = 'dl ' + (d > 0 ? 'up' : 'dn'); clearTimeout(dl._t); dl._t = setTimeout(() => { dl.className = 'dl'; }, 1800); }
-      } else if (b) b.textContent = v.players + (v.maxPlayers ? '/' + v.maxPlayers : '');
-      if (bar) bar.style.width = (v.maxPlayers ? Math.min(100, v.players / v.maxPlayers * 100) : 0) + '%';
-      if (png && v.ping) { png.style.display = ''; png.textContent = Math.round(v.ping) + ' ms'; }
+      } else if (b) b.textContent = v.players;
+      const pc = v.maxPlayers ? Math.min(100, v.players / v.maxPlayers * 100) : 0;
+      if (bar) { bar.style.width = pc + '%'; bar.classList.toggle('hot', pc >= 85); }
+      const pm = $(`#slist [data-pmax="${i}"]`), pt = $(`#slist [data-pct="${i}"]`);
+      if (pm) pm.textContent = '/ ' + (v.maxPlayers || '-'); if (pt) pt.textContent = Math.round(pc) + '%';
+      if (png && v.ping) { png.style.display = ''; png.className = 'tg png ' + (v.ping < 60 ? 'g' : v.ping < 120 ? 'm' : 'b'); const t = $(`#slist [data-pngt="${i}"]`); if (t) t.textContent = Math.round(v.ping) + ' ms'; }
     }));
     $('#liveTxt').textContent = 'สด · ' + new Date().toTimeString().slice(0, 8);
   } finally { liveBusy = false; }
