@@ -314,6 +314,8 @@ canvas#pingChart{width:100%;height:196px;display:block}
 .sc .join{margin-left:auto;padding:6px 14px;border-radius:8px;font-size:12.5px;font-weight:700;color:#021018;background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 12px rgba(0,229,255,.3)}
 .sc .join:hover{box-shadow:0 0 18px rgba(0,229,255,.6)}
 .sc .join:disabled{opacity:.5}
+.sc .join.busy{opacity:1;min-width:92px;font-size:11px;animation:jb 1.2s ease-in-out infinite}
+@keyframes jb{50%{box-shadow:0 0 20px rgba(0,229,255,.7)}}
 .sc .rm{position:absolute;top:6px;right:8px;font-size:12px;color:var(--dim);opacity:0;transition:.15s}
 .sc:hover .rm{opacity:1}.sc .rm:hover{color:var(--red)}
 .sc.off{opacity:.55}
@@ -706,7 +708,7 @@ if (!NATIVE) {
   window.checkBuild = async (d, b) => ({ known: true, cached: b !== 2802, missingMB: 1505 });
   window.serverStatus = async (b, id) => { setTimeout(() => window.onServerStatus({ reqId: id, ok: !b.includes('dead'), players: Math.floor(100 + Math.random() * 150), maxPlayers: 300, ping: 15 + Math.random() * 30 }), 200); return true; };
   window.serverLookup = async (v, id) => { setTimeout(() => window.onServerInfo({ reqId: id, ok: true, input: v, connect: v, base: 'http://' + v + '/', icon: MI, country: v.startsWith('9') ? 'DE' : 'TH', hostname: v.startsWith('9') ? 'German Roleplay Community' : 'Zan City RP | ภาษาไทย | Economy | Gang', players: 187, maxPlayers: 300, ping: 18, build: 3095, pure: 1, pool: '{"CMoveObject":200,"TxdStore":5000}', poolCount: 2, effDefault: 3095, onesync: 'true', resources: 412 }), 500); return true; };
-  window.launchServer = async (d, c, b, p, e, pl, fast, id) => { setTimeout(() => window.onLaunch({ reqId: id, ok: true, mode: fast ? 'เร็ว' : 'ปกติ', cmd: 'FiveM.exe ...' }), 400); return true; };
+  window.launchServer = async (d, c, b, p, e, pl, fast, id) => { ['ปิดเกมเดิม','กำลังเปิด FiveM','รอเกมโหลดหน้าเมนู','หน้าเมนูขึ้นแล้ว รอให้นิ่ง','ส่ง IP เข้าเกม (ครั้งที่ 1)'].forEach((t, i) => setTimeout(() => window.onLaunchStep({ reqId: id, t }), 300 * i)); setTimeout(() => window.onLaunch({ reqId: id, ok: true, cmd: 'fivem://connect/' + c }), 1700); return true; };
   let sets = '{}'; window.loadSettings = async () => sets; window.saveSettings = async x => { sets = x; return true; };
   window.checkUpdate = async () => { setTimeout(() => window.onUpdate({ enabled: true, available: true, current: '1.6.0', latest: '1.6.1', notes: 'แก้บั๊กเล็กน้อย', url: 'x', sha256: '' }), 300); return true; };
   window.applyUpdate = async () => 'ทดสอบ: ไม่ได้อัปเดตจริง';
@@ -1202,6 +1204,8 @@ async function checkBuilds() { if (!fivemDir) return; for (const b of [...new Se
 window.onServerInfo = r => { const f = srvWait[r.reqId]; if (f) { delete srvWait[r.reqId]; f(r); } };
 let lnWait = {};
 window.onLaunch = r => { const f = lnWait[r.reqId]; if (f) { delete lnWait[r.reqId]; f(r); } };
+let lnStep = {};
+window.onLaunchStep = r => { const f = lnStep[r.reqId]; if (f) f(r.t); };
 window.onServerStatus = r => { const f = stWait[r.reqId]; if (f) { delete stWait[r.reqId]; f(r); } };
 const lookup = v => new Promise(res => { const id = ++srvReq; srvWait[id] = res; window.serverLookup(v, id); });
 const srvStatus = base => new Promise(res => { const id = ++srvReq; stWait[id] = res; window.serverStatus(base, id); setTimeout(() => { if (stWait[id]) { delete stWait[id]; res({ ok: false }); } }, 12000); });
@@ -1251,21 +1255,26 @@ async function joinServer(i, btn) {
   const v = servers[i]; if (!v) return;
   if (!fivemDir) { if (await confirmBox('หาโฟลเดอร์ FiveM ไม่เจอ', 'เลือกโฟลเดอร์ที่มีไฟล์ FiveM.exe ก่อน', 'เลือกโฟลเดอร์')) await pickFiveM(); if (!fivemDir) return; }
   const running = $('#fivemPill').classList.contains('on');
-  if (running && !await confirmBox('FiveM เปิดอยู่', 'จะปิดเกมที่เปิดอยู่ แล้วเปิดใหม่ให้ตรงกับเซิร์ฟนี้', 'ปิดแล้วเข้าเซิร์ฟ')) return;
+  if (running && !await confirmBox('FiveM เปิดอยู่', 'จะปิดเกมที่เปิดอยู่ แล้วเปิดใหม่ครั้งเดียวให้ตรงกับเซิร์ฟนี้ รอหน้าเมนูขึ้นก่อนค่อยส่ง IP', 'ปิดแล้วเข้าเซิร์ฟ')) return;
   btn.disabled = true; btn.textContent = '...';
   const r = await lookup(v.connect);
   if (!r.ok) { btn.disabled = false; btn.textContent = 'เข้า'; toast(r.err || 'เซิร์ฟไม่ตอบ', 'er'); return; }
   Object.assign(v, { build: r.build, pure: r.pure, poolCount: r.poolCount, base: r.base, icon: r.icon || v.icon });
   const bc = await window.checkBuild(fivemDir, r.build); buildState[r.build] = bc;
   const fast = !!(bc?.known && bc.cached);
-  if (!fast) toast(`build ${r.build} ยังไม่มีในเครื่อง FiveM จะโหลดให้เองครั้งแรก (อาจรีเกม 1 รอบ) ครั้งต่อไปเข้าได้ทันที`);
+  if (!fast) toast(`build ${r.build} ยังไม่มีในเครื่อง FiveM จะโหลดไฟล์ให้ตอนเปิดเกมครั้งนี้ (ครั้งเดียว)`);
   if (settings.preJoin) { btn.textContent = '...'; await prepareBeforeJoin(); }
-  btn.textContent = 'เปิดเกม';
-  const res = await new Promise(ok => { const id = ++srvReq; lnWait[id] = ok; window.launchServer(fivemDir, r.connect, r.build, r.pure, r.effDefault, r.pool || '', fast, id); });
-  btn.disabled = false; btn.textContent = 'เข้า';
+  btn.textContent = 'เปิดเกม'; btn.classList.add('busy');
+  log(`เข้าเซิร์ฟ ${v.name} (b${r.build}, pure ${r.pure}, pool ${r.poolCount ? r.poolCount + ' รายการ' : 'ปกติ'})`);
+  const res = await new Promise(ok => {
+    const id = ++srvReq; lnWait[id] = ok;
+    lnStep[id] = t => { btn.textContent = t.length > 10 ? t.slice(0, 9) + '…' : t; btn.title = t; $('#liveTxt').textContent = 'FiveM: ' + t; log('› ' + t); };
+    window.launchServer(fivemDir, r.connect, r.build, r.pure, r.effDefault, r.pool || '', fast, id);
+  });
+  btn.disabled = false; btn.textContent = 'เข้า'; btn.title = ''; btn.classList.remove('busy');
   if (!res?.ok) { toast(res?.m || 'เปิดเกมไม่ได้', 'er'); log('✕ ' + (res?.m || 'เปิดเกมไม่ได้') + (res?.cmd ? ' | ' + res.cmd : ''), 'er'); return; }
-  toast(`กำลังเปิด FiveM เข้า ${v.name}`, 'ok');
-  log(`เข้าเซิร์ฟ ${v.name} (b${r.build}, pure ${r.pure}, pool ${r.poolCount ? r.poolCount + ' รายการ' : 'ปกติ'}) โหมด${res.mode || ''}: ${res.cmd || ''}`, 'ok');
+  toast(`เกมพร้อมแล้ว กำลังเชื่อมต่อ ${v.name}`, 'ok');
+  log(`✓ ส่ง IP เข้าเกมแล้ว เกมกำลังเชื่อมต่อ ${res.cmd || ''}`, 'ok');
   servers.splice(i, 1); servers.unshift(v); saveServers(); renderServers();
 }
 $('#bAdd').onclick = addServer;

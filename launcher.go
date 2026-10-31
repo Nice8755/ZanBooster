@@ -394,48 +394,208 @@ func fivemRunningAny() bool {
 	return false
 }
 
-func waitFiveM(sec int) bool {
-	for i := 0; i < sec*2; i++ {
-		if fivemRunningAny() {
+
+// ---- ตรวจสถานะเกม ----
+
+// gtaProcess คืน PID ของตัวเกม (FiveM_b3258_GTAProcess.exe / FiveM_GTAProcess.exe) ถ้ามี
+func gtaProcess() (uint32, string) {
+	snap, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
+	if err != nil {
+		return 0, ""
+	}
+	defer windows.CloseHandle(snap)
+	var pe windows.ProcessEntry32
+	pe.Size = uint32(unsafe.Sizeof(pe))
+	for err := windows.Process32First(snap, &pe); err == nil; err = windows.Process32Next(snap, &pe) {
+		name := windows.UTF16ToString(pe.ExeFile[:])
+		l := strings.ToLower(name)
+		if strings.HasPrefix(l, "fivem") && strings.Contains(l, "gtaprocess") {
+			return pe.ProcessID, name
+		}
+	}
+	return 0, ""
+}
+
+// menuReady = FiveM โหลดหน้าเมนูเสร็จแล้ว
+// ตัวเกมจะ SetEvent("CitizenFX_PreUIExit") ตอนหน้าเมนูขึ้นครบ (UiDone ใน RenderHooks.cpp)
+func menuReady() bool {
+	for _, n := range []string{"CitizenFX_PreUIExit", "CitizenFX_PreUIExitCL2"} {
+		p, _ := windows.UTF16PtrFromString(n)
+		h, err := windows.OpenEvent(windows.SYNCHRONIZE, false, p)
+		if err != nil {
+			continue
+		}
+		r, _ := windows.WaitForSingleObject(h, 0)
+		windows.CloseHandle(h)
+		if r == windows.WAIT_OBJECT_0 {
 			return true
 		}
-		time.Sleep(500 * time.Millisecond)
 	}
 	return false
 }
 
-// launchServer
+var (
+	enumPid     uint32
+	enumVisible bool
+	enumCb      = windows.NewCallback(func(h windows.HWND, _ uintptr) uintptr {
+		var pid uint32
+		windows.GetWindowThreadProcessId(h, &pid)
+		if pid == enumPid && windows.IsWindowVisible(h) {
+			var cls [64]uint16
+			windows.GetClassName(h, &cls[0], 64)
+			if windows.UTF16ToString(cls[:]) == "grcWindow" {
+				enumVisible = true
+				return 0
+			}
+		}
+		return 1
+	})
+)
+
+// gameWindowVisible = หน้าต่างเกมโชว์แล้ว (FiveM ซ่อนไว้จนหน้าเมนูโหลดเสร็จ)
+func gameWindowVisible(pid uint32) bool {
+	enumPid, enumVisible = pid, false
+	windows.EnumWindows(enumCb, nil)
+	return enumVisible
+}
+
+// logSince อ่าน log ล่าสุดของ FiveM ที่เขียนหลังเวลา t (ไฟล์เปิดอยู่ก็อ่านได้)
+func logSince(fivemDir string, t time.Time) string {
+	dir := filepath.Join(fivemDir, "FiveM.app", "logs")
+	es, err := os.ReadDir(dir)
+	if err != nil {
+		return ""
+	}
+	var out strings.Builder
+	for _, e := range es {
+		if !strings.HasPrefix(e.Name(), "CitizenFX_log_") {
+			continue
+		}
+		if info, err := e.Info(); err == nil && info.ModTime().After(t) {
+			if f, err := os.Open(filepath.Join(dir, e.Name())); err == nil {
+				if info.Size() > 4<<20 {
+					f.Seek(info.Size()-(4<<20), 0)
+				}
+				b, _ := io.ReadAll(f)
+				f.Close()
+				out.Write(b)
+			}
+		}
+	}
+	return out.String()
+}
+
+func explorerOpen(target string) error {
+	return exec.Command(filepath.Join(os.Getenv("SystemRoot"), "explorer.exe"), target).Start()
+}
+
+// launchServer เปิดเกมแบบ 2 จังหวะ ให้เข้าเซิร์ฟได้ในการเปิดเกมรอบเดียว
 //
-//	fast = true  : ตั้ง CitizenFX.ini + -b/-pure ให้ตรงกับเซิร์ฟ เปิดเกมรอบเดียว (ใช้เมื่อ build นั้นมีในเครื่องแล้ว)
-//	fast = false : เปิดแบบเดียวกับกดเข้าเซิร์ฟใน FiveM ปกติ ให้ FiveM จัดการโหลด/สลับ build เอง (ชัวร์ที่สุด)
-func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int, pool string, fast bool) launchResult {
+//  1. ปิด FiveM เดิม แล้วตั้ง CitizenFX.ini ให้ build / pure / pool ตรงกับเซิร์ฟ (ค่าเดียวกับที่ FiveM เขียนเองตอนสลับ build)
+//  2. เปิด FiveM เปล่า ๆ ผ่าน Explorer (ยังไม่ส่ง IP)
+//  3. รอจนหน้าเมนูโหลดเสร็จจริง + รอเพิ่มอีกนิด
+//  4. ค่อยส่ง fivem://connect/IP เข้าไปในเกมที่เปิดอยู่ (ไม่เปิดเกมใหม่) แล้วเช็ก log ว่ากำลังเชื่อมต่อจริง
+func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int, pool string, step func(string)) launchResult {
 	exe := filepath.Join(fivemDir, "FiveM.exe")
 	if _, err := os.Stat(exe); err != nil {
 		return launchResult{Message: "ไม่เจอ FiveM.exe ใน " + fivemDir}
 	}
-	ini := filepath.Join(fivemDir, "FiveM.app", "CitizenFX.ini")
+	link := "fivem://connect/" + connect
+
+	step("ปิดเกมเดิม")
 	if killFiveM() > 0 {
-		time.Sleep(2 * time.Second)
+		for i := 0; i < 20 && fivemRunningAny(); i++ {
+			time.Sleep(250 * time.Millisecond)
+		}
+		time.Sleep(1500 * time.Millisecond)
 	}
+
+	ini := filepath.Join(fivemDir, "FiveM.app", "CitizenFX.ini")
 	mode := "ปกติ"
-	if fast {
-		if _, err := os.Stat(ini); err == nil {
-			// ตั้งค่าเดียวกับที่ FiveM เขียนเองตอนสลับ build (ConnectToNative.cpp) แล้ว FiveM จะเปิดด้วย build/pure นี้เลย
-			writeIni(ini, "Game", "PoolSizesIncrease", pool)
-			writeIni(ini, "Game", "DefaultBuild", strconv.Itoa(effDefault))
-			writeIni(ini, "Game", "PureLevel", strconv.Itoa(pure))
-			writeIni(ini, "Game", "SavedBuildNumber", strconv.Itoa(build))
-			mode = "เร็ว"
+	if _, err := os.Stat(ini); err == nil && build > 0 {
+		writeIni(ini, "Game", "PoolSizesIncrease", pool)
+		writeIni(ini, "Game", "DefaultBuild", strconv.Itoa(effDefault))
+		writeIni(ini, "Game", "PureLevel", strconv.Itoa(pure))
+		writeIni(ini, "Game", "SavedBuildNumber", strconv.Itoa(build))
+		mode = fmt.Sprintf("b%d", build)
+	}
+
+	start := time.Now().Add(-2 * time.Second)
+	step("กำลังเปิด FiveM")
+	if err := explorerOpen(exe); err != nil {
+		return launchResult{Message: "เปิด FiveM ไม่ได้: " + err.Error()}
+	}
+
+	// รอหน้าเมนู: สูงสุด 6 นาที (ครั้งแรกของ build ใหม่ FiveM ต้องโหลดไฟล์ก่อน)
+	step("รอเกมโหลดหน้าเมนู")
+	deadline := time.Now().Add(6 * time.Minute)
+	var pid uint32
+	readySince := time.Time{}
+	sawAny := false
+	for {
+		if time.Now().After(deadline) {
+			return launchResult{Message: "รอหน้าเมนู FiveM นานเกินไป ถ้าเกมขึ้นแล้วให้กดเข้าอีกครั้ง", Cmd: link, Mode: mode}
+		}
+		if fivemRunningAny() {
+			sawAny = true
+		} else if sawAny && time.Since(start) > 20*time.Second {
+			// FiveM ปิดตัวไปเอง (อาจปิดหน้าต่างอัปเดต หรือเกมเด้ง)
+			time.Sleep(3 * time.Second)
+			if !fivemRunningAny() {
+				return launchResult{Message: "FiveM ปิดตัวไประหว่างโหลด ลองเปิด FiveM เองหนึ่งครั้งให้ขึ้นหน้าเมนู แล้วกดเข้าใหม่", Cmd: link, Mode: mode}
+			}
+		} else if !sawAny && time.Since(start) > 40*time.Second {
+			return launchResult{Message: "FiveM ไม่เปิดขึ้นมา ลองเปิด FiveM เองหนึ่งครั้ง แล้วกดเข้าใหม่", Cmd: link, Mode: mode}
+		}
+		p, _ := gtaProcess()
+		ready := p != 0 && (menuReady() || gameWindowVisible(p) || strings.Contains(logSince(fivemDir, start), "Settings loaded!"))
+		if p != pid {
+			pid, readySince = p, time.Time{} // ตัวเกมเปลี่ยน (FiveM รีเกมเพื่อสลับ build) เริ่มนับใหม่
+		}
+		if ready {
+			if readySince.IsZero() {
+				readySince = time.Now()
+				step("หน้าเมนูขึ้นแล้ว รอให้นิ่ง")
+			} else if time.Since(readySince) >= 4*time.Second {
+				break
+			}
+		} else {
+			readySince = time.Time{}
+		}
+		time.Sleep(700 * time.Millisecond)
+	}
+
+	// ส่ง IP เข้าเกมที่เปิดอยู่ แล้วเช็กว่าเริ่มเชื่อมต่อจริง ถ้ายังเงียบส่งซ้ำ (เกมจะไม่ต่อซ้อนถ้าต่ออยู่แล้ว)
+	for try := 1; try <= 3; try++ {
+		sent := time.Now()
+		step(fmt.Sprintf("ส่ง IP เข้าเกม (ครั้งที่ %d)", try))
+		before := len(logSince(fivemDir, start))
+		explorerOpen(link)
+		for i := 0; i < 24; i++ { // ~12 วินาที
+			time.Sleep(500 * time.Millisecond)
+			lg := logSince(fivemDir, start)
+			if len(lg) > before {
+				tail := lg[before:]
+				if strings.Contains(tail, "OnConnectionError") {
+					msg := tail[strings.LastIndex(tail, "OnConnectionError"):]
+					if n := strings.IndexByte(msg, '\n'); n > 0 {
+						msg = msg[:n]
+					}
+					return launchResult{Message: "เซิร์ฟตอบกลับ: " + strings.TrimSpace(strings.TrimPrefix(msg, "OnConnectionError:")), Cmd: link, Mode: mode}
+				}
+				if strings.Contains(tail, "OnConnectionProgress") || strings.Contains(tail, "Connecting to server") || strings.Contains(tail, "Switching from build") || strings.Contains(tail, "already connecting") {
+					return launchResult{OK: true, Cmd: link, Mode: mode}
+				}
+			}
+			if pid2, _ := gtaProcess(); pid2 == 0 && time.Since(sent) > 5*time.Second {
+				return launchResult{Message: "เกมปิดตัวหลังส่ง IP ดู log ใน FiveM.app\\logs", Cmd: link, Mode: mode}
+			}
+		}
+		if logSince(fivemDir, start) == "" {
+			return launchResult{OK: true, Cmd: link, Mode: mode} // อ่าน log ไม่ได้ ถือว่าส่งแล้ว
 		}
 	}
-	link := "fivem://connect/" + connect
-	// เปิดผ่าน Explorer = เหมือนผู้ใช้กดลิงก์เอง FiveM ได้สิทธิ์ปกติ ไม่ติดข้อจำกัดใด ๆ
-	exec.Command(filepath.Join(os.Getenv("SystemRoot"), "explorer.exe"), link).Start()
-	// FiveM ตรวจว่าต้องถูกเปิดโดย Explorer หรือเว็บเบราว์เซอร์เท่านั้น จึงไม่มีวิธีเปิดสำรองจากโปรแกรมนี้โดยตรง
-	if !waitFiveM(25) {
-		return launchResult{Message: "FiveM ไม่เปิดขึ้นมา ลองเปิด FiveM เองหนึ่งครั้งให้ลงทะเบียนลิงก์ fivem:// แล้วกดเข้าใหม่", Cmd: link}
-	}
-	return launchResult{OK: true, Cmd: link, Mode: mode}
+	return launchResult{Message: "ส่ง IP แล้วแต่เกมยังไม่เชื่อมต่อ ลองกดเข้าในเกมเอง หรือกดเข้าอีกครั้ง", Cmd: link, Mode: mode}
 }
 
 // ---- รายการเซิร์ฟที่เคยเข้า ----
@@ -527,7 +687,10 @@ func totalMB(files []buildFile) float64 {
 // launchServerAsync เรียก launchServer ในเบื้องหลัง (ไม่ให้หน้าต่างค้าง) ผลส่งไป window.onLaunch
 func (a *app) launchServerAsync(fivemDir, connect string, build, pure, effDefault int, pool string, fast bool, reqID int) bool {
 	go func() {
-		r := a.launchServer(fivemDir, connect, build, pure, effDefault, pool, fast)
+		r := a.launchServer(fivemDir, connect, build, pure, effDefault, pool, func(t string) {
+			b, _ := json.Marshal(map[string]any{"reqId": reqID, "t": t})
+			a.emit("onLaunchStep", string(b))
+		})
 		b, _ := json.Marshal(struct {
 			launchResult
 			ReqID int `json:"reqId"`
