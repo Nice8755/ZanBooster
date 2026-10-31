@@ -16,7 +16,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 	"unsafe"
 
@@ -585,12 +584,7 @@ func (a *app) makeShortcut(target, args, workDir string) (string, error) {
 	os.MkdirAll(dir, 0o755)
 	lnk := filepath.Join(dir, "FiveM.lnk")
 	os.Remove(lnk)
-	q := func(s string) string { return "'" + strings.ReplaceAll(s, "'", "''") + "'" }
-	ps := "$s=(New-Object -ComObject WScript.Shell).CreateShortcut(" + q(lnk) + ");$s.TargetPath=" + q(target) +
-		";$s.Arguments=" + q(args) + ";$s.WorkingDirectory=" + q(workDir) + ";$s.Save()"
-	c := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", ps)
-	c.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000}
-	if err := c.Run(); err != nil {
+	if err := writeShortcut(lnk, target, args, workDir); err != nil {
 		return "", err
 	}
 	if !fileExists(lnk) {

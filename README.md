@@ -41,3 +41,14 @@ const authorName = "Zan"
 ## ทดสอบก่อนแจก
 
 ดูรายการใน `TESTING.md`
+
+## ถ้า Windows Defender แจ้งว่าเป็นไวรัส
+
+Zan Booster ไม่ได้ฝังโค้ดอันตราย ซอร์สโค้ดทั้งหมดอยู่ใน repo นี้ และไฟล์ทุกเวอร์ชันมีค่า SHA256 ให้ตรวจสอบในหน้า Release
+
+ชื่ออย่าง `Trojan:Win32/Bearfoos.B!ml` ที่ลงท้ายด้วย `!ml` คือการเดาของระบบ machine learning ไม่ได้เจอโค้ดไวรัสจริง
+โปรแกรมปรับเครื่องที่ต้องใช้สิทธิ์ admin แก้ registry และอัปเดตตัวเองมักโดนแบบนี้
+
+- ใช้เวอร์ชันล่าสุดเสมอ (เวอร์ชันก่อน 1.7.8 มีโค้ดที่ Defender ไม่ชอบ ซึ่งเอาออกแล้ว)
+- แจ้ง Microsoft ว่าตรวจผิดได้ที่ https://www.microsoft.com/en-us/wdsi/filesubmission
+  เลือก Software developer → แนบ ZanBooster.exe → Incorrectly detected → ใส่ชื่อที่ Defender แจ้ง

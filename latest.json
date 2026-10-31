@@ -1,6 +1,6 @@
 {
-  "version": "2.0.1",
-  "sha256": "82a76e5e7add237cb1af5bb9532d27f79363c3c3844de35cc2b48a3d4c30663b",
+  "version": "2.0.2",
+  "sha256": "1e264a67d916a1fed2dce0e2c1d08d86dba106ca309d824d70c930cd1a240cda",
   "file": "release/ZanBooster.exe",
-  "notes": "แก้เข้าเซิร์ฟแล้ว FiveM ถามรีสตาร์ทเรื่อง pure mode: เปิดเกมด้วย -b / -pure_ ตามที่เซิร์ฟต้องการ (แบบเดียวกับ FiveM) เกมขึ้นมาค่าตรงตั้งแต่แรก"
+  "notes": "ลดจุดที่โปรแกรมสแกนไวรัสมองว่าน่าสงสัย: สร้าง shortcut ด้วย Windows โดยตรงแทน PowerShell, เลิกใช้ ExecutionPolicy Bypass, ไม่ตัดข้อมูล symbol ออกจากไฟล์"
 }

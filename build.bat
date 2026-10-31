@@ -10,7 +10,7 @@ set GOOS=windows
 set GOARCH=amd64
 set CGO_ENABLED=0
 echo Building ZanBooster.exe ...
-go build -buildvcs=false -mod=vendor -trimpath -ldflags "-H windowsgui -s -w" -o ZanBooster.exe .
+go build -buildvcs=false -mod=vendor -trimpath -ldflags "-H windowsgui" -o ZanBooster.exe .
 if errorlevel 1 (
   echo [!] Build failed
   pause

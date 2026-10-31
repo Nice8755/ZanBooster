@@ -31,7 +31,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "2.0.1"
+const appVersion = "2.0.2"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -269,7 +269,7 @@ func (a *app) engine(action, ids, opt string) bool {
 			a.busyMu.Unlock()
 			a.emit("onEngine", `{"t":"done","action":`+jsonStr(action)+`}`)
 		}()
-		args := []string{"-NoProfile", "-NonInteractive", "-STA", "-ExecutionPolicy", "Bypass", "-File", a.enginePath, "-Action", action}
+		args := []string{"-NoProfile", "-NonInteractive", "-STA", "-ExecutionPolicy", "RemoteSigned", "-File", a.enginePath, "-Action", action}
 		if ids != "" {
 			args = append(args, "-Ids", ids)
 		}
