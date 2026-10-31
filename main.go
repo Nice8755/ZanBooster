@@ -31,7 +31,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "1.7.7"
+const appVersion = "1.7.8"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -168,6 +168,7 @@ func main() {
 	must(w.Bind("saveRecent", a.saveRecent))
 
 	cleanupOldExe()
+	go a.priorityWatcher()
 	a.loadRemoteConfig()
 	w.SetHtml(uiHTML)
 	w.Run()

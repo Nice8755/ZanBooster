@@ -19,7 +19,6 @@ $HighPerfGuid = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
 $BalancedGuid = '381b4222-f694-41f0-9685-ff5bb260df2e'
 $ConfigFile = Join-Path $env:ProgramData 'ZanBooster\config.json'
 $HKMM       = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile'
-$IFEO       = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options'
 $USB_SUB    = '2a737441-1930-4402-8d77-b2bebba308a3'
 $USB_SET    = '48e6b7a6-50f5-4782-a5d4-53bb8f07e226'
 New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
@@ -217,15 +216,6 @@ function Set-PowercfgIndex([string]$Sub, [string]$Setting, [int]$Value) {
     powercfg /setactive SCHEME_CURRENT | Out-Null
 }
 function Get-UpAdapters { @(Get-NetAdapter -Physical -ErrorAction SilentlyContinue | Where-Object { $_.Status -eq 'Up' }) }
-function Get-FiveMGameExes {
-    $names = New-Object System.Collections.Generic.HashSet[string]
-    [void]$names.Add('FiveM_GTAProcess.exe')
-    foreach ($b in 1604, 2060, 2189, 2372, 2545, 2612, 2699, 2802, 2944, 3095, 3258, 3323, 3407, 3570) { [void]$names.Add("FiveM_b$($b)_GTAProcess.exe") }
-    $fd = Get-FiveMData
-    $sub = $(if ($fd) { Join-Path $fd 'cache\subprocess' } else { $null })
-    if ($sub -and (Test-Path $sub)) { Get-ChildItem $sub -Filter '*GTAProcess.exe' -ErrorAction SilentlyContinue | ForEach-Object { [void]$names.Add($_.Name) } }
-    @($names)
-}
 function Get-FolderSize([string]$p) {
     if (-not (Test-Path $p)) { return 0 }
     $s = (Get-ChildItem $p -Recurse -Force -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum
@@ -294,14 +284,6 @@ $Tweaks = [ordered]@{
     PowerThrottle = @{
         Apply = { Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling' 'PowerThrottlingOff' 1 }
         Check = { (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling' 'PowerThrottlingOff') -eq 1 }
-    }
-    FiveMPriority = @{
-        Apply = {
-            foreach ($exe in Get-FiveMGameExes) { Set-RegValue "$IFEO\$exe\PerfOptions" 'CpuPriorityClass' 3 }
-            Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*GTAProcess' } |
-                ForEach-Object { try { $_.PriorityClass = 'High' } catch { } }
-        }
-        Check = { (Get-Reg "$IFEO\FiveM_GTAProcess.exe\PerfOptions" 'CpuPriorityClass') -eq 3 }
     }
     HAGS = @{
         Apply = { Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers' 'HwSchMode' 2 }
@@ -437,19 +419,6 @@ $Tweaks = [ordered]@{
             Write-Log "ปรับ service $n ตัว"
         }
         Check = { (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Services\DiagTrack' 'Start') -eq 4 -and (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Services\SysMain' 'Start') -eq 4 }
-    }
-    Defender = @{
-        Apply = {
-            $fd = Get-FiveMData
-            if (-not $fd) { throw 'ไม่พบโฟลเดอร์ FiveM ในเครื่องนี้ (เลือกโฟลเดอร์เองได้ที่หน้าเครื่องมือ)' }
-            $path = Split-Path (Split-Path $fd -Parent) -Parent
-            $cur = @((Get-MpPreference).ExclusionPath)
-            if ($cur -notcontains $path) {
-                Add-MpPreference -ExclusionPath $path
-                if ($Script:Backup.Defender -notcontains $path) { $Script:Backup.Defender += $path }
-            }
-        }
-        Check = { $Script:Backup.Defender.Count -gt 0 }
     }
 }
 
@@ -872,7 +841,6 @@ function Do-Restore {
         } catch { Write-Log "คืนค่าการ์ดแลน $($parts[0]) ไม่ได้" }
     }
     foreach ($n in $restart) { Restart-NetAdapter -Name $n -Confirm:$false -ErrorAction SilentlyContinue }
-    foreach ($p in $b.Defender) { try { Remove-MpPreference -ExclusionPath $p } catch { } }
 
     if ((Test-Path $GfxBackup) -and -not (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' })) {
         Copy-Item $GfxBackup $GfxFile -Force; Remove-Item $GfxBackup -Force; Write-Log 'คืนไฟล์กราฟิก FiveM เดิมแล้ว'

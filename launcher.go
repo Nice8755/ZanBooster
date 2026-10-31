@@ -378,21 +378,6 @@ func killFiveM() int {
 	return n
 }
 
-// launchUnelevated เปิดโปรแกรมด้วยสิทธิ์ผู้ใช้ปกติ ผ่าน Explorer (เหมือนผู้ใช้ดับเบิลคลิกเอง)
-// ไม่ใช้ CreateProcessWithTokenW เพราะ process ที่เปิดแบบนั้นจะติดอยู่ใน job ของ Windows
-// ทำให้ FiveM สลับ build / โหลดไฟล์เกมแล้วปิดตัวเองไป (FiveM ต้องใช้ CREATE_BREAKAWAY_FROM_JOB)
-func launchUnelevated(exe, args, dir string) error {
-	esc := func(x string) string { return strings.ReplaceAll(x, "%", "%%") }
-	script := "@echo off\r\nchcp 65001 >nul\r\ncd /d \"" + esc(dir) + "\"\r\nstart \"\" \"" + esc(exe) + "\" " + esc(args) + "\r\nexit\r\n"
-	cmdFile := filepath.Join(os.TempDir(), "zanbooster_launch.cmd")
-	if err := os.WriteFile(cmdFile, []byte(script), 0o644); err != nil {
-		return err
-	}
-	// explorer.exe ที่ถูกเรียกจากโปรแกรม Admin จะส่งงานต่อให้ Explorer ตัวหลักของผู้ใช้ (สิทธิ์ปกติ)
-	cmd := exec.Command(filepath.Join(os.Getenv("SystemRoot"), "explorer.exe"), cmdFile)
-	return cmd.Start()
-}
-
 func fivemRunningAny() bool {
 	snap, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
 	if err != nil {
@@ -432,34 +417,25 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 	if killFiveM() > 0 {
 		time.Sleep(2 * time.Second)
 	}
-	link := `"fivem://connect/` + connect + `"`
-	args := link
 	mode := "ปกติ"
 	if fast {
 		if _, err := os.Stat(ini); err == nil {
+			// ตั้งค่าเดียวกับที่ FiveM เขียนเองตอนสลับ build (ConnectToNative.cpp) แล้ว FiveM จะเปิดด้วย build/pure นี้เลย
 			writeIni(ini, "Game", "PoolSizesIncrease", pool)
 			writeIni(ini, "Game", "DefaultBuild", strconv.Itoa(effDefault))
 			writeIni(ini, "Game", "PureLevel", strconv.Itoa(pure))
-			if build == fivemDefaultBuild {
-				writeIni(ini, "Game", "SavedBuildNumber", strconv.Itoa(build))
-			}
-			args = fmt.Sprintf("-b%d", build)
-			if pure > 0 {
-				args += fmt.Sprintf(" -pure_%d", pure)
-			}
-			args += " " + link
+			writeIni(ini, "Game", "SavedBuildNumber", strconv.Itoa(build))
 			mode = "เร็ว"
 		}
 	}
-	if err := launchUnelevated(exe, args, fivemDir); err != nil || !waitFiveM(20) {
-		// สำรอง: เปิดผ่านลิงก์ fivem:// ของ Windows แบบเดียวกับกดจากเว็บ
-		exec.Command(filepath.Join(os.Getenv("SystemRoot"), "explorer.exe"), "fivem://connect/"+connect).Start()
-		if !waitFiveM(20) {
-			return launchResult{Message: "เปิด FiveM ไม่ขึ้น ลองเปิด FiveM เองหนึ่งครั้งแล้วกดเข้าใหม่", Cmd: "FiveM.exe " + args}
-		}
-		return launchResult{OK: true, Cmd: "fivem://connect/" + connect + " (สำรอง)", Mode: "สำรอง"}
+	link := "fivem://connect/" + connect
+	// เปิดผ่าน Explorer = เหมือนผู้ใช้กดลิงก์เอง FiveM ได้สิทธิ์ปกติ ไม่ติดข้อจำกัดใด ๆ
+	exec.Command(filepath.Join(os.Getenv("SystemRoot"), "explorer.exe"), link).Start()
+	// FiveM ตรวจว่าต้องถูกเปิดโดย Explorer หรือเว็บเบราว์เซอร์เท่านั้น จึงไม่มีวิธีเปิดสำรองจากโปรแกรมนี้โดยตรง
+	if !waitFiveM(25) {
+		return launchResult{Message: "FiveM ไม่เปิดขึ้นมา ลองเปิด FiveM เองหนึ่งครั้งให้ลงทะเบียนลิงก์ fivem:// แล้วกดเข้าใหม่", Cmd: link}
 	}
-	return launchResult{OK: true, Cmd: "FiveM.exe " + args, Mode: mode}
+	return launchResult{OK: true, Cmd: link, Mode: mode}
 }
 
 // ---- รายการเซิร์ฟที่เคยเข้า ----
@@ -559,4 +535,36 @@ func (a *app) launchServerAsync(fivemDir, connect string, build, pure, effDefaul
 		a.emit("onLaunch", string(b))
 	}()
 	return true
+}
+
+// ---- ดัน Priority ของ FiveM เป็น High อัตโนมัติขณะเปิดโปรแกรม (ไม่แก้ registry) ----
+func (a *app) priorityWatcher() {
+	for {
+		time.Sleep(5 * time.Second)
+		var cfg struct {
+			AutoPrio *bool `json:"autoPrio"`
+		}
+		json.Unmarshal([]byte(a.loadSettings()), &cfg)
+		if cfg.AutoPrio != nil && !*cfg.AutoPrio {
+			continue
+		}
+		snap, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
+		if err != nil {
+			continue
+		}
+		var pe windows.ProcessEntry32
+		pe.Size = uint32(unsafe.Sizeof(pe))
+		for err := windows.Process32First(snap, &pe); err == nil; err = windows.Process32Next(snap, &pe) {
+			name := strings.ToLower(windows.UTF16ToString(pe.ExeFile[:]))
+			if strings.HasPrefix(name, "fivem") && strings.Contains(name, "gtaprocess") {
+				if h, err := windows.OpenProcess(windows.PROCESS_SET_INFORMATION|windows.PROCESS_QUERY_LIMITED_INFORMATION, false, pe.ProcessID); err == nil {
+					if pc, _ := windows.GetPriorityClass(h); pc != windows.HIGH_PRIORITY_CLASS {
+						windows.SetPriorityClass(h, windows.HIGH_PRIORITY_CLASS)
+					}
+					windows.CloseHandle(h)
+				}
+			}
+		}
+		windows.CloseHandle(snap)
+	}
 }

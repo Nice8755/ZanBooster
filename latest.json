@@ -1,6 +1,6 @@
 {
-  "version": "1.7.7",
-  "sha256": "8e46bca17c1e0b0762e32850ef75e9c1a3ee392af6a3fb10282c3ac1eaf76a2a",
+  "version": "1.7.8",
+  "sha256": "166f6dd90c491fc57a15487498f5a99aadf54501b21b2d3021714ee250952b9f",
   "file": "release/ZanBooster.exe",
-  "notes": "แก้กดเข้าเซิร์ฟแล้วเกมเด้งแล้วหายไป\n- เปิด FiveM ผ่าน Explorer แบบเดียวกับดับเบิลคลิกไอคอนเอง\n- FiveM โหลดไฟล์ build และสลับ build ได้ครบ ไม่ปิดตัวกลางทาง"
+  "notes": "แก้เข้าเซิร์ฟ + แอนตี้ไวรัสแจ้งเตือน\n- เปิด FiveM ผ่าน Explorer (แก้ข้อความ This application should be launched directly from the shell)\n- เอาส่วนที่แอนตี้ไวรัสมองว่าน่าสงสัยออก: Defender exclusion, การเขียน IFEO, ไฟล์ .cmd ชั่วคราว\n- ดัน Priority FiveM อัตโนมัติขณะเปิดโปรแกรมแทน (ปิดได้ในหน้าเครื่องมือ)\n- ใส่ข้อมูลเวอร์ชันในไฟล์ exe"
 }
