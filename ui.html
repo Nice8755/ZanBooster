@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>Zan Booster</title>
+<style>
+:root{
+  --bg:#04060c; --bg2:#070b16; --panel:rgba(13,19,35,.78); --panel2:rgba(18,26,48,.7);
+  --line:rgba(0,229,255,.16); --line2:rgba(0,229,255,.32);
+  --cyan:#00e5ff; --mag:#ff2bd6; --lime:#39ff9c; --amber:#ffb547; --red:#ff4d6d; --violet:#8b5cff;
+  --text:#e9f2ff; --muted:#7f8db0; --dim:#4b5878;
+  --head:"Bahnschrift","Segoe UI Variable Display","Segoe UI","Leelawadee UI",sans-serif;
+  --body:"Segoe UI Variable Text","Segoe UI","Leelawadee UI","Tahoma",sans-serif;
+  --mono:"Cascadia Code","Cascadia Mono","Consolas","Leelawadee UI",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--body);font-size:13.5px;user-select:none;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input{font-family:var(--mono)}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(0,229,255,.18);border-radius:8px}::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- background ---------- */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+   radial-gradient(900px 600px at 85% -10%,rgba(139,92,255,.20),transparent 60%),
+   radial-gradient(800px 600px at -10% 110%,rgba(0,229,255,.16),transparent 60%),
+   radial-gradient(600px 400px at 50% 50%,rgba(255,43,214,.05),transparent 70%),
+   linear-gradient(180deg,#05070f,#04060b)}
+.grid{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(0,229,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.05) 1px,transparent 1px);
+  background-size:42px 42px;mask-image:radial-gradient(ellipse at 50% 40%,#000 30%,transparent 85%);animation:gridmove 30s linear infinite}
+@keyframes gridmove{to{background-position:0 42px,42px 0}}
+.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px)}
+
+/* ---------- shell ---------- */
+.app{position:relative;z-index:2;display:grid;grid-template-columns:220px 1fr;grid-template-rows:52px 1fr;height:100vh;border:1px solid rgba(0,229,255,.22)}
+.titlebar{grid-column:1/3;display:flex;align-items:center;gap:14px;padding:0 6px 0 18px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,rgba(0,229,255,.06),rgba(139,92,255,.05) 60%,transparent);position:relative}
+.titlebar:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),var(--mag),transparent);opacity:.55}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:30px;height:30px;filter:drop-shadow(0 0 8px rgba(0,229,255,.6))}
+.brand h1{font-family:var(--head);font-size:17px;letter-spacing:4px;font-weight:700}
+.brand h1 b{color:var(--cyan);text-shadow:0 0 12px rgba(0,229,255,.7)}
+.brand small{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:1px}
+.tb-spacer{flex:1;align-self:stretch}
+.pill{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:1px;padding:6px 12px;border:1px solid var(--line);border-radius:30px;background:rgba(0,0,0,.25);color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dim)}
+.pill.on{color:var(--lime);border-color:rgba(57,255,156,.4)}.pill.on .dot{background:var(--lime);box-shadow:0 0 10px var(--lime);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.35}}
+.winbtns{display:flex;margin-left:6px}
+.winbtn{width:46px;height:40px;display:grid;place-items:center;color:var(--muted);border-radius:6px}
+.winbtn:hover{background:rgba(255,255,255,.06);color:#fff}
+.winbtn.x:hover{background:#e81123;color:#fff}
+
+/* ---------- nav ---------- */
+.nav{border-right:1px solid var(--line);padding:18px 12px;display:flex;flex-direction:column;gap:6px;background:linear-gradient(180deg,rgba(7,11,22,.6),rgba(4,6,12,.4))}
+.nav .lbl{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:3px;padding:6px 12px 8px}
+.navbtn{position:relative;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;color:var(--muted);font-weight:600;letter-spacing:.3px;transition:.18s;text-align:left}
+.navbtn svg{width:18px;height:18px;flex:none}
+.navbtn:hover{color:#fff;background:rgba(0,229,255,.05)}
+.navbtn.active{color:#fff;background:linear-gradient(90deg,rgba(0,229,255,.16),rgba(0,229,255,.02));box-shadow:inset 0 0 0 1px rgba(0,229,255,.25)}
+.navbtn.active:before{content:"";position:absolute;left:-12px;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.navbtn.active svg{color:var(--cyan);filter:drop-shadow(0 0 6px var(--cyan))}
+.nav-foot{margin-top:auto;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.25);font-family:var(--mono);font-size:10.5px;color:var(--muted);line-height:1.7}
+.nav-foot .ok{color:var(--lime)}
+
+/* ---------- pages ---------- */
+main{position:relative;overflow:hidden}
+.page{position:absolute;inset:0;overflow-y:auto;padding:22px 26px 26px;opacity:0;pointer-events:none;transform:translateY(8px);transition:.25s}
+.page.show{opacity:1;pointer-events:auto;transform:none}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.ph h2{font-family:var(--head);font-size:24px;letter-spacing:3px;font-weight:700}
+.ph h2 span{color:var(--cyan)}
+.ph p{color:var(--muted);margin-top:4px}
+.code{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:2px}
+
+.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;backdrop-filter:blur(6px)}
+.card:before,.card:after{content:"";position:absolute;width:14px;height:14px;border:2px solid var(--cyan);opacity:.7}
+.card:before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-top-left-radius:14px}
+.card:after{bottom:-1px;right:-1px;border-left:0;border-top:0;border-bottom-right-radius:14px}
+.ct{display:flex;align-items:center;justify-content:space-between;font-family:var(--head);letter-spacing:2.5px;font-size:12px;color:var(--muted);margin-bottom:14px;text-transform:uppercase}
+.ct i{font-style:normal;font-family:var(--mono);font-size:10px;color:var(--dim)}
+
+/* ---------- dashboard ---------- */
+.dash{display:grid;grid-template-columns:1.05fr 1fr;grid-auto-rows:min-content;gap:16px}
+.hero{grid-row:span 2;display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 24px}
+.ringwrap{position:relative;width:200px;height:200px;margin:22px 0 28px}
+.ringwrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ringwrap .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ringwrap .num{font-family:var(--head);font-size:56px;font-weight:700;line-height:1;background:linear-gradient(180deg,#fff,#9fefff);-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(0,229,255,.45))}
+.ringwrap .num small{font-size:26px}
+.ringwrap .sub{font-family:var(--mono);font-size:11px;letter-spacing:4px;color:var(--cyan);margin-top:6px}
+.ticks{position:absolute;inset:-22px;width:calc(100% + 44px)!important;height:calc(100% + 44px)!important;transform:none!important;pointer-events:none}
+.ticks line{stroke:#1a2340;stroke-width:2;stroke-linecap:round;transition:stroke .4s,filter .4s}
+.ticks line.major{stroke:#24305a;stroke-width:2.6}
+.ticks line.on{filter:drop-shadow(0 0 3px currentColor)}
+.ticks line.tip{stroke:#fff!important;stroke-width:3.2;filter:drop-shadow(0 0 6px #ff2bd6) drop-shadow(0 0 2px #fff)}
+.ringglow{position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.10),transparent 65%);pointer-events:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hero .state{font-size:15px;font-weight:600;margin-bottom:4px}
+.hero .hint{color:var(--muted);font-size:12.5px;margin-bottom:20px}
+.boost{position:relative;width:100%;max-width:360px;padding:18px;border-radius:14px;font-family:var(--head);font-size:19px;font-weight:700;letter-spacing:5px;color:#021018;
+  background:linear-gradient(100deg,var(--cyan),#5ad8ff 40%,var(--violet) 75%,var(--mag));box-shadow:0 0 30px rgba(0,229,255,.35),0 0 60px rgba(139,92,255,.2),inset 0 1px 0 rgba(255,255,255,.5);overflow:hidden;transition:.2s}
+.boost:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(0,229,255,.55),0 0 80px rgba(255,43,214,.3)}
+.boost:before{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:shine 3s infinite}
+@keyframes shine{60%,100%{left:130%}}
+.boost:disabled{filter:grayscale(.8) brightness(.6);cursor:not-allowed}
+.ghost{margin-top:12px;padding:10px 18px;border-radius:10px;border:1px solid var(--line2);color:var(--muted);font-weight:600;font-size:12.5px;letter-spacing:.5px;transition:.15s}
+.ghost:hover{color:#fff;border-color:var(--cyan);background:rgba(0,229,255,.06)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.chip{font-family:var(--mono);font-size:10.5px;letter-spacing:1px;padding:5px 10px;border-radius:20px;border:1px solid var(--line);color:var(--muted)}
+.chip b{color:var(--text)}
+
+.gauges{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.gauge{display:flex;align-items:center;gap:14px}
+.gauge svg{width:86px;height:86px;transform:rotate(-90deg);flex:none}
+.gauge .gv{font-family:var(--head);font-size:28px;font-weight:700}
+.gauge .gv small{font-size:14px;color:var(--muted)}
+.gauge .gl{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;color:var(--muted)}
+.gauge .gs{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
+canvas.spark{width:100%;height:70px;display:block;margin-top:12px}
+
+.specs{display:grid;gap:10px}
+.spec{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:center;padding:9px 12px;border-radius:9px;background:rgba(0,0,0,.22);border:1px solid rgba(0,229,255,.07)}
+.spec span{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;color:var(--cyan)}
+.spec b{font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.fivem{display:flex;align-items:center;gap:16px}
+.fivem .ic{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(255,138,0,.25),rgba(255,43,214,.15));border:1px solid rgba(255,159,28,.4);color:#ffae42;font-family:var(--head);font-weight:700;font-size:20px}
+.fivem .info{flex:1}
+.fivem .info b{display:block;font-size:14px}
+.fivem .info small{color:var(--muted);font-family:var(--mono);font-size:11px}
+
+/* ---------- optimize ---------- */
+.tabs{display:flex;gap:6px;margin-bottom:16px;padding:4px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.25);width:max-content}
+.tab{padding:8px 16px;border-radius:9px;font-family:var(--head);letter-spacing:2px;font-size:12px;color:var(--muted)}
+.tab.active{background:rgba(0,229,255,.14);color:#fff;box-shadow:inset 0 0 0 1px rgba(0,229,255,.3)}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px;padding-bottom:90px}
+.tw{position:relative;display:flex;gap:14px;padding:15px 16px;border-radius:12px;background:var(--panel2);border:1px solid rgba(0,229,255,.1);transition:.18s;cursor:pointer}
+.tw:hover{border-color:rgba(0,229,255,.32);background:rgba(20,30,56,.8)}
+.tw.sel{border-color:rgba(0,229,255,.5);box-shadow:0 0 0 1px rgba(0,229,255,.18),0 0 24px rgba(0,229,255,.08)}
+.tw .tx{flex:1;min-width:0}
+.tw h4{font-size:13.5px;font-weight:700;margin-bottom:5px;line-height:1.35}
+.tw p{color:var(--muted);font-size:12px;line-height:1.55}
+.tags{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.tag{font-family:var(--mono);font-size:9.5px;letter-spacing:1.5px;padding:3px 8px;border-radius:5px;border:1px solid}
+.tag.fps{color:var(--lime);border-color:rgba(57,255,156,.35)}
+.tag.input{color:#6cb8ff;border-color:rgba(108,184,255,.35)}
+.tag.net{color:#c69bff;border-color:rgba(198,155,255,.35)}
+.tag.sys{color:var(--amber);border-color:rgba(255,181,71,.35)}
+.tag.rec{color:var(--cyan);border-color:rgba(0,229,255,.4);background:rgba(0,229,255,.07)}
+.tag.warn{color:var(--amber);border-color:rgba(255,181,71,.3)}
+.tag.active{color:#03140c;background:var(--lime);border-color:var(--lime);box-shadow:0 0 10px rgba(57,255,156,.5)}
+.sw{flex:none;width:44px;height:24px;border-radius:20px;background:#1a2340;border:1px solid #2a3760;position:relative;transition:.2s;margin-top:2px}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#56648a;transition:.2s}
+.tw.sel .sw{background:rgba(0,229,255,.25);border-color:var(--cyan);box-shadow:0 0 12px rgba(0,229,255,.4)}
+.tw.sel .sw:after{left:23px;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.actionbar{position:sticky;bottom:0;margin:0 -26px -26px;padding:14px 26px;display:flex;align-items:center;gap:12px;background:linear-gradient(0deg,rgba(4,6,12,.98) 60%,rgba(4,6,12,.0));z-index:3}
+.actionbar .count{font-family:var(--mono);color:var(--muted);font-size:12px;letter-spacing:1px;flex:1}
+.actionbar .count b{color:var(--cyan);font-size:16px}
+.btn{padding:11px 18px;border-radius:10px;border:1px solid var(--line2);font-weight:600;font-size:12.5px;color:var(--text);background:rgba(0,0,0,.3);transition:.15s}
+.btn:hover{border-color:var(--cyan);background:rgba(0,229,255,.08)}
+.btn.pri{color:#021018;font-family:var(--head);letter-spacing:3px;font-weight:700;border:0;background:linear-gradient(100deg,var(--cyan),var(--violet));box-shadow:0 0 22px rgba(0,229,255,.35)}
+.btn.pri:hover{box-shadow:0 0 32px rgba(0,229,255,.6)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.chk{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;cursor:pointer}
+.chk .box{width:16px;height:16px;border-radius:4px;border:1px solid var(--line2);display:grid;place-items:center}
+.chk.on .box{background:var(--cyan);border-color:var(--cyan)}
+.chk.on .box:after{content:"";width:8px;height:4px;border:2px solid #021018;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+
+/* ---------- network ---------- */
+.pingtop{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;color:var(--muted)}
+.inp{padding:12px 14px;border-radius:10px;border:1px solid var(--line2);background:rgba(0,0,0,.35);color:#fff;font-size:14px;outline:none;width:100%}
+.inp:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,229,255,.12)}
+.presets{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.preset{font-family:var(--mono);font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--line);color:var(--muted)}
+.preset:hover{color:#fff;border-color:var(--cyan)}
+.pingbig{display:grid;grid-template-columns:240px 1fr;gap:16px;margin-top:16px}
+.pnow{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.pnow .n{font-family:var(--head);font-size:76px;font-weight:700;line-height:1;color:var(--lime);text-shadow:0 0 26px currentColor;transition:color .3s}
+.pnow .u{font-family:var(--mono);color:var(--muted);letter-spacing:4px;margin-top:6px}
+.pnow .q{margin-top:14px;font-family:var(--mono);font-size:11px;letter-spacing:2px;padding:5px 12px;border-radius:20px;border:1px solid currentColor}
+canvas#pingChart{width:100%;height:196px;display:block}
+.pstats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:16px}
+.pstat{padding:14px;border-radius:12px;background:var(--panel2);border:1px solid rgba(0,229,255,.1)}
+.pstat span{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--muted)}
+.pstat b{display:block;font-family:var(--head);font-size:24px;margin-top:4px}
+.note{margin-top:16px;padding:14px 16px;border-radius:12px;border:1px dashed rgba(255,181,71,.35);background:rgba(255,181,71,.05);color:#e6cfa5;font-size:12.5px;line-height:1.7}
+
+/* ---------- tools ---------- */
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.tool{display:flex;flex-direction:column;gap:10px}
+.tool .ti{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;background:rgba(0,229,255,.08);border:1px solid var(--line2);color:var(--cyan)}
+.tool .ti svg{width:22px;height:22px}
+.tool h4{font-size:14.5px}
+.tool p{color:var(--muted);font-size:12px;line-height:1.6;flex:1}
+.tips{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.tips ul{list-style:none;display:grid;gap:8px}
+.tips li{position:relative;padding-left:18px;color:#c6d2ea;font-size:12.5px;line-height:1.6}
+.tips li:before{content:"";position:absolute;left:2px;top:8px;width:7px;height:7px;transform:rotate(45deg);background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+.tips li b{color:#fff}
+
+/* ---------- log ---------- */
+.term{height:calc(100vh - 190px);overflow:auto;padding:16px;border-radius:12px;background:rgba(0,0,0,.55);border:1px solid var(--line);font-family:var(--mono);font-size:12px;line-height:1.75;color:#a9c3e6;user-select:text}
+.term .t{color:var(--dim)}.term .ok{color:var(--lime)}.term .er{color:var(--red)}.term .in{color:var(--cyan)}
+
+/* ---------- modal ---------- */
+.ov{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(2,4,9,.72);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:.2s}
+.ov.show{opacity:1;pointer-events:auto}
+.modal{width:min(620px,92vw);max-height:84vh;display:flex;flex-direction:column;padding:24px;transform:scale(.97);transition:.2s}
+.ov.show .modal{transform:none}
+.modal h3{font-family:var(--head);letter-spacing:3px;font-size:19px;margin-bottom:6px}
+.modal .msg{color:#c6d2ea;line-height:1.7;white-space:pre-line}
+.modal .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.bar{height:8px;border-radius:8px;background:#121a30;overflow:hidden;margin:16px 0 14px;border:1px solid rgba(0,229,255,.15)}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--mag));box-shadow:0 0 14px var(--cyan);transition:width .35s}
+.steps{overflow:auto;display:grid;gap:6px;padding-right:4px}
+.st{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:9px;background:rgba(0,0,0,.25);font-size:12.5px;color:var(--muted)}
+.st .si{width:18px;height:18px;flex:none;display:grid;place-items:center;font-size:12px}
+.st.run{color:#fff;background:rgba(0,229,255,.07)}
+.st.run .si:before{content:"";width:13px;height:13px;border-radius:50%;border:2px solid var(--cyan);border-right-color:transparent;animation:spin .7s linear infinite}
+.st.ok{color:#d6ffe9}.st.ok .si:before{content:"✓";color:var(--lime);font-weight:700}
+.st.fail{color:#ffd0d8}.st.fail .si:before{content:"✕";color:var(--red);font-weight:700}
+.st.wait .si:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--dim)}
+.st em{margin-left:auto;font-style:normal;font-size:11px;color:var(--red);max-width:50%;text-align:right}
+
+/* ---------- toast ---------- */
+.toasts{position:fixed;right:22px;bottom:22px;z-index:60;display:grid;gap:10px}
+.toast{min-width:280px;max-width:420px;padding:13px 16px;border-radius:12px;background:rgba(10,16,30,.95);border:1px solid var(--line2);box-shadow:0 10px 40px rgba(0,0,0,.5);font-size:13px;animation:tin .25s ease-out;display:flex;gap:10px;align-items:flex-start}
+.toast:before{content:"";width:4px;align-self:stretch;border-radius:4px;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+.toast.ok:before{background:var(--lime);box-shadow:0 0 10px var(--lime)}
+.toast.er:before{background:var(--red);box-shadow:0 0 10px var(--red)}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}}
+/* ข้อความไทย: ไม่ใช้ตัวพิมพ์ใหญ่/ระยะห่างตัวอักษรกว้าง */
+.ph h2{letter-spacing:.5px}
+.ct{letter-spacing:.3px;text-transform:none;font-family:var(--body);font-size:13.5px;font-weight:600}
+.tab{letter-spacing:.3px;font-family:var(--body);font-size:13px}
+.boost{letter-spacing:1px;font-family:var(--body);font-size:18px}
+.btn.pri{letter-spacing:.5px;font-family:var(--body)}
+.gauge .gl,.pstat span,.ringwrap .sub,.pnow .u,.pnow .q,.brand small,.nav-foot,.pill{letter-spacing:.3px;font-family:var(--body)}
+.ringwrap .sub{font-size:12px;color:var(--muted)}
+.spec span,.chip,.tag,.preset{letter-spacing:.3px;font-family:var(--body)}
+.spec span{font-size:12px}.tag{font-size:11px}
+/* v1.3 */
+.hlist{display:grid;gap:10px}
+.hrow{display:grid;grid-template-columns:34px 1fr;gap:14px;padding:14px 16px;border-radius:12px;background:var(--panel2);border:1px solid rgba(0,229,255,.1)}
+.hrow .hi{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px}
+.hrow.ok .hi{background:rgba(57,255,156,.12);color:var(--lime);box-shadow:0 0 12px rgba(57,255,156,.25)}
+.hrow.warn{border-color:rgba(255,181,71,.35)}
+.hrow.warn .hi{background:rgba(255,181,71,.14);color:var(--amber);box-shadow:0 0 12px rgba(255,181,71,.3)}
+.hrow.info .hi{background:rgba(0,229,255,.1);color:var(--cyan)}
+.hrow h4{font-size:14px;margin-bottom:2px}
+.hrow .hd{color:#c6d2ea;font-size:13px}
+.hrow .hf{margin-top:8px;padding:9px 12px;border-radius:8px;background:rgba(0,0,0,.3);color:#e6cfa5;font-size:12.5px;line-height:1.6}
+.hsum{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.hsum .big{font-family:var(--head);font-size:40px;font-weight:700;line-height:1}
+.hsum .t{color:var(--muted);font-size:13px}
+.presetg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.pcard{display:flex;flex-direction:column;gap:10px}
+.pcard h3{font-size:18px}
+.pcard .pf{font-family:var(--head);font-size:13px;color:var(--cyan)}
+.pcard ul{list-style:none;display:grid;gap:5px;flex:1}
+.pcard li{position:relative;padding-left:14px;color:#c6d2ea;font-size:12.5px;line-height:1.55}
+.pcard li:before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--cyan)}
+.pcard.hot{border-color:rgba(0,229,255,.45);box-shadow:0 0 24px rgba(0,229,255,.12)}
+.applist{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin:12px 0}
+.appi{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:rgba(0,0,0,.25);border:1px solid rgba(0,229,255,.1);cursor:pointer;font-size:13px}
+.appi.on{border-color:rgba(0,229,255,.45);background:rgba(0,229,255,.06)}
+.appi .box{width:16px;height:16px;border-radius:4px;border:1px solid var(--line2);flex:none;display:grid;place-items:center}
+.appi.on .box{background:var(--cyan);border-color:var(--cyan)}
+.appi.on .box:after{content:"";width:8px;height:4px;border:2px solid #021018;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.appi small{margin-left:auto;color:var(--muted);font-family:var(--mono);font-size:11px}
+.pre-opts{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.empty{color:var(--muted);font-size:13px;padding:10px 0}
+.home{display:grid;grid-template-columns:1fr 300px;gap:14px;height:100%}
+#p-dash{padding-bottom:22px}
+.home .launcher{display:flex;flex-direction:column;min-height:0}
+.home .side{display:flex;flex-direction:column;gap:14px;min-height:0}
+.home .side .card{padding:14px 16px}
+.home .side .card:last-child{flex:1}
+.home .gauges{grid-template-columns:1fr 1fr;gap:8px}
+.home .gauge{gap:8px}
+.home .gauge svg{width:58px;height:58px}
+.home .gauge .gv{font-size:22px}
+.home .gauge .gs{font-size:10.5px}
+.home canvas.spark{height:60px;margin-top:8px}
+.mspecs{display:grid;gap:8px}
+.mspecs div{display:flex;flex-direction:column;padding:7px 10px;border-radius:8px;background:rgba(0,0,0,.22)}
+.mspecs span{font-size:11px;color:var(--cyan)}
+.mspecs b{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbar{display:flex;align-items:center;justify-content:space-between;margin:10px 0 12px}
+.live{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.live .dot{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime);animation:pulse 1.4s infinite}
+.slist{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-content:start;padding-right:4px}
+.sc{position:relative;display:grid;grid-template-columns:52px 1fr;gap:12px;padding:12px;border-radius:12px;background:rgba(0,0,0,.28);border:1px solid rgba(0,229,255,.14);transition:.15s}
+.sc:hover{border-color:rgba(0,229,255,.45);background:rgba(0,229,255,.05)}
+.sc .sic{width:52px;height:52px;border-radius:10px;object-fit:cover;background:#101830;display:grid;place-items:center;font-family:var(--head);font-weight:700;color:var(--cyan);font-size:18px;overflow:hidden}
+.sc .sic img{width:100%;height:100%;object-fit:cover}
+.sc .sn{display:flex;align-items:center;gap:7px;min-width:0}
+.sc .sn img.flag{width:20px;height:14px;border-radius:2px;flex:none;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+.sc .sn .cc{font-size:10px;font-family:var(--mono);color:var(--muted);flex:none}
+.sc .sn b{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc .pl{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:12px;color:var(--muted)}
+.sc .pl b{font-family:var(--head);font-size:15px;color:#fff;font-weight:600}
+.sc .pbar{flex:1;height:5px;border-radius:5px;background:#16203a;overflow:hidden}
+.sc .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--mag));transition:width .6s}
+.sc .row3{display:flex;align-items:center;gap:6px;margin-top:8px}
+.sc .tg{font-size:11px;padding:2px 7px;border-radius:5px;background:rgba(0,0,0,.35);color:#c6d2ea}
+.sc .tg.png{color:var(--lime)}
+.sc .join{margin-left:auto;padding:6px 14px;border-radius:8px;font-size:12.5px;font-weight:700;color:#021018;background:linear-gradient(90deg,var(--cyan),var(--violet));box-shadow:0 0 12px rgba(0,229,255,.3)}
+.sc .join:hover{box-shadow:0 0 18px rgba(0,229,255,.6)}
+.sc .join:disabled{opacity:.5}
+.sc .rm{position:absolute;top:6px;right:8px;font-size:12px;color:var(--dim);opacity:0;transition:.15s}
+.sc:hover .rm{opacity:1}.sc .rm:hover{color:var(--red)}
+.sc.off{opacity:.55}
+.sc.off .pl b{color:var(--red)}
+.slist{grid-template-columns:1fr!important;gap:8px!important}
+.sc{grid-template-columns:48px 1fr 190px auto!important;align-items:center;gap:14px!important;padding:10px 12px!important}
+.sc .sic{width:48px!important;height:48px!important}
+.sc .plcol{display:flex;flex-direction:column;gap:5px}
+.sc .plcol .pl{margin-top:0}
+.sc .plcol small{font-size:11px;color:var(--muted)}
+.sc .plcol .pbar{flex:none;width:100%;height:6px}
+.sempty{grid-column:1/-1!important}
+.sc .row3{flex-wrap:nowrap;overflow:hidden}
+.sc .tg{white-space:nowrap}
+.sc .join{margin-left:0;white-space:nowrap;align-self:center;padding:9px 14px}
+.mspecs div{min-width:0;overflow:hidden}
+.home .gauge .gs{white-space:nowrap}
+.home .gauge>div{min-width:0}
+.launcher .info small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.launcher .info{min-width:0}
+.sempty{grid-column:1/3;text-align:center;color:var(--muted);font-size:13px;padding:30px 10px;border:1px dashed rgba(0,229,255,.2);border-radius:12px;line-height:1.8}
+.tgrid{grid-template-columns:repeat(3,1fr)!important;padding-bottom:10px!important}
+#p-tools .tools{grid-template-columns:repeat(5,1fr)}
+#p-tools .tool{padding:14px}
+#p-tools .tool p{font-size:12px}
+#t2 .tips{margin-top:0}
+.upd{font-size:12px;padding:6px 12px;border-radius:20px;color:#021018;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--mag));box-shadow:0 0 14px rgba(0,229,255,.45);animation:pulse 1.6s infinite}
+.lopts{margin-top:10px}
+.aboutg{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px;align-items:start}
+.abhero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px 20px}
+.ablogo{width:84px;height:84px;filter:drop-shadow(0 0 16px rgba(0,229,255,.55));margin-bottom:12px}
+.abhero h3{font-family:var(--head);font-size:24px;letter-spacing:4px}
+.abhero h3 span{color:var(--cyan)}
+.abv{color:var(--muted);margin-top:4px;font-size:13px}
+.abby{color:#c6d2ea;margin-top:2px;font-size:13px}
+.abacts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.abupd{margin-top:14px;font-size:13px;color:var(--muted);min-height:20px}
+.ablist{list-style:none;display:grid;gap:8px}
+.ablist li{position:relative;padding-left:24px;font-size:13px;line-height:1.6;color:#c6d2ea}
+.ablist li.y:before{content:"✓";position:absolute;left:2px;color:var(--lime);font-weight:700}
+.ablist li.n:before{content:"✕";position:absolute;left:2px;color:var(--cyan);font-weight:700}
+.hash{font-family:var(--mono);font-size:12px;word-break:break-all;padding:10px 12px;border-radius:8px;background:rgba(0,0,0,.35);border:1px solid var(--line);color:#c6d2ea;user-select:text}
+#p-dash .specs{gap:6px}
+#p-dash .spec{padding:6px 12px}
+#p-dash .ct{margin-bottom:10px}
+#p-dash .card{padding:16px 18px}
+#p-dash canvas.spark{height:84px}
+#p-dash .ph{margin-bottom:14px}
+#p-dash .dash{gap:14px}
+.boostg{display:grid;grid-template-columns:1.1fr 1fr;gap:16px;align-items:stretch}
+.boostg>.card:last-child{display:flex;flex-direction:column}
+.boostg .hero{grid-row:auto}
+.reclist{display:grid;gap:4px;flex:1;align-content:start}
+.reclist .ri{display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:8px;background:rgba(0,0,0,.25);font-size:12.5px;color:#c6d2ea}
+.reclist .ri .d{width:8px;height:8px;border-radius:50%;background:var(--dim);flex:none}
+.reclist .ri.on .d{background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.reclist .ri.on{color:#fff}
+.reclist .ri em{margin-left:auto;font-style:normal;font-size:11.5px;color:var(--dim)}
+.reclist .ri.on em{color:var(--lime)}
+.launcher .fivem{margin-bottom:14px}
+.launcher .info small{display:block;margin-top:2px}
+.lrow{display:flex;gap:10px}
+.recent{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.recent .rc{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,.3);border:1px solid rgba(0,229,255,.14);color:#c6d2ea;max-width:260px}
+.recent .rc span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.recent .rc:hover{border-color:var(--cyan);color:#fff}
+.recent .rc i{font-style:normal;color:var(--dim);font-size:11px;margin-left:2px}
+.recent .rc i:hover{color:var(--red)}
+.srv{margin-top:14px;padding:16px;border-radius:12px;background:linear-gradient(90deg,rgba(0,229,255,.07),rgba(139,92,255,.05));border:1px solid rgba(0,229,255,.25);display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.srv h3{font-size:17px;margin-bottom:8px;word-break:break-word}
+.srv .meta{display:flex;gap:6px;flex-wrap:wrap}
+.srv .meta span{font-size:12px;padding:4px 10px;border-radius:6px;background:rgba(0,0,0,.35);color:#c6d2ea}
+.srv .meta span b{color:#fff;font-weight:600}
+.srv .meta span.hl{color:var(--cyan);border:1px solid rgba(0,229,255,.3)}
+.srv .go{display:flex;flex-direction:column;align-items:center;gap:6px}
+.srv .go .boost{width:220px;padding:14px;font-size:16px}
+.srv .go small{color:var(--muted);font-size:11.5px}
+.srv.err{grid-template-columns:1fr;border-color:rgba(255,77,109,.4);background:rgba(255,77,109,.06);color:#ffc2cc}
+.specbar{margin-bottom:14px;font-size:13px;color:#c6d2ea;display:flex;gap:22px;flex-wrap:wrap;align-items:center}
+.specbar b{color:#fff}
+.specbar .lv{font-family:var(--head);color:var(--cyan);margin-left:6px}
+.kv li{display:flex;justify-content:space-between;gap:10px;padding-left:0!important}
+.kv li:before{display:none}
+.kv li span{color:var(--muted)}
+.kv li b{font-weight:600;color:#fff;text-align:right}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="grid"></div><div class="scan"></div>
+
+<div class="app">
+  <header class="titlebar" id="titlebar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 64 64"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#ff2bd6"/></linearGradient></defs>
+        <path d="M32 3 57 17v30L32 61 7 47V17Z" fill="none" stroke="url(#lg)" stroke-width="4"/><path d="M36 12 20 36h11l-3 16 16-24H33Z" fill="url(#lg)"/></svg>
+      <div><h1>ZAN <b>BOOSTER</b></h1><small id="ver">สำหรับ FiveM · v1.7.0</small></div>
+    </div>
+    <div class="tb-spacer"></div>
+    <button class="upd" id="bUpd" style="display:none"></button>
+    <div class="pill" id="fivemPill"><span class="dot"></span><span id="fivemTxt">FiveM ยังไม่เปิด</span></div>
+    <div class="winbtns">
+      <button class="winbtn" id="bMin" title="ย่อ"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 6h10" stroke="currentColor" stroke-width="1.4"/></svg></button>
+      <button class="winbtn x" id="bClose" title="ปิด"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1 1 11" stroke="currentColor" stroke-width="1.4"/></svg></button>
+    </div>
+  </header>
+
+  <nav class="nav">
+        <button class="navbtn active" data-page="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>หน้าหลัก</button>
+    <button class="navbtn" data-page="boost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>บูสต์</button>
+    <button class="navbtn" data-page="opt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>ปรับแต่ง</button>
+    <button class="navbtn" data-page="health"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>ตรวจเครื่อง</button>
+    <button class="navbtn" data-page="gfx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>กราฟิกเกม</button>
+    <button class="navbtn" data-page="net"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h4l3-8 4 16 3-8h6"/></svg>วัดปิง</button>
+    <button class="navbtn" data-page="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>เครื่องมือ</button>
+    <button class="navbtn" data-page="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 17 6-5-6-5M12 19h8"/></svg>บันทึก</button>
+    <button class="navbtn" data-page="about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>เกี่ยวกับ</button>
+    <div class="nav-foot">
+      <div>สิทธิ์ <span class="ok">Admin</span></div>
+      <div>Backup <span id="bkState">-</span></div>
+      <div>เปิดใช้อยู่ <span id="actCount">-</span></div>
+    </div>
+  </nav>
+
+  <main>
+    <!-- DASHBOARD -->
+    <section class="page show" id="p-dash">
+      <div class="home">
+        <div class="card launcher">
+          <div class="fivem">
+            <div class="ic">5M</div>
+            <div class="info"><b>เข้าเซิร์ฟ FiveM</b><small><span id="fmState">กำลังหา FiveM...</span> · <span id="fmSub">&nbsp;</span></small></div>
+            <button class="btn" id="bQuickCache">ล้างแคช</button>
+            <button class="btn" id="bQuickPre">โหมดก่อนเล่น</button>
+          </div>
+          <div class="lrow">
+            <input class="inp" id="srvInput" placeholder="เพิ่มเซิร์ฟ: ใส่ IP:Port หรือโค้ด cfx.re/join/xxxxxx" spellcheck="false">
+            <button class="btn pri" id="bAdd" style="min-width:120px">เพิ่มเซิร์ฟ</button>
+          </div>
+          <div class="lbar">
+            <div class="chk" id="optPreJoin"><span class="box"></span>เตรียมเครื่องก่อนเข้า</div>
+            <div class="live"><span class="dot"></span><span id="liveTxt">อัปเดตจำนวนคนทุก 15 วินาที</span></div>
+          </div>
+          <div class="slist" id="slist"></div>
+        </div>
+        <div class="side">
+          <div class="card mini">
+            <div class="ct">การใช้งานตอนนี้</div>
+            <div class="gauges">
+              <div class="gauge">
+                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="#121a30" stroke-width="9"/><circle id="gCpu" cx="50" cy="50" r="40" fill="none" stroke="#00e5ff" stroke-width="9" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3" style="transition:.6s;filter:drop-shadow(0 0 5px #00e5ff)"/></svg>
+                <div><div class="gl">CPU</div><div class="gv" id="vCpu">0<small>%</small></div><div class="gs" id="sCpu">- threads</div></div>
+              </div>
+              <div class="gauge">
+                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="#121a30" stroke-width="9"/><circle id="gRam" cx="50" cy="50" r="40" fill="none" stroke="#ff2bd6" stroke-width="9" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3" style="transition:.6s;filter:drop-shadow(0 0 5px #ff2bd6)"/></svg>
+                <div><div class="gl">แรม</div><div class="gv" id="vRam">0<small>%</small></div><div class="gs" id="sRam">- / - GB</div></div>
+              </div>
+            </div>
+            <canvas class="spark" id="spark"></canvas>
+          </div>
+          <div class="card mini">
+            <div class="ct">สเปกเครื่อง</div>
+            <div class="mspecs">
+              <div><span>CPU</span><b id="iCpu">กำลังอ่าน...</b></div>
+              <div><span>การ์ดจอ</span><b id="iGpu">-</b></div>
+              <div><span>แรม</span><b id="iRam">-</b></div>
+              <div><span>Windows</span><b id="iOs">-</b></div>
+              <div><span>เน็ต</span><b id="iNet">-</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOST -->
+    <section class="page" id="p-boost">
+      <div class="ph"><div><h2>บูสต์<span>เครื่อง</span></h2><p>กดครั้งเดียว ปรับค่าแนะนำทั้งหมดให้เครื่องพร้อมเล่น FiveM</p></div></div>
+      <div class="boostg">
+        <div class="card hero">
+          <div class="ct" style="width:100%">ระดับการปรับเครื่อง</div>
+          <div class="ringwrap">
+            <svg class="ticks" id="ticks" viewBox="0 0 260 260"></svg><div class="ringglow"></div>
+            <svg viewBox="0 0 200 200"><defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset=".6" stop-color="#8b5cff"/><stop offset="1" stop-color="#ff2bd6"/></linearGradient></defs>
+              <circle cx="100" cy="100" r="86" fill="none" stroke="#121a30" stroke-width="12"/>
+              <circle id="scoreRing" cx="100" cy="100" r="86" fill="none" stroke="url(#rg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="540.35" stroke-dashoffset="540.35" style="transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 0 8px rgba(0,229,255,.6))"/>
+            </svg>
+            <div class="val"><div class="num" id="scoreNum">0<small>%</small></div><div class="sub">ของค่าแนะนำ</div></div>
+          </div>
+          <div class="state" id="scoreState">กำลังตรวจเครื่อง...</div>
+          <div class="hint" id="scoreHint">&nbsp;</div>
+          <button class="boost" id="bBoost">บูสต์เครื่อง</button>
+          <button class="ghost" id="bRestore1">คืนค่าเดิมทั้งหมด</button>
+          <div class="chips" id="catChips"></div>
+        </div>
+        <div class="card">
+          <div class="ct">รายการแนะนำ</div>
+          <div class="reclist" id="recList"></div>
+          <button class="ghost" id="bGoOpt" style="margin-top:14px;width:100%">ปรับเองทีละรายการ</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- OPTIMIZE -->
+    <section class="page" id="p-opt">
+      <div class="ph"><div><h2>ปรับ<span>แต่ง</span></h2><p>เปิดรายการที่ต้องการแล้วกด "ใช้การตั้งค่า" ค่าเดิมถูกเก็บไว้ คืนค่าได้ทุกเมื่อ</p></div></div>
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-cat="fps">FPS</button>
+        <button class="tab" data-cat="input">Input Lag</button>
+        <button class="tab" data-cat="net">เน็ต / ปิง</button>
+        <button class="tab" data-cat="sys">ระบบ</button>
+        <button class="tab" data-cat="all">ทั้งหมด</button>
+      </div>
+      <div class="tgrid" id="tgrid"></div>
+      <div class="actionbar">
+        <div class="count">เลือกไว้ <b id="selCount">0</b> รายการ</div>
+        <div class="chk on" id="chkRp"><span class="box"></span>สร้างจุดคืนค่า Windows ก่อน</div>
+        <button class="btn" id="bRec">เลือกค่าแนะนำ</button>
+        <button class="btn" id="bClear">ไม่เลือกเลย</button>
+        <button class="btn pri" id="bApply">ใช้การตั้งค่า</button>
+      </div>
+    </section>
+
+    <!-- HEALTH -->
+    <section class="page" id="p-health">
+      <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-end"><div><h2>ตรวจ<span>เครื่อง</span></h2><p>หาจุดที่ทำให้เสีย FPS ซึ่งปรับจากโปรแกรมไม่ได้ ต้องแก้เองที่ BIOS หรือฮาร์ดแวร์</p></div><button class="btn pri" id="bHealth">ตรวจใหม่</button></div>
+      <div class="card hsum"><div class="big" id="hCount">-</div><div class="t" id="hText">กดตรวจเพื่อเริ่ม</div></div>
+      <div class="hlist" id="hList"></div>
+    </section>
+
+    <!-- GRAPHICS -->
+    <section class="page" id="p-gfx">
+      <div class="ph"><div><h2>กราฟิก<span>เกม</span></h2><p>เลือกแบบที่ต้องการ โปรแกรมจะแก้ไฟล์ตั้งค่ากราฟิกของ FiveM ให้ ต้องปิดเกมก่อนกด</p></div></div>
+      <div class="card specbar" id="gfxSpec">กำลังดูสเปกเครื่อง...</div>
+      <div class="presetg">
+        <div class="card pcard hot"><h3>ลื่นสุด</h3><div class="pf">ต่ำสุดทุกอย่าง ได้เฟรมมากที่สุด ภาพจะดูเรียบ</div><ul class="kv" id="pl-performance"></ul>
+          <button class="btn pri" data-preset="performance">ใช้แบบนี้</button></div>
+        <div class="card pcard"><h3>สมดุล</h3><div class="pf">คำนวณจากสเปกเครื่องคุณ ภาพยังดี เฟรมนิ่ง</div><ul class="kv" id="pl-balanced"></ul>
+          <button class="btn" data-preset="balanced">ใช้แบบนี้</button></div>
+        <div class="card pcard"><h3>สวย</h3><div class="pf">สูงสุดที่เครื่องคุณไหว ไม่ตั้งเกินตัว</div><ul class="kv" id="pl-quality"></ul>
+          <button class="btn" data-preset="quality">ใช้แบบนี้</button></div>
+      </div>
+      <div class="card" style="margin-top:14px;display:flex;align-items:center;gap:14px">
+        <div style="flex:1"><b id="gfxState">กำลังตรวจไฟล์...</b><div style="color:var(--muted);font-size:12.5px;margin-top:3px;font-family:var(--mono)" id="gfxPath"></div></div>
+        <button class="btn" id="bGfxRestore">คืนกราฟิกเดิม</button>
+      </div>
+      <div class="note">ถ้า FPS ยังไม่ขึ้นมากหลังเลือก "ลื่นสุด" แปลว่าเครื่องติดที่ CPU ไม่ใช่การ์ดจอ ซึ่งเจอบ่อยใน FiveM เพราะเซิร์ฟที่มีคนเยอะและสคริปต์เยอะกิน CPU หนัก ทางแก้ที่ได้ผลคือเปิด XMP ของแรม (ดูหน้าตรวจเครื่อง) และใช้โหมดก่อนเล่น ส่วนความละเอียดจอโปรแกรมไม่แตะ ถ้ายังไม่พอให้ลดในเกมเอง</div>
+    </section>
+
+    <!-- NETWORK -->
+    <section class="page" id="p-net">
+      <div class="ph"><div><h2>วัด<span>ปิง</span></h2><p>วัดก่อนปรับครั้งหนึ่ง แล้ววัดอีกครั้งหลังรีสตาร์ท จะเห็นว่าต่างกันแค่ไหน</p></div></div>
+      <div class="card">
+        <div class="pingtop">
+          <div class="field">
+            <label style="letter-spacing:.3px;font-family:var(--body);font-size:12.5px">IP เซิร์ฟ (ใส่พอร์ตด้วย เช่น 1.2.3.4:30120 จะวัดได้แม่นกว่า)</label>
+            <input class="inp" id="host" value="1.1.1.1" spellcheck="false">
+          </div>
+          <button class="btn pri" id="bPing" style="height:46px;min-width:150px">เริ่มวัด</button>
+        </div>
+        <div class="presets">
+          <button class="preset" data-h="1.1.1.1">Cloudflare</button>
+          <button class="preset" data-h="8.8.8.8">Google</button>
+          <button class="preset" data-h="cfx.re:443">cfx.re</button>
+        </div>
+      </div>
+      <div class="pingbig">
+        <div class="card pnow"><div class="n" id="pNow">--</div><div class="u">ms</div><div class="q" id="pQ" style="color:var(--dim)">ยังไม่ได้วัด</div></div>
+        <div class="card"><div class="ct" id="pMode">60 วินาทีล่าสุด</div><canvas id="pingChart"></canvas></div>
+      </div>
+      <div class="pstats">
+        <div class="pstat"><span>เฉลี่ย</span><b id="sAvg">--</b></div>
+        <div class="pstat"><span>ต่ำสุด</span><b id="sMin">--</b></div>
+        <div class="pstat"><span>สูงสุด</span><b id="sMax">--</b></div>
+        <div class="pstat"><span>ปิงแกว่ง (Jitter)</span><b id="sJit">--</b></div>
+        <div class="pstat"><span>แพ็กเก็ตหาย</span><b id="sLoss">--</b></div>
+      </div>
+      <div class="note">ปิงขึ้นกับระยะทางไปเซิร์ฟเป็นหลัก ตัวโปรแกรมช่วยลดส่วนที่เกิดในเครื่อง ผลที่เห็นชัดสุดคือปิงแกว่งน้อยลง ถ้าปิงสูงตลอดเวลา ลองเสียบสายแลนแทน Wi-Fi และปิดโปรแกรมที่โหลดไฟล์อยู่เบื้องหลัง</div>
+    </section>
+
+    <!-- TOOLS -->
+    <section class="page" id="p-tools">
+      <div class="ph"><div><h2>เครื่อง<span>มือ</span></h2><p>ใช้ได้ทุกเมื่อ ไม่ต้องรีสตาร์ท</p></div><div class="tabs" id="ttabs" style="margin:0"><button class="tab active" data-t="t1">เครื่องมือ</button><button class="tab" data-t="t2">คำแนะนำการตั้งค่า</button></div></div>
+      <div id="t1">
+      <div class="card" style="margin-bottom:14px">
+        <div class="ct" style="display:flex;justify-content:space-between;align-items:center">โหมดก่อนเล่น<button class="btn" id="bAppsRefresh" style="padding:6px 12px;font-size:12px">รีเฟรชรายการ</button></div>
+        <div style="color:var(--muted);font-size:13px">กดก่อนเข้าเกม ปิดโปรแกรมที่กินเครื่อง ล้างแคชแรม และดัน Priority ให้ FiveM ถ้าเกมเปิดอยู่</div>
+        <div class="applist" id="appList"><div class="empty">กำลังดูโปรแกรมที่เปิดอยู่...</div></div>
+        <div class="pre-opts">
+          <div class="chk on" id="optMem"><span class="box"></span>ล้างแคชแรม (Standby)</div>
+          <div class="chk on" id="optPrio"><span class="box"></span>ดัน Priority FiveM ถ้าเปิดอยู่</div>
+        </div>
+        <button class="btn pri" id="bPreGame" style="min-width:200px">เตรียมเครื่องก่อนเล่น</button>
+      </div>
+      <div class="tools">
+        <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14"/></svg></div><h4>ล้างแคช FiveM</h4><p>ลบ cache, server-cache และ crash log แต่เก็บไฟล์เกมไว้ ช่วยแก้โหลดค้าง ภาพเพี้ยน เข้าเซิร์ฟไม่ได้</p><button class="btn" data-act="CleanCache">ล้างแคช</button></div>
+        <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4zM6 8v12h12V8M10 12h4"/></svg></div><h4>ล้างไฟล์ขยะ + DNS</h4><p>ลบไฟล์ Temp ของ Windows และล้าง DNS ไฟล์ที่เปิดใช้อยู่จะข้ามไป</p><button class="btn" data-act="CleanTemp">ล้างเลย</button></div>
+        <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c3 3 5 7 5 11l-5 4-5-4c0-4 2-8 5-11zM9 17l-2 5 5-2 5 2-2-5"/></svg></div><h4>ดัน Priority เกม</h4><p>เปิดเกมก่อนแล้วกด FiveM จะได้ CPU ก่อนโปรแกรมอื่นทันที</p><button class="btn" data-act="BoostNow">ดัน Priority</button></div>
+        <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div><h4>โฟลเดอร์ FiveM</h4><p id="fmPathTool" style="font-family:var(--mono);font-size:11px;word-break:break-all">กำลังค้นหา...</p><button class="btn" id="bPick">เลือกโฟลเดอร์เอง</button></div>
+        <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h6l2 2h10v10H3z"/></svg></div><h4>ไฟล์ Backup และ Log</h4><p>เก็บอยู่ที่ C:\ProgramData\ZanBooster</p><button class="btn" id="bData">เปิดโฟลเดอร์</button></div>
+      </div>
+      </div>
+      <div id="t2" style="display:none"><div class="tips">
+        <div class="card"><div class="ct">ตั้งค่าในเกม</div><ul>
+          <li>Display Mode เป็น <b>Fullscreen</b> แล้วเปิดตัว <b>Alt-Tab ไว</b> ในหน้าปรับแต่ง</li>
+          <li>ปิด <b>VSync</b> แล้วล็อกเฟรมแทน</li>
+          <li>ลด <b>Grass, Shadow, Post FX, Reflection MSAA</b> ก่อน กินเฟรมเยอะสุด</li>
+          <li>ปิด <b>Extended Distance Scaling</b> และ <b>Extended Shadows</b></li>
+          <li>ดู FPS ในเกม: กด F8 พิมพ์ <b>cl_drawfps true</b></li>
+        </ul></div>
+        <div class="card"><div class="ct">การ์ดจอ</div><ul>
+          <li><b>NVIDIA</b>: Low Latency Mode เป็น On หรือ Ultra, Power management เป็น Prefer maximum performance</li>
+          <li><b>AMD</b>: เปิด Radeon Anti-Lag, ปิด Radeon Chill</li>
+          <li>ล็อก FPS ให้ต่ำกว่าที่เครื่องทำได้นิดหน่อย เฟรมจะนิ่งกว่า</li>
+          <li>อัปเดตไดรเวอร์การ์ดจอให้เป็นตัวล่าสุด</li>
+        </ul></div>
+        <div class="card"><div class="ct">ทั่วไป</div><ul>
+          <li>โน้ตบุ๊กให้<b>เสียบสายชาร์จ</b>ตอนเล่น</li>
+          <li>ปิด overlay ของ Discord / Steam และแท็บ Chrome ที่ไม่ใช้</li>
+          <li>แรม 8GB เล่นได้แต่จะสะดุด 16GB ขึ้นไปจะลื่นกว่า</li>
+          <li>ลง FiveM กับ GTA V ไว้ใน <b>SSD</b></li>
+        </ul></div>
+      </div>
+    </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="page" id="p-about">
+      <div class="ph"><div><h2>เกี่ยว<span>กับ</span></h2><p>ข้อมูลโปรแกรม การอัปเดต และการตรวจสอบไฟล์</p></div></div>
+      <div class="aboutg">
+        <div class="card abhero">
+          <svg class="ablogo" viewBox="0 0 64 64"><defs><linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#ff2bd6"/></linearGradient></defs><path d="M32 3 57 17v30L32 61 7 47V17Z" fill="none" stroke="url(#lg2)" stroke-width="4"/><path d="M36 12 20 36h11l-3 16 16-24H33Z" fill="url(#lg2)"/></svg>
+          <h3>ZAN <span>BOOSTER</span></h3>
+          <div class="abv" id="abVer">-</div>
+          <div class="abby" id="abBy"></div>
+          <div class="abacts">
+            <button class="btn pri" id="bCheckUpd">ตรวจหาอัปเดต</button>
+            <button class="btn" id="bReport">ส่งรายงานปัญหา</button>
+            <button class="btn" id="bContact" style="display:none">ติดต่อผู้พัฒนา</button>
+          </div>
+          <div class="abupd" id="abUpd"></div>
+        </div>
+        <div class="card">
+          <div class="ct">โปรแกรมนี้ทำอะไรบ้าง</div>
+          <ul class="ablist">
+            <li class="y">ปรับค่า Windows เช่น registry และ Power Plan โดยเก็บค่าเดิมไว้ทุกครั้ง กดคืนค่าได้</li>
+            <li class="y">แก้ไฟล์ตั้งค่ากราฟิกของ FiveM ตามแบบที่เลือก และเก็บไฟล์เดิมไว้</li>
+            <li class="y">เปิด FiveM ด้วยคำสั่งที่ FiveM เปิดให้ใช้อย่างเป็นทางการ (-b, -pure) เพื่อเข้าเซิร์ฟรอบเดียว</li>
+            <li class="n">ไม่แก้ไฟล์เกม ไม่ใส่โค้ดเข้าไปในเกม ไม่ยุ่งกับระบบกันโกง</li>
+            <li class="n">ไม่ส่งข้อมูลเครื่องออกไปไหน ต่ออินเทอร์เน็ตแค่ตอนดูข้อมูลเซิร์ฟ และตอนเช็กอัปเดตจาก GitHub</li>
+          </ul>
+          <div class="ct" style="margin-top:18px">ตรวจสอบไฟล์ (SHA256)</div>
+          <div class="hash" id="abHash">กำลังคำนวณ...</div>
+          <div style="color:var(--muted);font-size:12px;margin-top:8px">ค่านี้ต้องตรงกับที่ผู้พัฒนาประกาศไว้ ถ้าไม่ตรงแปลว่าไฟล์ถูกแก้ ไม่ควรใช้</div>
+          <button class="btn" id="bCopyHash" style="margin-top:10px">คัดลอก</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOG -->
+    <section class="page" id="p-log">
+      <div class="ph"><div><h2>บัน<span>ทึก</span></h2><p>ไฟล์เต็มอยู่ที่ C:\ProgramData\ZanBooster\log.txt</p></div><div style="display:flex;gap:8px"><button class="btn" id="bReport2">ส่งรายงานปัญหา</button><button class="btn" id="bClrLog">ล้างหน้าจอ</button></div></div>
+      <div class="term" id="term"></div>
+    </section>
+  </main>
+</div>
+
+<!-- modal -->
+<div class="ov" id="ov"><div class="card modal" id="modal"></div></div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+'use strict';
+/* ================= bridge (mock เมื่อเปิดในเบราว์เซอร์ทั่วไป) ================= */
+const NATIVE = typeof window.engine === 'function';
+if (!NATIVE) {
+  const st = {};
+  window.engine = async (a, ids) => { setTimeout(() => mockRun(a, ids), 50); return true; };
+  window.stats = async () => ({ cpu: 18 + Math.random() * 25, ram: 46 + Math.random() * 4, ramUsed: 7.6, ramTotal: 15.9, fivem: false });
+  let pt = null;
+  window.pingStart = async () => { clearInterval(pt); pt = setInterval(() => window.onPing({ ok: Math.random() > .03, ms: 24 + Math.random() * 9, mode: 'ICMP' }), 1000); return true; };
+  window.pingStop = async () => clearInterval(pt);
+  window.winMin = window.winClose = window.winDrag = window.openUrl = window.openDataDir = async () => {};
+  window.appVersion = async () => '1.7.0';
+  let rec = JSON.stringify([{ name: 'Zan City RP | ภาษาไทย | Economy', connect: 'cfx.re/join/abc123', base: 'https://x.users.cfx.re/', country: 'TH', build: 3095, pure: 1, players: 187, maxPlayers: 300 },
+    { name: 'Bangkok Life Roleplay', connect: '203.0.113.10:30120', base: 'http://203.0.113.10:30120/', country: 'TH', build: 3258, players: 64, maxPlayers: 128 },
+    { name: 'NoPixel Inspired | US East', connect: 'cfx.re/join/us1234', base: 'https://y.users.cfx.re/', country: 'US', build: 2802, players: 41, maxPlayers: 64 },
+    { name: 'Old Server', connect: '198.51.100.7:30120', base: 'http://dead/', country: 'SG', build: 3258, players: 0, maxPlayers: 48 }]);
+  window.loadRecent = async () => rec; window.saveRecent = async s => { rec = s; return true; };
+  const MI = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><rect width="52" height="52" fill="#3a1d6e"/><text x="26" y="34" font-size="20" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="bold">ZC</text></svg>');
+  window.serverStatus = async (b, id) => { setTimeout(() => window.onServerStatus({ reqId: id, ok: !b.includes('dead'), players: Math.floor(100 + Math.random() * 150), maxPlayers: 300, ping: 15 + Math.random() * 30 }), 200); return true; };
+  window.serverLookup = async (v, id) => { setTimeout(() => window.onServerInfo({ reqId: id, ok: true, input: v, connect: v, base: 'http://' + v + '/', icon: MI, country: v.startsWith('9') ? 'DE' : 'TH', hostname: v.startsWith('9') ? 'German Roleplay Community' : 'Zan City RP | ภาษาไทย | Economy | Gang', players: 187, maxPlayers: 300, ping: 18, build: 3095, pure: 1, pool: '{"CMoveObject":200,"TxdStore":5000}', poolCount: 2, effDefault: 3095, onesync: 'true', resources: 412 }), 500); return true; };
+  window.launchServer = async () => ({ ok: true, cmd: 'FiveM.exe -b3095 -pure_1 "fivem://connect/x"' });
+  let sets = '{}'; window.loadSettings = async () => sets; window.saveSettings = async x => { sets = x; return true; };
+  window.checkUpdate = async () => { setTimeout(() => window.onUpdate({ enabled: true, available: true, current: '1.6.0', latest: '1.6.1', notes: 'แก้บั๊กเล็กน้อย', url: 'x', sha256: '' }), 300); return true; };
+  window.applyUpdate = async () => 'ทดสอบ: ไม่ได้อัปเดตจริง';
+  window.about = async () => ({ version: '1.6.0', author: 'Zan', contact: '', repo: '', sha256: '3f9a1c0e7b2d4a6f8e1c3b5d7f9a2c4e6b8d0f1a3c5e7b9d2f4a6c8e0b1d3f5a', path: '' });
+  window.purgeMemory = async () => ({ ok: true, standbyMB: 5210, freedMB: 4870 });
+  function mockRun(a, ids) {
+    const E = o => window.onEngine(o);
+    if (a === 'SysInfo') E({ t: 'result', action: 'SysInfo', info: { cpu: 'AMD Ryzen 5 5600X 6-Core Processor', cores: 12, gpu: 'NVIDIA GeForce RTX 3060', ram: 16, os: 'Microsoft Windows 11 Pro', build: '22631', net: 'Realtek PCIe 2.5GbE Family Controller', link: '1 Gbps', fivem: true, fivemPath: 'D:\\Games\\FiveM', cache: 1834 } });
+    if (a === 'Status') E({ t: 'result', action: 'Status', status: Object.fromEntries(TWEAKS.map(t => [t.id, !!st[t.id] || t.id === 'GameMode'])), hasBackup: Object.keys(st).length > 0 });
+    if (a === 'Apply') { const l = ids.split(','); let i = 0; const go = () => { if (i >= l.length) { E({ t: 'result', action: 'Apply', ok: l.length, fail: 0 }); E({ t: 'done', action: a }); return; } const id = l[i++]; E({ t: 'step', id, state: 'run', i, n: l.length }); setTimeout(() => { st[id] = 1; E({ t: 'step', id, state: 'ok', i, n: l.length }); go(); }, 260); }; go(); return; }
+    if (a === 'Restore') { for (const k in st) delete st[k]; E({ t: 'result', action: 'Restore', ok: true }); }
+    if (a === 'CleanCache' || a === 'CleanTemp') E({ t: 'result', action: a, ok: true, mb: 742 });
+    if (a === 'Health') E({ t: 'result', action: a, items: [
+      { id: 'xmp', title: 'ความเร็วแรม', status: 'warn', detail: 'แรม DDR4 วิ่งอยู่ที่ 2133 MHz อาจยังไม่ได้เปิด XMP / EXPO', fix: 'เข้า BIOS ตอนเปิดเครื่อง (กด Del หรือ F2) หาเมนู XMP, D.O.C.P หรือ EXPO แล้วเปิด จากนั้นกด Save & Exit ส่วนนี้ช่วย FPS ใน FiveM ได้เยอะ' },
+      { id: 'chan', title: 'แรมแบบ Dual Channel', status: 'info', detail: 'แรมคนละขนาด (16 + 8 GB) ส่วนที่เกินจะทำงานแบบ Single Channel', fix: 'ถ้าจะอัปเกรด ให้ใช้แรมขนาดเท่ากันทุกแผง' },
+      { id: 'hz', title: 'รีเฟรชเรตจอ', status: 'ok', detail: '165 Hz', fix: '' },
+      { id: 'driver', title: 'ไดรเวอร์การ์ดจอ', status: 'ok', detail: 'ลงวันที่ 12/10/2026', fix: '' },
+      { id: 'fivemdisk', title: 'ไดรฟ์ที่ลง FiveM', status: 'ok', detail: 'ไดรฟ์ D: เป็น NVMe SSD', fix: '' },
+      { id: 'gtadisk', title: 'ไดรฟ์ที่ลง GTA V', status: 'warn', detail: 'E:\\SteamLibrary\\steamapps\\common\\Grand Theft Auto V (HDD)', fix: 'GTA V อยู่บน HDD ทำให้แมพโหลดช้าและกระตุกตอนขับรถเร็ว ควรย้ายไป SSD' },
+      { id: 'space', title: 'พื้นที่ว่างไดรฟ์ C:', status: 'ok', detail: 'เหลือ 182 GB (38%)', fix: '' },
+      { id: 'plan', title: 'Power Plan', status: 'ok', detail: 'ใช้โหมดประสิทธิภาพสูงอยู่', fix: '' }] });
+    if (a === 'GfxPlan') { const P = (t, s, sh, so, g, rf, pf, ms, fx, l, ml, d) => ({ TextureQuality: t, ShaderQuality: s, ShadowQuality: sh, Shadow_SoftShadows: so, GrassQuality: g, ReflectionQuality: rf, PostFX: pf, MSAA: ms, FXAA_Enabled: fx, LodScale: l, MaxLodScale: ml, CityDensity: d });
+      E({ t: 'result', action: a, gpu: 'NVIDIA GeForce RTX 4060 Ti', vram: 8, cpu: '13th Gen Intel(R) Core(TM) i5-13400F', ram: 24, gpuTier: 4, cpuTier: 4,
+        presets: { performance: P(0, 0, 1, 0, 0, 0, 0, 0, 'false', 0, 0, 0), balanced: P(1, 1, 2, 2, 2, 2, 2, 0, 'true', .8, 0, .8), quality: P(2, 2, 3, 3, 2, 3, 3, 0, 'true', 1, .4, 1) } }); }
+    if (a === 'GfxStatus') E({ t: 'result', action: a, found: true, hasBackup: !!st._gfx, path: 'C:\\Users\\Zan\\AppData\\Roaming\\CitizenFX\\gta5_settings.xml' });
+    if (a === 'GfxApply') { st._gfx = 1; E({ t: 'result', action: a, ok: true, n: 30 }); }
+    if (a === 'GfxRestore') { delete st._gfx; E({ t: 'result', action: a, ok: true }); }
+    if (a === 'ListApps') E({ t: 'result', action: a, apps: [{ id: 'chrome', name: 'Google Chrome', mb: 1840, count: 14 }, { id: 'steamwebhelper', name: 'Steam (หน้าต่างเว็บ)', mb: 412, count: 6 }, { id: 'EpicGamesLauncher', name: 'Epic Games Launcher', mb: 260, count: 1 }, { id: 'OneDrive', name: 'OneDrive', mb: 96, count: 1 }] });
+    if (a === 'CloseApps') E({ t: 'result', action: a, ok: true, n: ids.split(',').length, mb: 2100 });
+    if (a === 'Report') E({ t: 'result', action: a, ok: true, path: 'C:\\Users\\Zan\\Desktop\\ZanBooster-report.zip' });
+    if (a === 'BoostNow') E({ t: 'result', action: a, ok: false, m: 'ยังไม่ได้เปิดเกม FiveM' });
+    E({ t: 'done', action: a });
+  }
+}
+
+/* ================= data ================= */
+const TWEAKS = [
+  { id: 'PowerPlan', cat: 'fps', rec: true, title: 'Power Plan แบบแรงสุด', desc: 'ให้ CPU วิ่งเต็มสปีดตลอด ไม่ลดคล็อก ไม่พักคอร์ เห็นผลชัดสุดในเครื่องส่วนใหญ่' },
+  { id: 'GameMode', cat: 'fps', rec: true, title: 'เปิด Game Mode', desc: 'Windows จะแบ่งทรัพยากรให้เกมก่อน และไม่รัน Windows Update ระหว่างเล่น' },
+  { id: 'GameDVR', cat: 'fps', rec: true, title: 'ปิดการอัดคลิปของ Xbox Game Bar', desc: 'ตัวอัดคลิปเบื้องหลังกินการ์ดจอกับดิสก์ตลอด ปิดแล้วเฟรมนิ่งขึ้น' },
+  { id: 'MMCSS', cat: 'fps', rec: true, title: 'ให้เกมได้คิวก่อน', desc: 'ตั้ง Multimedia Scheduler ให้งานประเภทเกมได้ CPU และการ์ดจอก่อนงานเบื้องหลัง' },
+  { id: 'PowerThrottle', cat: 'fps', rec: true, title: 'ปิด Power Throttling', desc: 'กันไม่ให้ Windows ลดความเร็ว CPU ของเกมตอนสลับหน้าจอ' },
+  { id: 'FiveMPriority', cat: 'fps', rec: true, title: 'ตั้ง Priority FiveM เป็น High อัตโนมัติ', desc: 'เปิดเกมเมื่อไหร่ FiveM จะได้ CPU ก่อนโปรแกรมอื่นทุกครั้ง ไม่ได้แก้ไฟล์เกม' },
+  { id: 'HAGS', cat: 'fps', rec: false, warn: 'ต้องรีสตาร์ท', title: 'Hardware-accelerated GPU Scheduling', desc: 'สำหรับการ์ดจอ GTX 10 series / RX 5000 ขึ้นไป บางเครื่องลื่นขึ้น บางเครื่องกระตุก ลองแล้ววัดดู' },
+  { id: 'VisualFX', cat: 'fps', rec: false, title: 'ปิดเอฟเฟกต์ของ Windows', desc: 'ปิดแอนิเมชันกับความโปร่งใส เหมาะกับเครื่องสเปกต่ำ' },
+  { id: 'BgApps', cat: 'fps', rec: false, title: 'ปิดแอป Store ที่รันเบื้องหลัง', desc: 'ลดแอปที่แอบใช้แรมกับ CPU (เห็นผลใน Windows 10) แอปบางตัวอาจไม่เด้งแจ้งเตือน' },
+  { id: 'PrioSep', cat: 'input', rec: true, title: 'ให้ CPU ตอบสนองหน้าต่างเกมเร็วขึ้น', desc: 'ปรับ Win32PrioritySeparation เป็น 0x26 เกมที่เปิดอยู่จะได้รอบ CPU ถี่ขึ้น' },
+  { id: 'MouseAccel', cat: 'input', rec: true, title: 'ปิดเร่งความเร็วเมาส์', desc: 'ขยับเมาส์เท่าเดิม เป้าไปเท่าเดิมทุกครั้ง เล็งง่ายขึ้น' },
+  { id: 'UsbSuspend', cat: 'input', rec: true, title: 'ไม่ให้ Windows พักพอร์ต USB', desc: 'กันเมาส์ คีย์บอร์ด หูฟัง สะดุดหรือหลุดไปแป๊บหนึ่ง' },
+  { id: 'FastAltTab', cat: 'input', rec: true, conflict: 'FSO', title: 'Fullscreen แต่ Alt-Tab ไว', desc: 'เล่นโหมด Fullscreen ได้เฟรมกับ input lag เท่าเดิม แต่พับจอได้ทันที ไม่มีจอดำ' },
+  { id: 'FSO', cat: 'input', rec: false, conflict: 'FastAltTab', warn: 'Alt-Tab จอดำ', title: 'Fullscreen Exclusive แบบเดิม', desc: 'บังคับโหมด Exclusive บางเครื่อง input lag ต่ำลงนิดหน่อย แต่พับจอจะดำ 1-3 วินาที ใช้พร้อมกับ Alt-Tab ไว ไม่ได้' },
+  { id: 'NetThrottle', cat: 'net', rec: true, title: 'ปิด Network Throttling', desc: 'Windows จะจำกัดเน็ตตอนเปิดเพลงหรือวิดีโอ ปิดแล้วปิงแกว่งน้อยลง' },
+  { id: 'Nagle', cat: 'net', rec: true, title: 'ส่งแพ็กเก็ตทันที (ปิด Nagle)', desc: 'ไม่ต้องรอรวมแพ็กเก็ตก่อนส่ง ช่วยตอนโหลดเข้าเซิร์ฟและส่วนที่ใช้ TCP' },
+  { id: 'Adapter', cat: 'net', rec: false, warn: 'เน็ตหลุดแป๊บหนึ่ง', title: 'ตั้งค่าการ์ดแลน', desc: 'ปิด Interrupt Moderation และโหมดประหยัดไฟของการ์ดแลน ได้ผลกับสายแลน' },
+  { id: 'Services', cat: 'sys', rec: false, warn: 'เครื่องสเปกต่ำได้ผลสุด', title: 'ปิด Service ที่ไม่จำเป็น', desc: 'ปิด Telemetry, SysMain และ service ของ Xbox ที่ไม่ได้ใช้ ลดงานเบื้องหลังของ Windows (จอย Xbox ยังใช้ได้)' },
+  { id: 'Defender', cat: 'sys', rec: false, warn: 'ความปลอดภัยลดลงนิดหน่อย', title: 'ให้ Defender ข้ามโฟลเดอร์ FiveM', desc: 'โหลดแมพและเข้าเซิร์ฟลื่นขึ้น เพราะ Defender ไม่ต้องสแกนแคชทุกไฟล์' },
+];
+const CAT = { fps: ['FPS', 'fps'], input: ['Input Lag', 'input'], net: ['เน็ต', 'net'], sys: ['ระบบ', 'sys'] };
+const byId = Object.fromEntries(TWEAKS.map(t => [t.id, t]));
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+let status = {}, hasBackup = false, sel = new Set(TWEAKS.filter(t => t.rec).map(t => t.id)), curCat = 'fps';
+let job = null;
+
+/* ================= window chrome ================= */
+$('#titlebar').addEventListener('mousedown', e => { if (e.button === 0 && !e.target.closest('button')) window.winDrag(); });
+$('#bMin').onclick = () => window.winMin();
+$('#bClose').onclick = () => window.winClose();
+document.addEventListener('contextmenu', e => { if (!e.target.closest('input,.term')) e.preventDefault(); });
+document.addEventListener('keydown', e => { if (e.key === 'F5' || (e.ctrlKey && ['r', 'p', 'f', 'j', 'u'].includes(e.key.toLowerCase()))) e.preventDefault(); });
+window.appVersion().then(v => $('#ver').textContent = 'สำหรับ FiveM · v' + v);
+
+/* ================= nav ================= */
+function go(p) {
+  $$('.navbtn').forEach(b => b.classList.toggle('active', b.dataset.page === p));
+  $$('.page').forEach(s => s.classList.toggle('show', s.id === 'p-' + p));
+  if (p === 'net') setTimeout(drawPing, 30);
+  if (p === 'health' && !healthDone) runHealth();
+  if (p === 'gfx') { gfxStatus(); if (!gfxPlanned) { gfxPlanned = true; gfxPlan(); } }
+  if (p === 'tools') loadApps();
+}
+$$('.navbtn').forEach(b => b.onclick = () => go(b.dataset.page));
+
+/* ================= log / toast / modal ================= */
+const esc = s => String(s ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+function log(m, cls = '') {
+  const d = new Date().toTimeString().slice(0, 8);
+  const el = $('#term');
+  el.insertAdjacentHTML('beforeend', `<div><span class="t">[${d}]</span> <span class="${cls}">${esc(m)}</span></div>`);
+  el.scrollTop = el.scrollHeight;
+}
+$('#bClrLog').onclick = () => $('#term').innerHTML = '';
+function toast(m, type = '') {
+  const t = document.createElement('div');
+  t.className = 'toast ' + type; t.innerHTML = `<div>${esc(m)}</div>`;
+  $('#toasts').appendChild(t);
+  setTimeout(() => { t.style.transition = '.3s'; t.style.opacity = 0; setTimeout(() => t.remove(), 300); }, 4200);
+}
+function modal(html) { $('#modal').innerHTML = html; $('#ov').classList.add('show'); }
+function closeModal() { $('#ov').classList.remove('show'); }
+function confirmBox(title, msg, okText = 'ยืนยัน') {
+  return new Promise(res => {
+    modal(`<h3>${esc(title)}</h3><div class="msg">${esc(msg)}</div><div class="acts"><button class="btn" id="mNo">ยกเลิก</button><button class="btn pri" id="mYes">${esc(okText)}</button></div>`);
+    $('#mNo').onclick = () => { closeModal(); res(false); };
+    $('#mYes').onclick = () => { closeModal(); res(true); };
+  });
+}
+
+/* ================= engine bridge ================= */
+let queue = Promise.resolve();
+function run(action, ids = '', opt = '') {
+  // ต่อคิว: ถ้ามีงานอื่นทำอยู่ (เช่นสแกนตอนเปิดโปรแกรม) จะรอให้เสร็จก่อนแล้วทำต่ออัตโนมัติ
+  const p = queue.then(() => new Promise(async res => {
+    job = { action, res, result: null };
+    let ok = false;
+    for (let i = 0; i < 50 && !ok; i++) { ok = await window.engine(action, ids, opt); if (!ok) await new Promise(r => setTimeout(r, 200)); }
+    if (!ok) { job = null; res(null); }
+  }));
+  queue = p.catch(() => {});
+  return p;
+}
+window.onEngine = ev => {
+  if (ev.t === 'log') log(ev.m);
+  else if (ev.t === 'step') onStep(ev);
+  else if (ev.t === 'result') { if (job) job.result = ev; }
+  else if (ev.t === 'error') { log('ERROR: ' + ev.m, 'er'); if (job) job.result = { ok: false, m: ev.m, error: true }; }
+  else if (ev.t === 'done') { const j = job; job = null; if (j) j.res(j.result); }
+};
+
+/* ================= status / score ================= */
+async function refreshStatus() {
+  const r = await run('Status');
+  if (!r || !r.status) return;
+  status = r.status; hasBackup = !!r.hasBackup;
+  renderScore(); renderTweaks();
+}
+const TICKS = 60;
+(function buildTicks() {
+  const svg = $('#ticks'); let h = '';
+  for (let i = 0; i < TICKS; i++) {
+    const a = (i / TICKS) * Math.PI * 2 - Math.PI / 2, major = i % 5 === 0;
+    const r1 = major ? 112 : 115, r2 = 123;
+    const x1 = 130 + r1 * Math.cos(a), y1 = 130 + r1 * Math.sin(a), x2 = 130 + r2 * Math.cos(a), y2 = 130 + r2 * Math.sin(a);
+    h += `<line class="${major ? 'major' : ''}" x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}"/>`;
+  }
+  svg.innerHTML = h;
+})();
+function lightTicks(pct) {
+  const lines = $$('#ticks line'), n = Math.round(pct / 100 * TICKS);
+  const mix = t => { const c1 = [0, 229, 255], c2 = [139, 92, 255], c3 = [255, 43, 214];
+    const [a, b, k] = t < .6 ? [c1, c2, t / .6] : [c2, c3, (t - .6) / .4];
+    return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * k)).join(',')})`; };
+  lines.forEach((l, i) => {
+    const on = i < n; l.classList.toggle('on', on); l.classList.toggle('tip', on && i === n - 1 && n < TICKS);
+    l.style.transitionDelay = (i * 12) + 'ms';
+    if (on) {
+      // สีเดียวกับวงใน (gradient แนวทแยงของ SVG ที่หมุน -90 องศา)
+      const ang = (i / TICKS) * Math.PI * 2 - Math.PI / 2, t = Math.min(1, Math.max(0, (Math.cos(ang) - Math.sin(ang) + 2) / 4));
+      const c = mix(t); l.style.stroke = c; l.style.color = c; } else { l.style.stroke = ''; l.style.color = ''; }
+  });
+}
+function renderScore() {
+  const rec = TWEAKS.filter(t => t.rec), act = rec.filter(t => status[t.id]).length;
+  const pct = Math.round(act / rec.length * 100);
+  const C = 540.35;
+  $('#scoreRing').style.strokeDashoffset = C - C * pct / 100;
+  lightTicks(pct);
+  $('#recList').innerHTML = rec.map(t => `<div class="ri ${status[t.id] ? 'on' : ''}"><span class="d"></span>${esc(t.title)}<em>${status[t.id] ? 'เปิดอยู่' : 'ยังไม่เปิด'}</em></div>`).join('');
+  animNum($('#scoreNum'), pct, v => `${v}<small>%</small>`);
+  $('#scoreState').textContent = pct >= 100 ? 'ปรับครบแล้ว' : pct >= 50 ? 'ปรับไปแล้วบางส่วน' : 'ยังไม่ได้ปรับ';
+  $('#scoreHint').textContent = `เปิดอยู่ ${act} จาก ${rec.length} รายการแนะนำ`;
+  $('#scoreState').style.color = pct >= 100 ? 'var(--lime)' : pct >= 50 ? 'var(--amber)' : 'var(--text)';
+  const all = TWEAKS.filter(t => status[t.id]).length;
+  $('#actCount').textContent = `${all}/${TWEAKS.length}`;
+  $('#bkState').innerHTML = hasBackup ? '<span class="ok">มี</span>' : 'ยังไม่มี';
+  $('#catChips').innerHTML = Object.entries(CAT).map(([k, [n]]) => {
+    const l = TWEAKS.filter(t => t.cat === k); return `<span class="chip">${n} <b>${l.filter(t => status[t.id]).length}/${l.length}</b></span>`;
+  }).join('');
+}
+function animNum(el, to, fmt) {
+  const from = +el.dataset.v || 0; el.dataset.v = to; const t0 = performance.now();
+  const step = t => { const k = Math.min(1, (t - t0) / 900), e = 1 - Math.pow(1 - k, 3); el.innerHTML = fmt(Math.round(from + (to - from) * e)); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+
+/* ================= tweaks grid ================= */
+function renderTweaks() {
+  const list = TWEAKS.filter(t => curCat === 'all' || t.cat === curCat);
+    $('#tgrid').innerHTML = list.map(t => `
+    <div class="tw ${sel.has(t.id) ? 'sel' : ''}" data-id="${t.id}">
+      <div class="tx"><h4>${esc(t.title)}</h4><p>${esc(t.desc)}</p>
+        <div class="tags"><span class="tag ${CAT[t.cat][1]}">${CAT[t.cat][0]}</span>${t.rec ? '<span class="tag rec">แนะนำ</span>' : ''}${t.warn ? `<span class="tag warn">${esc(t.warn)}</span>` : ''}${status[t.id] ? '<span class="tag active">เปิดอยู่</span>' : ''}</div></div>
+      <div class="sw"></div>
+    </div>`).join('');
+  $$('.tw').forEach(el => el.onclick = () => {
+    const id = el.dataset.id, t = byId[id];
+    if (sel.has(id)) sel.delete(id);
+    else { sel.add(id); if (t.conflict && sel.has(t.conflict)) { sel.delete(t.conflict); toast(`ปิด "${byId[t.conflict].title}" ให้แล้ว เพราะใช้คู่กันไม่ได้`); } }
+    renderTweaks();
+  });
+  $('#selCount').textContent = sel.size;
+}
+$$('.tab').forEach(b => b.onclick = () => { $$('.tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); curCat = b.dataset.cat; renderTweaks(); });
+$('#bRec').onclick = () => { sel = new Set(TWEAKS.filter(t => t.rec).map(t => t.id)); renderTweaks(); };
+$('#bClear').onclick = () => { sel.clear(); renderTweaks(); };
+$('#chkRp').onclick = () => $('#chkRp').classList.toggle('on');
+
+/* ================= apply ================= */
+let stepList = [];
+function onStep(ev) {
+  const el = $('#st-' + ev.id); if (!el) return;
+  el.className = 'st ' + ev.state;
+  if (ev.state === 'fail' && ev.m) el.querySelector('em').textContent = ev.m;
+  if (ev.state === 'run' && ev.i === 1) $('#mMsg').textContent = 'กำลังปรับ...';
+  if (ev.state === 'run') { el.scrollIntoView({ block: 'nearest' }); log('→ ' + byId[ev.id].title, 'in'); }
+  if (ev.state === 'ok') log('  ✓ ' + byId[ev.id].title, 'ok');
+  if (ev.state === 'fail') log('  ✕ ' + byId[ev.id].title + ': ' + (ev.m || ''), 'er');
+  if (ev.state !== 'run') $('#pbar').style.width = (ev.i / ev.n * 100) + '%';
+}
+async function applyIds(ids, title) {
+  if (!ids.length) { toast('ยังไม่ได้เลือกอะไรเลย', 'er'); return; }
+  if (!await confirmBox(title, `จะปรับทั้งหมด ${ids.length} รายการ\nค่าเดิมถูกเก็บไว้ อยากย้อนกลับกด "คืนค่าเดิมทั้งหมด" ได้เลย`, 'เริ่ม')) return;
+  const rp = $('#chkRp').classList.contains('on');
+  modal(`<h3>กำลังปรับเครื่อง</h3><div class="msg" id="mMsg" style="color:var(--muted)">${rp ? 'กำลังสร้างจุดคืนค่า Windows อาจใช้เวลาสักพัก...' : 'กำลังปรับ...'}</div>
+    <div class="bar"><i id="pbar"></i></div>
+    <div class="steps">${ids.map(id => `<div class="st wait" id="st-${id}"><span class="si"></span>${esc(byId[id].title)}<em></em></div>`).join('')}</div>
+    <div class="acts" id="mActs" style="display:none"></div>`);
+  log(`เริ่มปรับ ${ids.length} รายการ`, 'in');
+  const r = await run('Apply', ids.join(','), rp ? 'restorepoint' : '');
+  const ok = r?.ok ?? 0, fail = r?.fail ?? 0;
+  $('#mMsg').innerHTML = `เสร็จแล้ว สำเร็จ ${ok} รายการ${fail ? `, ไม่สำเร็จ ${fail} รายการ` : ''}<br>รีสตาร์ทเครื่องหนึ่งครั้งเพื่อให้ทุกอย่างมีผล`;
+  $('#pbar').style.width = '100%';
+  $('#mActs').style.display = 'flex';
+  $('#mActs').innerHTML = '<button class="btn pri" id="mDone">ตกลง</button>';
+  $('#mDone').onclick = closeModal;
+  log(`ปรับเสร็จ สำเร็จ ${ok}, ไม่สำเร็จ ${fail}`, ok ? 'ok' : 'er');
+  await refreshStatus();
+}
+$('#bApply').onclick = () => applyIds(TWEAKS.filter(t => sel.has(t.id)).map(t => t.id), 'ใช้การตั้งค่า');
+$('#bBoost').onclick = () => applyIds(TWEAKS.filter(t => t.rec).map(t => t.id), 'บูสต์เครื่อง');
+
+async function restore() {
+  if (!hasBackup) { toast('ยังไม่ได้ปรับอะไร ไม่มีอะไรต้องคืน'); return; }
+  if (!await confirmBox('คืนค่าเดิม', 'ย้อนทุกอย่างกลับไปเหมือนก่อนใช้โปรแกรม?', 'คืนค่า')) return;
+  modal(`<h3>กำลังคืนค่าเดิม</h3><div class="bar"><i style="width:100%"></i></div><div class="msg" style="color:var(--muted)">รอสักครู่...</div>`);
+  log('คืนค่าเดิม...', 'in');
+  const r = await run('Restore');
+  closeModal();
+  if (r?.ok) { toast('คืนค่าแล้ว รีสตาร์ทเครื่องหนึ่งครั้ง', 'ok'); log('✓ คืนค่าแล้ว', 'ok'); }
+  else toast(r?.m || 'คืนค่าไม่สำเร็จ', 'er');
+  await refreshStatus();
+}
+$('#bRestore1').onclick = restore;
+
+/* ================= tools ================= */
+async function tool(act) {
+  const names = { CleanCache: 'ล้างแคช FiveM', CleanTemp: 'ล้างไฟล์ขยะ', BoostNow: 'ดัน Priority เกม' };
+  if (act === 'CleanCache' && !await confirmBox('ล้างแคช FiveM', 'เข้าเซิร์ฟรอบหน้าจะโหลดไฟล์เซิร์ฟใหม่\nการตั้งค่า ไอดี และไฟล์เกมยังอยู่ครบ', 'ล้างเลย')) return;
+  log(names[act] + '...', 'in');
+  const r = await run(act);
+  if (r?.ok) { const m = r.mb != null ? `${names[act]} เสร็จ ได้พื้นที่คืน ${r.mb.toLocaleString()} MB` : `${names[act]} เสร็จ`; toast(m, 'ok'); log('✓ ' + m, 'ok'); }
+  else if (r?.notfound) {
+    log('✕ หาโฟลเดอร์ FiveM ไม่เจอ', 'er');
+    if (await confirmBox('หาโฟลเดอร์ FiveM ไม่เจอ', 'ถ้าลง FiveM ไว้ที่ไดรฟ์อื่น ให้เลือกโฟลเดอร์ที่มีไฟล์ FiveM.exe เช่น D:\\FiveM', 'เลือกโฟลเดอร์')) { if (await pickFiveM()) return tool(act); }
+    return;
+  }
+  else { toast(r?.m || 'ไม่สำเร็จ', 'er'); log('✕ ' + (r?.m || 'ไม่สำเร็จ'), 'er'); }
+  if (act === 'CleanCache') loadSysInfo();
+}
+$$('[data-act]').forEach(b => b.onclick = () => tool(b.dataset.act));
+$('#bQuickCache').onclick = () => tool('CleanCache');
+$('#bData').onclick = () => window.openDataDir();
+async function pickFiveM() {
+  toast('กำลังเปิดหน้าต่างเลือกโฟลเดอร์...');
+  const r = await run('PickFiveM');
+  if (r?.ok) { toast('ใช้โฟลเดอร์ ' + r.path, 'ok'); log('✓ FiveM: ' + r.path, 'ok'); await loadSysInfo(); return true; }
+  if (r && !r.cancel) toast(r.m || 'โฟลเดอร์ไม่ถูกต้อง', 'er');
+  return false;
+}
+$('#bPick').onclick = pickFiveM;
+
+/* ================= sysinfo ================= */
+async function loadSysInfo() {
+  const r = await run('SysInfo');
+  const i = r?.info; if (!i) return;
+  $('#iCpu').textContent = i.cpu || '-';
+  $('#iGpu').textContent = i.gpu || '-';
+  $('#iRam').textContent = i.ram ? i.ram + ' GB' : '-';
+  $('#iOs').textContent = (i.os || '-').replace('Microsoft ', '') + (i.build ? ` (build ${i.build})` : '');
+  $('#iNet').textContent = i.net ? `${i.net}${i.link ? ' (' + i.link + ')' : ''}` : 'ไม่ได้เชื่อมต่อ';
+  $('#sCpu').textContent = (i.cores || '-') + ' threads';
+  $('#fmState').textContent = i.fivem ? 'เจอ FiveM ในเครื่องนี้' : 'ยังหา FiveM ไม่เจอ';
+  $('#fmSub').textContent = i.fivem ? `${i.fivemPath}  ·  แคช ${(i.cache || 0).toLocaleString()} MB` : 'ถ้าลงไว้ไดรฟ์อื่น เลือกโฟลเดอร์เองได้ในหน้าเครื่องมือ';
+  fivemDir = i.fivem ? i.fivemPath : '';
+  $('#fmPathTool').textContent = i.fivem ? i.fivemPath : 'ยังหาไม่เจอ กดปุ่มด้านล่างแล้วเลือกโฟลเดอร์ที่มี FiveM.exe';
+}
+
+/* ================= live stats ================= */
+const cpuHist = Array(60).fill(0), ramHist = Array(60).fill(0);
+function setGauge(id, pct) { $(id).style.strokeDashoffset = 251.3 - 251.3 * Math.min(100, pct) / 100; }
+function fitCanvas(c) {
+  const r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+  if (c.width !== Math.round(r.width * d) || c.height !== Math.round(r.height * d)) { c.width = Math.round(r.width * d); c.height = Math.round(r.height * d); }
+  const g = c.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0); return [g, r.width, r.height];
+}
+function line(g, data, w, h, max, color, fill) {
+  const n = data.length, step = w / (n - 1);
+  g.beginPath();
+  data.forEach((v, i) => { const x = i * step, y = h - 4 - (Math.min(v, max) / max) * (h - 10); i ? g.lineTo(x, y) : g.moveTo(x, y); });
+  g.strokeStyle = color; g.lineWidth = 2; g.shadowColor = color; g.shadowBlur = 10; g.stroke(); g.shadowBlur = 0;
+  if (fill) { g.lineTo(w, h); g.lineTo(0, h); g.closePath(); const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, fill); gr.addColorStop(1, 'transparent'); g.fillStyle = gr; g.fill(); }
+}
+function drawSpark() {
+  const c = $('#spark'); if (!c.offsetParent) return;
+  const [g, w, h] = fitCanvas(c); g.clearRect(0, 0, w, h);
+  g.strokeStyle = 'rgba(0,229,255,.07)'; g.lineWidth = 1;
+  for (let y = 0; y <= 4; y++) { g.beginPath(); g.moveTo(0, y * h / 4); g.lineTo(w, y * h / 4); g.stroke(); }
+  line(g, ramHist, w, h, 100, '#ff2bd6', 'rgba(255,43,214,.12)');
+  line(g, cpuHist, w, h, 100, '#00e5ff', 'rgba(0,229,255,.18)');
+}
+async function tick() {
+  try {
+    const s = await window.stats();
+    cpuHist.push(s.cpu); cpuHist.shift(); ramHist.push(s.ram); ramHist.shift();
+    setGauge('#gCpu', s.cpu); setGauge('#gRam', s.ram);
+    $('#vCpu').innerHTML = Math.round(s.cpu) + '<small>%</small>';
+    $('#vRam').innerHTML = Math.round(s.ram) + '<small>%</small>';
+    $('#sRam').textContent = `${s.ramUsed.toFixed(1)} / ${s.ramTotal.toFixed(1)} GB`;
+    $('#fivemPill').classList.toggle('on', s.fivem);
+    $('#fivemTxt').textContent = s.fivem ? 'FiveM เปิดอยู่' : 'FiveM ยังไม่เปิด';
+    drawSpark();
+  } catch (e) { }
+}
+
+/* ================= ping ================= */
+let pinging = false, pings = [], sent = 0, lost = 0;
+function pingColor(ms) { return ms < 50 ? '#39ff9c' : ms < 100 ? '#c8ff4d' : ms < 150 ? '#ffb547' : '#ff4d6d'; }
+function pingLabel(ms) { return ms < 50 ? 'ดีมาก' : ms < 100 ? 'ดี' : ms < 150 ? 'พอเล่นได้' : 'สูง'; }
+window.onPing = p => {
+  if (!pinging) return;
+  sent++;
+  if (!p.ok) {
+    if (p.err === 'resolve') { toast('หา IP นี้ไม่เจอ ลองเช็กว่าพิมพ์ถูกไหม', 'er'); stopPing(); return; }
+    lost++; pings.push(null); $('#pNow').textContent = 'หลุด'; $('#pNow').style.color = '#ff4d6d';
+  } else {
+    pings.push(p.ms);
+    $('#pNow').textContent = p.ms < 10 ? p.ms.toFixed(1) : Math.round(p.ms);
+    const c = pingColor(p.ms); $('#pNow').style.color = c; $('#pQ').style.color = c; $('#pQ').textContent = pingLabel(p.ms);
+  }
+  if (pings.length > 60) pings.shift();
+  $('#pMode').textContent = `60 วินาทีล่าสุด (${p.mode === 'TCP' ? 'วัดผ่าน TCP' : 'ping ปกติ'})`;
+  const v = pings.filter(x => x != null);
+  if (v.length) {
+    const avg = v.reduce((a, b) => a + b, 0) / v.length;
+    let jit = 0; for (let i = 1; i < v.length; i++) jit += Math.abs(v[i] - v[i - 1]); jit = v.length > 1 ? jit / (v.length - 1) : 0;
+    $('#sAvg').textContent = avg.toFixed(0) + ' ms'; $('#sMin').textContent = Math.min(...v).toFixed(0) + ' ms';
+    $('#sMax').textContent = Math.max(...v).toFixed(0) + ' ms'; $('#sJit').textContent = jit.toFixed(1) + ' ms';
+  }
+  $('#sLoss').textContent = (lost / sent * 100).toFixed(0) + ' %';
+  drawPing();
+};
+function drawPing() {
+  const c = $('#pingChart'); if (!c.offsetParent) return;
+  const [g, w, h] = fitCanvas(c); g.clearRect(0, 0, w, h);
+  const v = pings.filter(x => x != null), max = Math.max(40, Math.ceil((Math.max(0, ...v) * 1.3) / 40) * 40);
+  g.font = '10px Consolas'; g.fillStyle = '#4b5878';
+  for (let i = 0; i <= 4; i++) {
+    const y = 6 + i * (h - 16) / 4; g.strokeStyle = 'rgba(0,229,255,.07)'; g.beginPath(); g.moveTo(34, y); g.lineTo(w, y); g.stroke();
+    g.fillText(Math.round(max - i * max / 4), 0, y + 3);
+  }
+  const data = Array(60 - pings.length).fill(undefined).concat(pings), step = (w - 34) / 59;
+  g.beginPath(); let started = false;
+  data.forEach((p, i) => { if (p == null) { started = false; return; } const x = 34 + i * step, y = 6 + (h - 16) * (1 - p / max); started ? g.lineTo(x, y) : g.moveTo(x, y); started = true; });
+  const gr = g.createLinearGradient(0, 0, w, 0); gr.addColorStop(0, '#00e5ff'); gr.addColorStop(1, '#ff2bd6');
+  g.strokeStyle = gr; g.lineWidth = 2.2; g.shadowColor = '#00e5ff'; g.shadowBlur = 12; g.stroke(); g.shadowBlur = 0;
+  data.forEach((p, i) => { if (p === null) { const x = 34 + i * step; g.fillStyle = 'rgba(255,77,109,.5)'; g.fillRect(x - 1, 6, 2, h - 16); } });
+  const last = data.length - 1; if (data[last] != null) { const x = 34 + last * step, y = 6 + (h - 16) * (1 - data[last] / max); g.fillStyle = '#fff'; g.shadowColor = '#00e5ff'; g.shadowBlur = 14; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); g.shadowBlur = 0; }
+}
+async function startPing() {
+  pings = []; sent = 0; lost = 0;
+  ['#sAvg', '#sMin', '#sMax', '#sJit', '#sLoss'].forEach(s => $(s).textContent = '--');
+  pinging = true; $('#bPing').textContent = 'หยุด';
+  log('วัดปิงไปที่ ' + $('#host').value, 'in');
+  if (!await window.pingStart($('#host').value)) { stopPing(); toast('ใส่ IP ก่อน', 'er'); }
+}
+function stopPing() {
+  pinging = false; window.pingStop(); $('#bPing').textContent = 'เริ่มวัด'; $('#pMode').textContent = '60 วินาทีล่าสุด';
+  if (pings.some(x => x != null)) log(`ผลวัดปิง เฉลี่ย ${$('#sAvg').textContent}, แกว่ง ${$('#sJit').textContent}, หาย ${$('#sLoss').textContent}`, 'ok');
+}
+$('#bPing').onclick = () => pinging ? stopPing() : startPing();
+$('#host').addEventListener('keydown', e => { if (e.key === 'Enter') { if (pinging) stopPing(); startPing(); } });
+$$('.preset').forEach(b => b.onclick = () => { $('#host').value = b.dataset.h; if (pinging) stopPing(); startPing(); });
+window.addEventListener('resize', () => { drawSpark(); drawPing(); });
+
+/* ================= health ================= */
+let healthDone = false;
+async function runHealth() {
+  $('#hText').textContent = 'กำลังตรวจ...'; $('#hCount').textContent = '...'; $('#hList').innerHTML = '';
+  log('ตรวจเครื่อง...', 'in');
+  const r = await run('Health');
+  const items = r?.items || []; healthDone = true;
+  const warn = items.filter(i => i.status === 'warn').length;
+  $('#hCount').textContent = warn; $('#hCount').style.color = warn ? 'var(--amber)' : 'var(--lime)';
+  $('#hText').textContent = warn ? `จุดที่ควรแก้ จากที่ตรวจ ${items.length} รายการ` : `ไม่เจอปัญหา ตรวจครบ ${items.length} รายการ`;
+  const icon = { ok: '✓', warn: '!', info: 'i' };
+  items.sort((a, b) => ({ warn: 0, info: 1, ok: 2 }[a.status] - { warn: 0, info: 1, ok: 2 }[b.status]));
+  $('#hList').innerHTML = items.map(i => `<div class="hrow ${i.status}"><div class="hi">${icon[i.status] || ''}</div><div><h4>${esc(i.title)}</h4><div class="hd">${esc(i.detail)}</div>${i.fix ? `<div class="hf">${esc(i.fix)}</div>` : ''}</div></div>`).join('');
+  log(`ตรวจเสร็จ เจอ ${warn} จุดที่ควรแก้`, warn ? 'er' : 'ok');
+}
+$('#bHealth').onclick = runHealth;
+
+/* ================= graphics ================= */
+const Q4 = ['Normal', 'High', 'Very High', 'Ultra'], Q3 = ['Normal', 'High', 'Very High'];
+function presetRows(x) {
+  const pct = v => Math.round((+v || 0) * 100) + '%';
+  return [
+    ['Texture', Q3[x.TextureQuality] ?? '-'],
+    ['Shader', Q3[x.ShaderQuality] ?? '-'],
+    ['เงา', Q3[Math.max(0, x.ShadowQuality - 1)] ?? '-'],
+    ['หญ้า', Q4[x.GrassQuality] ?? '-'],
+    ['สะท้อน', Q4[x.ReflectionQuality] ?? '-'],
+    ['Post FX', Q4[x.PostFX] ?? '-'],
+    ['Anti-aliasing', x.MSAA > 0 ? `MSAA x${x.MSAA} + FXAA` : x.FXAA_Enabled === 'true' ? 'FXAA' : 'ปิด'],
+    ['ระยะมองเห็น', pct(x.LodScale)],
+    ['Extended Distance', pct(x.MaxLodScale)],
+    ['รถ / คนบนถนน', pct(x.CityDensity)],
+  ].map(([k, v]) => `<li><span>${k}</span><b>${v}</b></li>`).join('');
+}
+async function gfxPlan() {
+  const r = await run('GfxPlan'); if (!r) return;
+  $('#gfxSpec').innerHTML = `<div>การ์ดจอ <b>${esc(r.gpu)}</b> ${r.vram ? `(${r.vram} GB)` : ''}<span class="lv">ระดับ ${r.gpuTier}/5</span></div>
+    <div>CPU <b>${esc(r.cpu)}</b><span class="lv">ระดับ ${r.cpuTier}/5</span></div><div>แรม <b>${r.ram} GB</b></div>`;
+  for (const k of ['performance', 'balanced', 'quality']) $('#pl-' + k).innerHTML = presetRows(r.presets[k]);
+}
+let gfxPlanned = false;
+async function gfxStatus() {
+  const r = await run('GfxStatus'); if (!r) return;
+  $('#gfxState').textContent = !r.found ? 'ยังไม่เจอไฟล์ตั้งค่ากราฟิก เข้าเกม FiveM สักครั้งก่อน' : r.hasBackup ? 'เปลี่ยนกราฟิกผ่านโปรแกรมแล้ว (เก็บของเดิมไว้)' : 'ยังใช้กราฟิกเดิมของคุณ';
+  $('#gfxPath').textContent = r.path || '';
+  $('#bGfxRestore').disabled = !r.hasBackup;
+}
+const presetName = { performance: 'ลื่นสุด', balanced: 'สมดุล', quality: 'สวย' };
+$$('[data-preset]').forEach(b => b.onclick = async () => {
+  const k = b.dataset.preset;
+  if (!await confirmBox('เปลี่ยนกราฟิกเป็นแบบ ' + presetName[k], 'ปิด FiveM ก่อนกด\nกราฟิกเดิมถูกเก็บไว้ กด "คืนกราฟิกเดิม" ได้ทุกเมื่อ', 'เปลี่ยนเลย')) return;
+  log('เปลี่ยนกราฟิกเป็น ' + presetName[k], 'in');
+  const r = await run('GfxApply', '', k);
+  if (r?.ok) { toast(`ใช้กราฟิกแบบ${presetName[k]}แล้ว เข้าเกมได้เลย`, 'ok'); log(`✓ แก้ค่ากราฟิก ${r.n} รายการ`, 'ok'); }
+  else { toast(r?.m || 'ไม่สำเร็จ', 'er'); log('✕ ' + (r?.m || 'ไม่สำเร็จ'), 'er'); }
+  gfxStatus();
+});
+$('#bGfxRestore').onclick = async () => {
+  const r = await run('GfxRestore');
+  if (r?.ok) { toast('คืนกราฟิกเดิมแล้ว', 'ok'); log('✓ คืนกราฟิกเดิม', 'ok'); } else toast(r?.m || 'ไม่สำเร็จ', 'er');
+  gfxStatus();
+};
+
+/* ================= pre-game ================= */
+let appSel = new Set(), appsCache = [];
+async function loadApps() {
+  const r = await run('ListApps'); appsCache = r?.apps || [];
+  if (!appsCache.length) { $('#appList').innerHTML = '<div class="empty">ไม่มีโปรแกรมที่ควรปิดเปิดอยู่</div>'; return; }
+  appsCache.forEach(a => { if (!appSel.has('x' + a.id)) { appSel.add(a.id); appSel.add('x' + a.id); } });
+  renderApps();
+}
+function renderApps() {
+  $('#appList').innerHTML = appsCache.map(a => `<div class="appi ${appSel.has(a.id) ? 'on' : ''}" data-id="${a.id}"><span class="box"></span>${esc(a.name)}<small>${a.mb.toLocaleString()} MB</small></div>`).join('');
+  $$('.appi').forEach(el => el.onclick = () => { const id = el.dataset.id; appSel.has(id) ? appSel.delete(id) : appSel.add(id); renderApps(); });
+}
+$('#bAppsRefresh').onclick = loadApps;
+$('#optMem').onclick = () => $('#optMem').classList.toggle('on');
+$('#optPrio').onclick = () => $('#optPrio').classList.toggle('on');
+async function preGame() {
+  const ids = appsCache.filter(a => appSel.has(a.id)).map(a => a.id);
+  if (ids.length && !await confirmBox('ปิดโปรแกรม', 'จะปิด ' + appsCache.filter(a => appSel.has(a.id)).map(a => a.name).join(', ') + '\nงานที่ยังไม่ได้เซฟในโปรแกรมพวกนี้จะหาย', 'ปิดเลย')) return;
+  const parts = [];
+  if (ids.length) { const r = await run('CloseApps', ids.join(',')); if (r?.ok) parts.push(`ปิดโปรแกรม ${r.n} ตัว ได้แรมคืน ${r.mb.toLocaleString()} MB`); }
+  if ($('#optMem').classList.contains('on')) {
+    const m = await window.purgeMemory();
+    if (m?.ok) parts.push(`ล้างแคชแรม ${Math.round(m.freedMB).toLocaleString()} MB`); else log('✕ ล้างแคชแรมไม่ได้: ' + (m?.m || ''), 'er');
+  }
+  if ($('#optPrio').classList.contains('on')) { const r = await run('BoostNow'); if (r?.ok) parts.push('ดัน Priority FiveM แล้ว'); }
+  const msg = parts.length ? parts.join(', ') : 'ไม่มีอะไรต้องทำ';
+  toast('เตรียมเครื่องเสร็จ: ' + msg, 'ok'); log('✓ โหมดก่อนเล่น: ' + msg, 'ok');
+  loadApps();
+}
+$('#bPreGame').onclick = preGame;
+$$('#ttabs .tab').forEach(b => b.onclick = () => { $$('#ttabs .tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); $('#t1').style.display = b.dataset.t === 't1' ? '' : 'none'; $('#t2').style.display = b.dataset.t === 't2' ? '' : 'none'; });
+$('#bQuickPre').onclick = () => go('tools');
+$('#bGoOpt').onclick = () => go('opt');
+
+/* ================= launcher ================= */
+let srvReq = 0, srvWait = {}, stWait = {}, fivemDir = '', servers = [];
+window.onServerInfo = r => { const f = srvWait[r.reqId]; if (f) { delete srvWait[r.reqId]; f(r); } };
+window.onServerStatus = r => { const f = stWait[r.reqId]; if (f) { delete stWait[r.reqId]; f(r); } };
+const lookup = v => new Promise(res => { const id = ++srvReq; srvWait[id] = res; window.serverLookup(v, id); });
+const srvStatus = base => new Promise(res => { const id = ++srvReq; stWait[id] = res; window.serverStatus(base, id); setTimeout(() => { if (stWait[id]) { delete stWait[id]; res({ ok: false }); } }, 12000); });
+const saveServers = () => window.saveRecent(JSON.stringify(servers.map(({ connect, name, icon, country, base, build, pure, poolCount, players, maxPlayers }) => ({ connect, name, icon, country, base, build, pure, poolCount, players, maxPlayers }))));
+const flagImg = cc => cc ? `<img class="flag" src="https://flagcdn.com/w40/${cc.toLowerCase()}.png" alt="${cc}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'cc',textContent:'${cc}'}))">` : '';
+function renderServers() {
+  if (!servers.length) { $('#slist').innerHTML = '<div class="sempty">ยังไม่มีเซิร์ฟ<br>ใส่ IP:Port หรือโค้ด cfx.re ด้านบน แล้วกด "เพิ่มเซิร์ฟ"</div>'; return; }
+  $('#slist').innerHTML = servers.map((v, i) => {
+    const pct = v.maxPlayers ? Math.min(100, v.players / v.maxPlayers * 100) : 0;
+    const icon = v.icon ? `<img src="${v.icon}">` : esc((v.name || '?').replace(/[^A-Za-z0-9ก-๙]/g, '').slice(0, 2).toUpperCase() || '5M');
+    return `<div class="sc ${v.offline ? 'off' : ''}" data-i="${i}">
+      <button class="rm" data-rm="${i}" title="ลบออก">✕</button>
+      <div class="sic">${icon}</div>
+      <div style="min-width:0">
+        <div class="sn">${flagImg(v.country)}<b title="${esc(v.name)}">${esc(v.name)}</b></div>
+        <div class="row3">${v.ping ? `<span class="tg png">${Math.round(v.ping)} ms</span>` : ''}${v.build ? `<span class="tg">b${v.build}</span>` : ''}${v.pure ? `<span class="tg">Pure ${v.pure}</span>` : ''}${v.poolCount ? '<span class="tg">Pool+</span>' : ''}</div>
+      </div>
+      <div class="plcol"><div class="pl"><b>${v.offline ? 'ออฟไลน์' : (v.players ?? '-') + (v.maxPlayers ? '/' + v.maxPlayers : '')}</b><small>${v.offline ? '' : 'คน'}</small></div><div class="pbar"><i style="width:${pct}%"></i></div></div>
+      <button class="join" data-join="${i}">เข้า</button></div>`;
+  }).join('');
+  $$('#slist [data-rm]').forEach(b => b.onclick = async e => { e.stopPropagation(); const v = servers[+b.dataset.rm]; if (!await confirmBox('ลบเซิร์ฟ', `ลบ "${v.name}" ออกจากรายการ?`, 'ลบ')) return; servers.splice(+b.dataset.rm, 1); saveServers(); renderServers(); });
+  $$('#slist [data-join]').forEach(b => b.onclick = e => { e.stopPropagation(); joinServer(+b.dataset.join, b); });
+}
+async function addServer() {
+  const v = $('#srvInput').value.trim(); if (!v) { toast('ใส่ IP:Port หรือโค้ดเซิร์ฟก่อน', 'er'); return; }
+  $('#bAdd').disabled = true; $('#bAdd').textContent = 'กำลังหา...';
+  const r = await lookup(v);
+  $('#bAdd').disabled = false; $('#bAdd').textContent = 'เพิ่มเซิร์ฟ';
+  if (!r.ok) { toast(r.err || 'หาเซิร์ฟไม่เจอ', 'er'); return; }
+  if (servers.some(x => x.connect === r.connect || (x.base && x.base === r.base))) { toast('มีเซิร์ฟนี้ในรายการแล้ว'); return; }
+  servers.unshift({ connect: r.connect, name: r.hostname.slice(0, 80), icon: r.icon, country: r.country, base: r.base, build: r.build, pure: r.pure, poolCount: r.poolCount, players: r.players, maxPlayers: r.maxPlayers, ping: r.ping });
+  saveServers(); renderServers(); $('#srvInput').value = '';
+  toast('เพิ่ม ' + r.hostname.slice(0, 50) + ' แล้ว', 'ok');
+}
+async function refreshServers() {
+  for (const v of servers) {
+    if (!v.base) { const r = await lookup(v.connect); if (r.ok) Object.assign(v, { base: r.base, icon: r.icon || v.icon, country: r.country || v.country, build: r.build, pure: r.pure, poolCount: r.poolCount, name: v.name || r.hostname }); else { v.offline = true; continue; } saveServers(); }
+    const st = await srvStatus(v.base);
+    v.offline = !st.ok;
+    if (st.ok) { v.players = st.players; v.maxPlayers = st.maxPlayers || v.maxPlayers; v.ping = st.ping; }
+  }
+  renderServers();
+  $('#liveTxt').textContent = 'อัปเดตล่าสุด ' + new Date().toTimeString().slice(0, 5) + ' · ทุก 15 วินาที';
+}
+async function joinServer(i, btn) {
+  const v = servers[i]; if (!v) return;
+  if (!fivemDir) { if (await confirmBox('หาโฟลเดอร์ FiveM ไม่เจอ', 'เลือกโฟลเดอร์ที่มีไฟล์ FiveM.exe ก่อน', 'เลือกโฟลเดอร์')) await pickFiveM(); if (!fivemDir) return; }
+  const running = $('#fivemPill').classList.contains('on');
+  if (running && !await confirmBox('FiveM เปิดอยู่', 'จะปิดเกมที่เปิดอยู่ แล้วเปิดใหม่ให้ตรงกับเซิร์ฟนี้', 'ปิดแล้วเข้าเซิร์ฟ')) return;
+  btn.disabled = true; btn.textContent = '...';
+  const r = await lookup(v.connect);
+  if (!r.ok) { btn.disabled = false; btn.textContent = 'เข้า'; toast(r.err || 'เซิร์ฟไม่ตอบ', 'er'); return; }
+  Object.assign(v, { build: r.build, pure: r.pure, poolCount: r.poolCount, base: r.base, icon: r.icon || v.icon });
+  if (settings.preJoin) { btn.textContent = '...'; await prepareBeforeJoin(); }
+  btn.textContent = 'เปิดเกม';
+  const res = await window.launchServer(fivemDir, r.connect, r.build, r.pure, r.effDefault, r.pool || '');
+  btn.disabled = false; btn.textContent = 'เข้า';
+  if (!res?.ok) { toast(res?.m || 'เปิดเกมไม่ได้', 'er'); log('✕ ' + (res?.m || 'เปิดเกมไม่ได้'), 'er'); return; }
+  toast(`กำลังเปิด FiveM เข้า ${v.name}`, 'ok');
+  log(`เข้าเซิร์ฟ ${v.name} (b${r.build}, pure ${r.pure}, pool ${r.poolCount ? r.poolCount + ' รายการ' : 'ปกติ'})`, 'ok');
+  servers.splice(i, 1); servers.unshift(v); saveServers(); renderServers();
+}
+$('#bAdd').onclick = addServer;
+$('#srvInput').addEventListener('keydown', e => { if (e.key === 'Enter') addServer(); });
+window.loadRecent().then(t => {
+  try { servers = (JSON.parse(t) || []).filter(x => x && x.connect); } catch (e) { servers = []; }
+  renderServers(); refreshServers(); setInterval(refreshServers, 15000);
+});
+
+/* ================= settings / pre-join ================= */
+let settings = {};
+window.loadSettings().then(t => { try { settings = JSON.parse(t) || {}; } catch (e) { settings = {}; } $('#optPreJoin').classList.toggle('on', !!settings.preJoin); });
+$('#optPreJoin').onclick = () => { $('#optPreJoin').classList.toggle('on'); settings.preJoin = $('#optPreJoin').classList.contains('on'); window.saveSettings(JSON.stringify(settings)); };
+async function prepareBeforeJoin() {
+  const r = await run('ListApps'); const apps = (r?.apps || []).filter(a => !appSel.size || appSel.has(a.id) || !appSel.has('x' + a.id));
+  const parts = [];
+  if (apps.length) { const c = await run('CloseApps', apps.map(a => a.id).join(',')); if (c?.ok) parts.push(`ปิดโปรแกรม ${c.n} ตัว`); }
+  const m = await window.purgeMemory(); if (m?.ok) parts.push(`ล้างแคชแรม ${Math.round(m.freedMB).toLocaleString()} MB`);
+  if (parts.length) log('✓ เตรียมเครื่อง: ' + parts.join(', '), 'ok');
+}
+
+/* ================= update / about ================= */
+let updInfo = null;
+window.onUpdate = u => {
+  updInfo = u;
+  const box = $('#abUpd');
+  if (!u.enabled) { box.textContent = 'ระบบอัปเดตยังไม่ได้ตั้งค่า'; return; }
+  if (u.err) { box.textContent = 'เช็กอัปเดตไม่ได้: ' + u.err; return; }
+  if (u.available) {
+    $('#bUpd').style.display = ''; $('#bUpd').textContent = `มีเวอร์ชันใหม่ v${u.latest}`;
+    box.innerHTML = `<span style="color:var(--lime)">มีเวอร์ชันใหม่ v${esc(u.latest)}</span>`;
+    log(`มีเวอร์ชันใหม่ v${u.latest}`, 'in');
+  } else box.innerHTML = '<span style="color:var(--lime)">ใช้เวอร์ชันล่าสุดอยู่แล้ว</span>';
+};
+window.onNotice = n => { if (n) toast(n); };
+async function doUpdate() {
+  const u = updInfo; if (!u?.available) return;
+  if (!await confirmBox(`อัปเดตเป็น v${u.latest}`, (u.notes || 'มีเวอร์ชันใหม่').slice(0, 600) + '\n\nโปรแกรมจะปิดแล้วเปิดใหม่เอง', 'อัปเดตเลย')) return;
+  modal('<h3>กำลังอัปเดต</h3><div class="bar"><i style="width:100%"></i></div><div class="msg" style="color:var(--muted)">กำลังดาวน์โหลด รอสักครู่...</div>');
+  const err = await window.applyUpdate(u.url, u.sha256 || '');
+  if (err) { closeModal(); toast(err, 'er'); log('✕ อัปเดตไม่สำเร็จ: ' + err, 'er'); }
+}
+$('#bUpd').onclick = doUpdate;
+$('#bCheckUpd').onclick = () => { if (updInfo?.available) return doUpdate(); $('#abUpd').textContent = 'กำลังเช็ก...'; window.checkUpdate(); };
+async function report() {
+  toast('กำลังรวบรวมข้อมูล...');
+  const r = await run('Report', '', 'v' + (await window.appVersion()));
+  if (r?.ok) { toast('สร้างไฟล์รายงานไว้บน Desktop แล้ว ส่งไฟล์นี้ให้ผู้พัฒนาได้เลย', 'ok'); log('✓ รายงาน: ' + r.path, 'ok'); }
+  else toast(r?.m || 'สร้างรายงานไม่ได้', 'er');
+}
+$('#bReport').onclick = report; $('#bReport2').onclick = report;
+window.about().then(a => {
+  $('#abVer').textContent = 'เวอร์ชัน ' + a.version;
+  $('#abBy').textContent = 'พัฒนาโดย ' + a.author;
+  $('#abHash').textContent = a.sha256 || '-';
+  if (a.contact) { $('#bContact').style.display = ''; $('#bContact').onclick = () => window.openUrl(a.contact); }
+});
+$('#bCopyHash').onclick = () => {
+  const t = document.createElement('textarea'); t.value = $('#abHash').textContent; document.body.appendChild(t); t.select();
+  try { document.execCommand('copy'); toast('คัดลอกแล้ว', 'ok'); } catch (e) { } t.remove();
+};
+setTimeout(() => window.checkUpdate(), 2500);
+
+/* ================= boot ================= */
+(async () => {
+  renderTweaks();
+  log('เปิดโปรแกรม', 'in');
+  tick(); setInterval(tick, 1000);
+  await loadSysInfo();
+  await refreshStatus();
+  log('ตรวจเครื่องเสร็จ', 'ok');
+})();
+</script>
+</body>
+</html>

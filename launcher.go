@@ -1,0 +1,470 @@
+//go:build windows
+
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
+	"syscall"
+	"time"
+	"unsafe"
+
+	"golang.org/x/sys/windows"
+)
+
+// build เริ่มต้นของ FiveM client (ตาม xbr::GetDefaultGTA5Build ใน source ของ FiveM)
+// อัปเดตได้จาก remote.json บน GitHub โดยไม่ต้องออกเวอร์ชันใหม่
+var fivemDefaultBuild = 3258
+
+var (
+	advapi32                 = windows.NewLazySystemDLL("advapi32.dll")
+	pCreateProcessWithTokenW = advapi32.NewProc("CreateProcessWithTokenW")
+	pGetShellWindow          = user32.NewProc("GetShellWindow")
+	pGetWindowThreadPID      = user32.NewProc("GetWindowThreadProcessId")
+	pWritePrivateProfile     = kernel32.NewProc("WritePrivateProfileStringW")
+)
+
+type serverInfo struct {
+	ReqID        int      `json:"reqId"`
+	OK           bool     `json:"ok"`
+	Err          string   `json:"err,omitempty"`
+	Input        string   `json:"input"`
+	Connect      string   `json:"connect"`
+	Base         string   `json:"base"`
+	Hostname     string   `json:"hostname"`
+	Players      int      `json:"players"`
+	MaxPlayers   int      `json:"maxPlayers"`
+	Ping         float64  `json:"ping"`
+	Build        int      `json:"build"`
+	Pure         int      `json:"pure"`
+	Pool         string   `json:"pool"`
+	PoolCount    int      `json:"poolCount"`
+	EffDefault   int      `json:"effDefault"`
+	EnforceBuild bool     `json:"enforceBuild"`
+	OneSync      string   `json:"onesync"`
+	Resources    int      `json:"resources"`
+	Locale       string   `json:"locale"`
+	Tags         []string `json:"tags"`
+	Icon         string   `json:"icon"`
+	Country      string   `json:"country"`
+}
+
+var httpc = &http.Client{
+	Timeout: 10 * time.Second,
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	},
+}
+
+func httpGet(u string) (*http.Response, error) {
+	req, _ := http.NewRequest("GET", u, nil)
+	req.Header.Set("User-Agent", "CitizenFX/1")
+	return httpc.Do(req)
+}
+
+var colorRx = regexp.MustCompile(`\^\d|~[a-zA-Z]~`)
+
+// resolveBase แปลงสิ่งที่ผู้ใช้พิมพ์ (IP:port, cfx.re/join/xxxx, โค้ด) เป็น URL ของเซิร์ฟ แบบเดียวกับ NetLibrary::ResolveUrl
+func resolveBase(in string, depth int) (string, string, error) {
+	in = strings.TrimSpace(in)
+	for _, p := range []string{"fivem://connect/", "connect "} {
+		in = strings.TrimPrefix(in, p)
+	}
+	in = strings.TrimSuffix(in, "/")
+	if in == "" {
+		return "", "", fmt.Errorf("ใส่ IP หรือโค้ดเซิร์ฟก่อน")
+	}
+	if depth > 3 {
+		return "", "", fmt.Errorf("หาเซิร์ฟไม่เจอ")
+	}
+	if strings.HasPrefix(in, "http://") || strings.HasPrefix(in, "https://") {
+		return strings.TrimSuffix(in, "/") + "/", in, nil
+	}
+	if strings.Contains(in, ".cfx.re") && !strings.Contains(in, "cfx.re/join") {
+		return "https://" + in + "/", in, nil
+	}
+	if !strings.ContainsAny(in, ".:") || strings.Contains(in, "cfx.re/join") {
+		join := in
+		if !strings.Contains(join, "cfx.re/join") {
+			join = "cfx.re/join/" + in
+		}
+		join = strings.TrimPrefix(strings.TrimPrefix(join, "https://"), "http://")
+		resp, err := httpGet("https://" + join)
+		if err != nil {
+			return "", "", fmt.Errorf("ต่อ cfx.re ไม่ได้: %v", err)
+		}
+		resp.Body.Close()
+		u := resp.Header.Get("X-CitizenFX-Url")
+		if u == "" || u == "https://private-placeholder.cfx.re/" {
+			return "", "", fmt.Errorf("ไม่เจอเซิร์ฟจากโค้ดนี้ หรือเซิร์ฟปิดอยู่")
+		}
+		b, _, err := resolveBase(u, depth+1)
+		return b, join, err
+	}
+	host := in
+	if _, _, err := net.SplitHostPort(in); err != nil {
+		host = net.JoinHostPort(in, "30120")
+	}
+	return "http://" + host + "/", in, nil
+}
+
+func atoi(s string) int { n, _ := strconv.Atoi(strings.TrimSpace(s)); return n }
+
+// computeLaunch คำนวณค่าที่ FiveM จะใช้ตอนเชื่อมต่อ (ตาม NetLibrary.cpp) เพื่อให้เปิดเกมรอบเดียวไม่ต้องรีสตาร์ท
+func computeLaunch(vars map[string]string, si *serverInfo) {
+	pure := atoi(vars["sv_pureLevel"])
+	poolRaw := strings.TrimSpace(vars["sv_poolSizesIncrease"])
+	pool := ""
+	if poolRaw != "" {
+		var m map[string]uint32
+		if json.Unmarshal([]byte(poolRaw), &m) == nil && len(m) > 0 {
+			b, _ := json.Marshal(m)
+			pool = string(b)
+			si.PoolCount = len(m)
+		}
+	}
+	val := strings.TrimSpace(vars["sv_enforceGameBuild"])
+	serverDefault := fivemDefaultBuild
+	hasSD := false
+	if sd := atoi(vars["sv_defaultGameBuild"]); sd >= fivemDefaultBuild {
+		serverDefault, hasSD = sd, true
+	}
+	legacy := !hasSD && vars["sv_replaceExeToSwitchBuilds"] != "false" && val != "1"
+	if val != "" {
+		b := atoi(val)
+		if b == 3717 {
+			b = 3751
+		}
+		si.Build, si.EnforceBuild = b, true
+		if legacy {
+			si.EffDefault = b
+		} else {
+			si.EffDefault = serverDefault
+		}
+		si.Pure, si.Pool = pure, pool
+	} else {
+		si.Build, si.EffDefault, si.Pure, si.Pool, si.PoolCount = serverDefault, serverDefault, 0, "", 0
+	}
+}
+
+func (a *app) serverLookup(input string, reqID int) bool {
+	go func() {
+		si := serverInfo{ReqID: reqID, Input: input}
+		defer func() {
+			b, _ := json.Marshal(si)
+			a.emit("onServerInfo", string(b))
+		}()
+		base, conn, err := resolveBase(input, 0)
+		if err != nil {
+			si.Err = err.Error()
+			return
+		}
+		si.Base, si.Connect = base, conn
+
+		var info struct {
+			Vars      map[string]string `json:"vars"`
+			Resources []string          `json:"resources"`
+			Icon      string            `json:"icon"`
+		}
+		resp, err := httpGet(base + "info.json")
+		if err != nil {
+			si.Err = "เซิร์ฟไม่ตอบ (อาจปิดอยู่ หรือ IP/พอร์ตผิด)"
+			return
+		}
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4<<20))
+		resp.Body.Close()
+		if json.Unmarshal(body, &info) != nil || info.Vars == nil {
+			si.Err = "อ่านข้อมูลเซิร์ฟไม่ได้"
+			return
+		}
+		computeLaunch(info.Vars, &si)
+		si.Resources = len(info.Resources)
+		if info.Icon != "" && len(info.Icon) < 300000 {
+			si.Icon = "data:image/png;base64," + info.Icon
+		}
+		si.Country = countryFromLocale(info.Vars["locale"])
+		si.OneSync = info.Vars["onesync_enabled"]
+		si.Locale = info.Vars["locale"]
+		if t := info.Vars["tags"]; t != "" {
+			for _, x := range strings.Split(t, ",") {
+				if x = strings.TrimSpace(x); x != "" && len(si.Tags) < 6 {
+					si.Tags = append(si.Tags, x)
+				}
+			}
+		}
+		si.Hostname = strings.TrimSpace(colorRx.ReplaceAllString(info.Vars["sv_projectName"], ""))
+
+		if resp, err := httpGet(base + "dynamic.json"); err == nil {
+			var dyn struct {
+				Hostname string `json:"hostname"`
+				Clients  int    `json:"clients"`
+				Max      any    `json:"sv_maxclients"`
+			}
+			b, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+			resp.Body.Close()
+			if json.Unmarshal(b, &dyn) == nil {
+				si.Players = dyn.Clients
+				si.MaxPlayers = atoi(fmt.Sprint(dyn.Max))
+				if h := strings.TrimSpace(colorRx.ReplaceAllString(dyn.Hostname, "")); h != "" && si.Hostname == "" {
+					si.Hostname = h
+				}
+			}
+		}
+		if si.Hostname == "" {
+			si.Hostname = conn
+		}
+		if u, err := url.Parse(base); err == nil {
+			hostport := u.Host
+			if u.Port() == "" {
+				if u.Scheme == "https" {
+					hostport = net.JoinHostPort(u.Hostname(), "443")
+				} else {
+					hostport = net.JoinHostPort(u.Hostname(), "80")
+				}
+			}
+			t0 := time.Now()
+			if c, err := net.DialTimeout("tcp", hostport, 3*time.Second); err == nil {
+				si.Ping = float64(time.Since(t0).Microseconds()) / 1000
+				c.Close()
+			}
+		}
+		if si.Country == "" {
+			si.Country = geoCountry(base)
+		}
+		si.OK = true
+	}()
+	return true
+}
+
+// countryFromLocale "th-TH" -> "TH" (ไม่นับค่าเริ่มต้น root-AQ)
+func countryFromLocale(loc string) string {
+	loc = strings.TrimSpace(loc)
+	if i := strings.LastIndexAny(loc, "-_"); i >= 0 && len(loc)-i == 3 {
+		cc := strings.ToUpper(loc[i+1:])
+		if cc != "AQ" && cc >= "AA" && cc <= "ZZ" {
+			return cc
+		}
+	}
+	return ""
+}
+
+// geoCountry หาประเทศจาก IP ของเซิร์ฟ (ใช้เมื่อเซิร์ฟไม่ได้ตั้ง locale)
+func geoCountry(base string) string {
+	u, err := url.Parse(base)
+	if err != nil {
+		return ""
+	}
+	host := u.Hostname()
+	if strings.HasSuffix(host, ".cfx.re") {
+		return "" // ซ่อน IP ผ่าน proxy ของ cfx หาประเทศจริงไม่ได้
+	}
+	ip := net.ParseIP(host)
+	if ip == nil {
+		if ips, err := net.LookupIP(host); err == nil && len(ips) > 0 {
+			ip = ips[0]
+		}
+	}
+	if ip == nil {
+		return ""
+	}
+	c := &http.Client{Timeout: 4 * time.Second}
+	resp, err := c.Get("http://ip-api.com/json/" + ip.String() + "?fields=countryCode")
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+	var r struct {
+		CountryCode string `json:"countryCode"`
+	}
+	json.NewDecoder(resp.Body).Decode(&r)
+	return strings.ToUpper(r.CountryCode)
+}
+
+type serverStatus struct {
+	ReqID   int     `json:"reqId"`
+	OK      bool    `json:"ok"`
+	Players int     `json:"players"`
+	Max     int     `json:"maxPlayers"`
+	Ping    float64 `json:"ping"`
+}
+
+// serverStatusCheck ดึงแค่จำนวนคนและปิง (เบา ใช้รีเฟรชบ่อย ๆ)
+func (a *app) serverStatusCheck(base string, reqID int) bool {
+	go func() {
+		st := serverStatus{ReqID: reqID}
+		defer func() { b, _ := json.Marshal(st); a.emit("onServerStatus", string(b)) }()
+		if !strings.HasPrefix(base, "http") {
+			return
+		}
+		if !strings.HasSuffix(base, "/") {
+			base += "/"
+		}
+		t0 := time.Now()
+		resp, err := httpGet(base + "dynamic.json")
+		if err != nil {
+			return
+		}
+		st.Ping = float64(time.Since(t0).Microseconds()) / 1000
+		var dyn struct {
+			Clients int `json:"clients"`
+			Max     any `json:"sv_maxclients"`
+		}
+		b, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
+		resp.Body.Close()
+		if json.Unmarshal(b, &dyn) != nil {
+			return
+		}
+		st.Players, st.Max, st.OK = dyn.Clients, atoi(fmt.Sprint(dyn.Max)), true
+		// ปิงแบบ TCP แม่นกว่าเวลาตอบ HTTP
+		if u, err := url.Parse(base); err == nil {
+			hp := u.Host
+			if u.Port() == "" {
+				if u.Scheme == "https" {
+					hp = net.JoinHostPort(u.Hostname(), "443")
+				} else {
+					hp = net.JoinHostPort(u.Hostname(), "80")
+				}
+			}
+			t1 := time.Now()
+			if c, err := net.DialTimeout("tcp", hp, 3*time.Second); err == nil {
+				st.Ping = float64(time.Since(t1).Microseconds()) / 1000
+				c.Close()
+			}
+		}
+	}()
+	return true
+}
+
+type launchResult struct {
+	OK      bool   `json:"ok"`
+	Message string `json:"m,omitempty"`
+	Cmd     string `json:"cmd,omitempty"`
+}
+
+func writeIni(path, section, key, val string) {
+	s, _ := windows.UTF16PtrFromString(section)
+	k, _ := windows.UTF16PtrFromString(key)
+	v, _ := windows.UTF16PtrFromString(val)
+	p, _ := windows.UTF16PtrFromString(path)
+	pWritePrivateProfile.Call(uintptr(unsafe.Pointer(s)), uintptr(unsafe.Pointer(k)), uintptr(unsafe.Pointer(v)), uintptr(unsafe.Pointer(p)))
+}
+
+func killFiveM() int {
+	n := 0
+	snap, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
+	if err != nil {
+		return 0
+	}
+	defer windows.CloseHandle(snap)
+	var pe windows.ProcessEntry32
+	pe.Size = uint32(unsafe.Sizeof(pe))
+	for err := windows.Process32First(snap, &pe); err == nil; err = windows.Process32Next(snap, &pe) {
+		name := strings.ToLower(windows.UTF16ToString(pe.ExeFile[:]))
+		if strings.HasPrefix(name, "fivem") {
+			if h, err := windows.OpenProcess(windows.PROCESS_TERMINATE, false, pe.ProcessID); err == nil {
+				windows.TerminateProcess(h, 0)
+				windows.CloseHandle(h)
+				n++
+			}
+		}
+	}
+	return n
+}
+
+// launchUnelevated เปิดโปรแกรมด้วยสิทธิ์ผู้ใช้ปกติ (FiveM ไม่ควรรันแบบ Admin) โดยยืม token ของ Explorer
+func launchUnelevated(exe, args, dir string) error {
+	cmdline := `"` + exe + `" ` + args
+	hwnd, _, _ := pGetShellWindow.Call()
+	if hwnd != 0 {
+		var pid uint32
+		pGetWindowThreadPID.Call(hwnd, uintptr(unsafe.Pointer(&pid)))
+		if pid != 0 {
+			_ = enablePrivilege("SeImpersonatePrivilege")
+			if hp, err := windows.OpenProcess(windows.PROCESS_QUERY_LIMITED_INFORMATION, false, pid); err == nil {
+				defer windows.CloseHandle(hp)
+				var tok windows.Token
+				if windows.OpenProcessToken(hp, windows.TOKEN_DUPLICATE, &tok) == nil {
+					defer tok.Close()
+					var dup windows.Token
+					access := uint32(windows.TOKEN_QUERY | windows.TOKEN_ASSIGN_PRIMARY | windows.TOKEN_DUPLICATE | windows.TOKEN_ADJUST_DEFAULT | windows.TOKEN_ADJUST_SESSIONID)
+					if windows.DuplicateTokenEx(tok, access, nil, windows.SecurityImpersonation, windows.TokenPrimary, &dup) == nil {
+						defer dup.Close()
+						cl, _ := windows.UTF16PtrFromString(cmdline)
+						wd, _ := windows.UTF16PtrFromString(dir)
+						var si windows.StartupInfo
+						si.Cb = uint32(unsafe.Sizeof(si))
+						var pi windows.ProcessInformation
+						r, _, _ := pCreateProcessWithTokenW.Call(uintptr(dup), 0, 0, uintptr(unsafe.Pointer(cl)), 0, 0,
+							uintptr(unsafe.Pointer(wd)), uintptr(unsafe.Pointer(&si)), uintptr(unsafe.Pointer(&pi)))
+						if r != 0 {
+							windows.CloseHandle(pi.Process)
+							windows.CloseHandle(pi.Thread)
+							return nil
+						}
+					}
+				}
+			}
+		}
+	}
+	// สำรอง: เปิดแบบปกติ
+	cmd := exec.Command(exe)
+	cmd.SysProcAttr = &syscall.SysProcAttr{CmdLine: cmdline}
+	cmd.Dir = dir
+	return cmd.Start()
+}
+
+// launchServer ตั้ง CitizenFX.ini ให้ตรงกับเซิร์ฟ แล้วเปิด FiveM พร้อม -b / -pure และ connect ทีเดียว
+func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int, pool string) launchResult {
+	exe := filepath.Join(fivemDir, "FiveM.exe")
+	if _, err := os.Stat(exe); err != nil {
+		return launchResult{Message: "ไม่เจอ FiveM.exe ใน " + fivemDir}
+	}
+	ini := filepath.Join(fivemDir, "FiveM.app", "CitizenFX.ini")
+	if _, err := os.Stat(ini); err != nil {
+		return launchResult{Message: "ไม่เจอไฟล์ CitizenFX.ini เปิด FiveM ปกติสักครั้งก่อน"}
+	}
+	if killFiveM() > 0 {
+		time.Sleep(1500 * time.Millisecond)
+	}
+	writeIni(ini, "Game", "PoolSizesIncrease", pool)
+	writeIni(ini, "Game", "DefaultBuild", strconv.Itoa(effDefault))
+	writeIni(ini, "Game", "PureLevel", strconv.Itoa(pure))
+	if build == fivemDefaultBuild {
+		writeIni(ini, "Game", "SavedBuildNumber", strconv.Itoa(build))
+	}
+	args := fmt.Sprintf("-b%d", build)
+	if pure > 0 {
+		args += fmt.Sprintf(" -pure_%d", pure)
+	}
+	args += ` "fivem://connect/` + connect + `"`
+	if err := launchUnelevated(exe, args, fivemDir); err != nil {
+		return launchResult{Message: "เปิด FiveM ไม่ได้: " + err.Error()}
+	}
+	return launchResult{OK: true, Cmd: "FiveM.exe " + args}
+}
+
+// ---- รายการเซิร์ฟที่เคยเข้า ----
+func (a *app) recentPath() string { return filepath.Join(a.dataDir, "servers.json") }
+func (a *app) loadRecent() string {
+	b, err := os.ReadFile(a.recentPath())
+	if err != nil || !json.Valid(b) {
+		return "[]"
+	}
+	return string(b)
+}
+func (a *app) saveRecent(s string) bool {
+	if !json.Valid([]byte(s)) {
+		return false
+	}
+	return os.WriteFile(a.recentPath(), []byte(s), 0o644) == nil
+}
