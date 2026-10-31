@@ -410,7 +410,7 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
     <div class="brand">
       <svg class="logo" viewBox="0 0 64 64"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#ff2bd6"/></linearGradient></defs>
         <path d="M32 3 57 17v30L32 61 7 47V17Z" fill="none" stroke="url(#lg)" stroke-width="4"/><path d="M36 12 20 36h11l-3 16 16-24H33Z" fill="url(#lg)"/></svg>
-      <div><h1>ZAN <b>BOOSTER</b></h1><small id="ver">สำหรับ FiveM · v1.7.4</small></div>
+      <div><h1>ZAN <b>BOOSTER</b></h1><small id="ver">สำหรับ FiveM · v1.7.5</small></div>
     </div>
     <div class="tb-spacer"></div>
     <button class="upd" id="bUpd" style="display:none"></button>
@@ -696,7 +696,7 @@ if (!NATIVE) {
   window.pingStart = async () => { clearInterval(pt); pt = setInterval(() => window.onPing({ ok: Math.random() > .03, ms: 24 + Math.random() * 9, mode: 'ICMP' }), 1000); return true; };
   window.pingStop = async () => clearInterval(pt);
   window.winMin = window.winClose = window.winDrag = window.openUrl = window.openDataDir = async () => {};
-  window.appVersion = async () => '1.7.4';
+  window.appVersion = async () => '1.7.5';
   let rec = JSON.stringify([{ name: 'Zan City RP | ภาษาไทย | Economy', connect: 'cfx.re/join/abc123', base: 'https://x.users.cfx.re/', country: 'TH', build: 3095, pure: 1, players: 187, maxPlayers: 300 },
     { name: 'Bangkok Life Roleplay', connect: '203.0.113.10:30120', base: 'http://203.0.113.10:30120/', country: 'TH', build: 3258, players: 64, maxPlayers: 128 },
     { name: 'NoPixel Inspired | US East', connect: 'cfx.re/join/us1234', base: 'https://y.users.cfx.re/', country: 'US', build: 2802, players: 41, maxPlayers: 64 },
@@ -744,7 +744,7 @@ if (!NATIVE) {
 
 /* ================= data ================= */
 const TWEAKS = [
-  { id: 'PowerPlan', cat: 'fps', rec: true, title: 'Power Plan แบบแรงสุด', desc: 'ให้ CPU วิ่งเต็มสปีดตลอด ไม่ลดคล็อก ไม่พักคอร์ เห็นผลชัดสุดในเครื่องส่วนใหญ่' },
+  { id: 'PowerPlan', cat: 'fps', rec: true, title: 'Power Plan: ZAN Project Optimizer', desc: 'Power Plan ของ ZAN (Extreme Profile) ให้ CPU วิ่งเต็มสปีดตลอด ไม่ลดคล็อก ไม่พักคอร์ เห็นผลชัดสุดในเครื่องส่วนใหญ่' },
   { id: 'GameMode', cat: 'fps', rec: true, title: 'เปิด Game Mode', desc: 'Windows จะแบ่งทรัพยากรให้เกมก่อน และไม่รัน Windows Update ระหว่างเล่น' },
   { id: 'GameDVR', cat: 'fps', rec: true, title: 'ปิดการอัดคลิปของ Xbox Game Bar', desc: 'ตัวอัดคลิปเบื้องหลังกินการ์ดจอกับดิสก์ตลอด ปิดแล้วเฟรมนิ่งขึ้น' },
   { id: 'MMCSS', cat: 'fps', rec: true, title: 'ให้เกมได้คิวก่อน', desc: 'ตั้ง Multimedia Scheduler ให้งานประเภทเกมได้ CPU และการ์ดจอก่อนงานเบื้องหลัง' },

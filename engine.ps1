@@ -239,15 +239,31 @@ $Tweaks = [ordered]@{
         Apply = {
             $prev = Get-ActiveScheme
             if (-not $Script:Backup.PrevScheme -and $prev -ne $SchemeGuid) { $Script:Backup.PrevScheme = $prev }
+            # ลบ plan เดิมของโปรแกรม (เวอร์ชันเก่าใช้ Ultimate Performance) แล้วนำเข้า ZAN_Project_Optimizer ใหม่ทุกครั้ง
+            if (((powercfg /list) -join ' ') -match $SchemeGuid) {
+                if ((Get-ActiveScheme) -eq $SchemeGuid) { powercfg /setactive $BalancedGuid | Out-Null }
+                powercfg /delete $SchemeGuid | Out-Null
+            }
+            $pow = Join-Path $DataDir 'ZAN_Project_Optimizer.pow'
+            if (Test-Path $pow) { powercfg /import $pow $SchemeGuid | Out-Null }
             if (((powercfg /list) -join ' ') -notmatch $SchemeGuid) {
+                # สำรอง: นำเข้าไม่ได้ ใช้ Ultimate Performance แทน
+                Write-Log 'นำเข้า ZAN_Project_Optimizer ไม่ได้ ใช้ Ultimate Performance แทน'
                 powercfg /duplicatescheme $UltimateGuid $SchemeGuid | Out-Null
                 if ($LASTEXITCODE -ne 0) { powercfg /duplicatescheme $HighPerfGuid $SchemeGuid | Out-Null }
                 if ($LASTEXITCODE -ne 0) { throw 'เครื่องนี้สร้าง Power Plan เพิ่มไม่ได้ (พบบ่อยในโน้ตบุ๊กบางรุ่น)' }
                 powercfg /changename $SchemeGuid 'Zan Booster' 'Created by Zan Booster' | Out-Null
             }
             powercfg /setactive $SchemeGuid | Out-Null
+            if ((Get-ActiveScheme) -ne $SchemeGuid) { throw 'เปิดใช้ Power Plan ไม่ได้' }
         }
-        Check = { (Get-ActiveScheme) -eq $SchemeGuid }
+        Check = {
+            if ((Get-ActiveScheme) -ne $SchemeGuid) { return $false }
+            # ต้องเป็น ZAN_Project_Optimizer (ถ้า import ไม่ได้ ยอมรับตัวสำรองชื่อ Zan Booster)
+            $line = (powercfg /list) | Where-Object { $_ -match $SchemeGuid } | Select-Object -First 1
+            $hasPow = Test-Path (Join-Path $DataDir 'ZAN_Project_Optimizer.pow')
+            ($line -match 'ZAN_Project_Optimizer') -or (-not $hasPow)
+        }
     }
     GameMode = @{
         Apply = {
@@ -740,8 +756,8 @@ function Do-Health {
 
     # power plan
     $act = Get-ActiveScheme
-    if ($act -eq $SchemeGuid -or $act -eq $UltimateGuid -or $act -eq $HighPerfGuid) { Add 'plan' 'Power Plan' 'ok' 'ใช้โหมดประสิทธิภาพสูงอยู่' '' }
-    else { Add 'plan' 'Power Plan' 'warn' 'ยังใช้ Power Plan แบบประหยัด/สมดุล' 'เปิด "Power Plan แบบแรงสุด" ในหน้าปรับแต่ง' }
+    if ($act -eq $SchemeGuid -or $act -eq $UltimateGuid -or $act -eq $HighPerfGuid) { Add 'plan' 'Power Plan' 'ok' $(if ($act -eq $SchemeGuid) { 'ใช้ ZAN Project Optimizer อยู่' } else { 'ใช้โหมดประสิทธิภาพสูงอยู่' }) '' }
+    else { Add 'plan' 'Power Plan' 'warn' 'ยังใช้ Power Plan แบบประหยัด/สมดุล' 'เปิด "Power Plan: ZAN Project Optimizer" ในหน้าปรับแต่ง หรือกดบูสต์เครื่อง' }
 
     Emit @{ t = 'result'; action = 'Health'; items = @($r) }
 }

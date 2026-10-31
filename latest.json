@@ -1,6 +1,6 @@
 {
-  "version": "1.7.4",
-  "sha256": "e81642dbf415bd10f7b2cb7f8f6c711fc1daf58bd4db1f09e78840a947b44e87",
+  "version": "1.7.5",
+  "sha256": "9aeeb5f0a7fb2e84095f710f924b0db29f7b4c0abf341bcd284a55970a21aec2",
   "file": "release/ZanBooster.exe",
-  "notes": "แก้เข้าเซิร์ฟไม่ได้\n- ตรวจไฟล์ build ในเครื่องให้ตรงกับ FiveM ทุกเวอร์ชัน\n- build ที่ยังไม่มี: ให้ FiveM จัดการเองแบบเข้าปกติ (ชัวร์ว่าเข้าได้)\n- build ที่มีแล้ว: เปิดเกมรอบเดียวแบบเร็ว\n- ถ้าเกมไม่เปิดใน 20 วินาที จะเปิดด้วยวิธีสำรองให้อัตโนมัติ"
+  "notes": "Power Plan ใหม่: ZAN Project Optimizer\n- บูสต์เครื่องจะใช้ Power Plan ของ ZAN (Extreme Profile) แทน Ultimate Performance\n- ใครบูสต์ไว้แล้ว กดบูสต์เครื่องอีกครั้งเพื่อเปลี่ยนเป็นตัวใหม่"
 }

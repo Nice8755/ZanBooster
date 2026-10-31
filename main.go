@@ -28,7 +28,10 @@ var engineScript []byte
 //go:embed ui.html
 var uiHTML string
 
-const appVersion = "1.7.4"
+//go:embed zan.pow
+var zanPow []byte
+
+const appVersion = "1.7.5"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -86,6 +89,8 @@ func main() {
 		msgBox("Zan Booster", "เขียนไฟล์ engine ไม่ได้: "+err.Error(), 0x10)
 		return
 	}
+
+	_ = os.WriteFile(filepath.Join(a.dataDir, "ZAN_Project_Optimizer.pow"), zanPow, 0o644)
 
 	dpi := uintptr(96)
 	if pGetDpiForSystem.Find() == nil {
