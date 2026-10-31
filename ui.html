@@ -1254,8 +1254,6 @@ async function refreshServers() {
 async function joinServer(i, btn) {
   const v = servers[i]; if (!v) return;
   if (!fivemDir) { if (await confirmBox('หาโฟลเดอร์ FiveM ไม่เจอ', 'เลือกโฟลเดอร์ที่มีไฟล์ FiveM.exe ก่อน', 'เลือกโฟลเดอร์')) await pickFiveM(); if (!fivemDir) return; }
-  const running = $('#fivemPill').classList.contains('on');
-  if (running && !await confirmBox('FiveM เปิดอยู่', 'จะปิดเกมที่เปิดอยู่ แล้วเปิดใหม่ครั้งเดียวให้ตรงกับเซิร์ฟนี้ รอหน้าเมนูขึ้นก่อนค่อยส่ง IP', 'ปิดแล้วเข้าเซิร์ฟ')) return;
   btn.disabled = true; btn.textContent = '...';
   const r = await lookup(v.connect);
   if (!r.ok) { btn.disabled = false; btn.textContent = 'เข้า'; toast(r.err || 'เซิร์ฟไม่ตอบ', 'er'); return; }
@@ -1273,7 +1271,7 @@ async function joinServer(i, btn) {
   });
   btn.disabled = false; btn.textContent = 'เข้า'; btn.title = ''; btn.classList.remove('busy');
   if (!res?.ok) { toast(res?.m || 'เปิดเกมไม่ได้', 'er'); log('✕ ' + (res?.m || 'เปิดเกมไม่ได้') + (res?.cmd ? ' | ' + res.cmd : ''), 'er'); return; }
-  toast(`เกมพร้อมแล้ว กำลังเชื่อมต่อ ${v.name}`, 'ok');
+  toast(`${res.mode === 'ไม่รีเกม' ? 'ส่ง IP เข้าเกมที่เปิดอยู่แล้ว' : 'เกมพร้อมแล้ว'} กำลังเชื่อมต่อ ${v.name}`, 'ok');
   log(`✓ ส่ง IP เข้าเกมแล้ว เกมกำลังเชื่อมต่อ ${res.cmd || ''}`, 'ok');
   servers.splice(i, 1); servers.unshift(v); saveServers(); renderServers();
 }

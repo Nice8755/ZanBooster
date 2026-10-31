@@ -394,7 +394,6 @@ func fivemRunningAny() bool {
 	return false
 }
 
-
 // ---- ตรวจสถานะเกม ----
 
 // gtaProcess คืน PID ของตัวเกม (FiveM_b3258_GTAProcess.exe / FiveM_GTAProcess.exe) ถ้ามี
@@ -502,28 +501,49 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 	}
 	link := "fivem://connect/" + connect
 
-	step("ปิดเกมเดิม")
-	if killFiveM() > 0 {
-		for i := 0; i < 20 && fivemRunningAny(); i++ {
-			time.Sleep(250 * time.Millisecond)
+	// เกมเปิดอยู่ที่หน้าเมนูแล้ว: ส่ง IP เข้าไปเลย ไม่ต้องปิดเกม
+	// (ถ้า build/pure/pool ไม่ตรง FiveM จะสลับเองแล้วต่อเซิร์ฟให้อัตโนมัติ)
+	if pid, _ := gtaProcess(); pid != 0 && (menuReady() || gameWindowVisible(pid)) {
+		step("เกมเปิดอยู่ ส่ง IP เข้าไปเลย")
+		if r, done := sendConnect(fivemDir, link, time.Now().Add(-2*time.Second), 1, step); done {
+			r.Mode = "ไม่รีเกม"
+			return r
 		}
-		time.Sleep(1500 * time.Millisecond)
+		// เกมไม่รับลิงก์ (มักเพราะอยู่ในเซิร์ฟอื่นอยู่) ต้องปิดแล้วเปิดใหม่
 	}
 
-	ini := filepath.Join(fivemDir, "FiveM.app", "CitizenFX.ini")
+	// FiveM กำลังเปิดอยู่แต่ยังไม่ถึงหน้าเมนู: รอมันโหลดต่อ ไม่ต้องปิดทิ้ง
+	reuse := false
+	if pid, _ := gtaProcess(); fivemRunningAny() && !(pid != 0 && menuReady()) {
+		reuse = true
+	}
 	mode := "ปกติ"
-	if _, err := os.Stat(ini); err == nil && build > 0 {
-		writeIni(ini, "Game", "PoolSizesIncrease", pool)
-		writeIni(ini, "Game", "DefaultBuild", strconv.Itoa(effDefault))
-		writeIni(ini, "Game", "PureLevel", strconv.Itoa(pure))
-		writeIni(ini, "Game", "SavedBuildNumber", strconv.Itoa(build))
-		mode = fmt.Sprintf("b%d", build)
-	}
-
 	start := time.Now().Add(-2 * time.Second)
-	step("กำลังเปิด FiveM")
-	if err := explorerOpen(exe); err != nil {
-		return launchResult{Message: "เปิด FiveM ไม่ได้: " + err.Error()}
+	if reuse {
+		mode = "ไม่รีเกม"
+	} else {
+		step("ปิดเกมเดิม")
+		if killFiveM() > 0 {
+			for i := 0; i < 20 && fivemRunningAny(); i++ {
+				time.Sleep(250 * time.Millisecond)
+			}
+			time.Sleep(1500 * time.Millisecond)
+		}
+
+		ini := filepath.Join(fivemDir, "FiveM.app", "CitizenFX.ini")
+		if _, err := os.Stat(ini); err == nil && build > 0 {
+			writeIni(ini, "Game", "PoolSizesIncrease", pool)
+			writeIni(ini, "Game", "DefaultBuild", strconv.Itoa(effDefault))
+			writeIni(ini, "Game", "PureLevel", strconv.Itoa(pure))
+			writeIni(ini, "Game", "SavedBuildNumber", strconv.Itoa(build))
+			mode = fmt.Sprintf("b%d", build)
+		}
+
+		start = time.Now().Add(-2 * time.Second)
+		step("กำลังเปิด FiveM")
+		if err := explorerOpen(exe); err != nil {
+			return launchResult{Message: "เปิด FiveM ไม่ได้: " + err.Error()}
+		}
 	}
 
 	// รอหน้าเมนู: สูงสุด 6 นาที (ครั้งแรกของ build ใหม่ FiveM ต้องโหลดไฟล์ก่อน)
@@ -565,37 +585,49 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 		time.Sleep(700 * time.Millisecond)
 	}
 
-	// ส่ง IP เข้าเกมที่เปิดอยู่ แล้วเช็กว่าเริ่มเชื่อมต่อจริง ถ้ายังเงียบส่งซ้ำ (เกมจะไม่ต่อซ้อนถ้าต่ออยู่แล้ว)
-	for try := 1; try <= 3; try++ {
+	if r, done := sendConnect(fivemDir, link, start, 3, step); done {
+		r.Mode = mode
+		return r
+	}
+	return launchResult{Message: "ส่ง IP แล้วแต่เกมยังไม่เชื่อมต่อ ลองกดเข้าในเกมเอง หรือกดเข้าอีกครั้ง", Cmd: link, Mode: mode}
+}
+
+// sendConnect ส่ง fivem://connect เข้าเกมที่เปิดอยู่ (FiveM.exe ตัวใหม่จะส่งต่อทาง IPC แล้วปิดตัวเอง ไม่เปิดเกมซ้อน)
+// แล้วอ่าน log ว่าเกมเริ่มเชื่อมต่อจริง  done=false แปลว่าเกมไม่ตอบเลย
+func sendConnect(fivemDir, link string, since time.Time, tries int, step func(string)) (launchResult, bool) {
+	for try := 1; try <= tries; try++ {
 		sent := time.Now()
 		step(fmt.Sprintf("ส่ง IP เข้าเกม (ครั้งที่ %d)", try))
-		before := len(logSince(fivemDir, start))
+		before := len(logSince(fivemDir, since))
 		explorerOpen(link)
 		for i := 0; i < 24; i++ { // ~12 วินาที
 			time.Sleep(500 * time.Millisecond)
-			lg := logSince(fivemDir, start)
+			lg := logSince(fivemDir, since)
 			if len(lg) > before {
 				tail := lg[before:]
-				if strings.Contains(tail, "OnConnectionError") {
-					msg := tail[strings.LastIndex(tail, "OnConnectionError"):]
+				if k := strings.LastIndex(tail, "OnConnectionError"); k >= 0 {
+					msg := tail[k:]
 					if n := strings.IndexByte(msg, '\n'); n > 0 {
 						msg = msg[:n]
 					}
-					return launchResult{Message: "เซิร์ฟตอบกลับ: " + strings.TrimSpace(strings.TrimPrefix(msg, "OnConnectionError:")), Cmd: link, Mode: mode}
+					msg = strings.TrimSpace(strings.TrimPrefix(msg, "OnConnectionError:"))
+					return launchResult{Message: "เซิร์ฟตอบกลับ: " + msg, Cmd: link}, true
 				}
-				if strings.Contains(tail, "OnConnectionProgress") || strings.Contains(tail, "Connecting to server") || strings.Contains(tail, "Switching from build") || strings.Contains(tail, "already connecting") {
-					return launchResult{OK: true, Cmd: link, Mode: mode}
+				for _, k := range []string{"OnConnectionProgress", "Connecting to server", "Switching from build", "already connecting"} {
+					if strings.Contains(tail, k) {
+						return launchResult{OK: true, Cmd: link}, true
+					}
 				}
 			}
-			if pid2, _ := gtaProcess(); pid2 == 0 && time.Since(sent) > 5*time.Second {
-				return launchResult{Message: "เกมปิดตัวหลังส่ง IP ดู log ใน FiveM.app\\logs", Cmd: link, Mode: mode}
+			if pid, _ := gtaProcess(); pid == 0 && time.Since(sent) > 5*time.Second {
+				return launchResult{Message: "เกมปิดตัวหลังส่ง IP ดู log ใน FiveM.app\\logs", Cmd: link}, true
 			}
 		}
-		if logSince(fivemDir, start) == "" {
-			return launchResult{OK: true, Cmd: link, Mode: mode} // อ่าน log ไม่ได้ ถือว่าส่งแล้ว
+		if logSince(fivemDir, since) == "" {
+			return launchResult{OK: true, Cmd: link}, true // อ่าน log ไม่ได้ ถือว่าส่งแล้ว
 		}
 	}
-	return launchResult{Message: "ส่ง IP แล้วแต่เกมยังไม่เชื่อมต่อ ลองกดเข้าในเกมเอง หรือกดเข้าอีกครั้ง", Cmd: link, Mode: mode}
+	return launchResult{}, false
 }
 
 // ---- รายการเซิร์ฟที่เคยเข้า ----
