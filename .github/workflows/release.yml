@@ -1,0 +1,49 @@
+name: Auto Release
+
+# เมื่อมีการอัปเดต latest.json หรือไฟล์ exe ใน release/ ให้สร้าง GitHub Release ตามเลขเวอร์ชันอัตโนมัติ
+on:
+  push:
+    branches: [main]
+    paths:
+      - latest.json
+      - release/ZanBooster.exe
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        id: v
+        run: |
+          VER=$(jq -r .version latest.json)
+          SHA=$(jq -r .sha256 latest.json)
+          REAL=$(sha256sum release/ZanBooster.exe | cut -d' ' -f1)
+          if [ "$SHA" != "$REAL" ]; then
+            echo "::error::SHA256 in latest.json ($SHA) does not match release/ZanBooster.exe ($REAL)"
+            exit 1
+          fi
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          jq -r .notes latest.json > notes.md
+          printf '\nSHA256: %s\n' "$SHA" >> notes.md
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v${{ steps.v.outputs.ver }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, skipping"
+            exit 0
+          fi
+          gh release create "$TAG" release/ZanBooster.exe \
+            --target "$GITHUB_SHA" \
+            --title "Zan Booster ${{ steps.v.outputs.ver }}" \
+            --notes-file notes.md \
+            --latest
