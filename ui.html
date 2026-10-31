@@ -875,6 +875,7 @@ if (!NATIVE) {
   window.loadRecent = async () => rec; window.saveRecent = async s => { rec = s; return true; };
   const MI = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><rect width="52" height="52" fill="#3a1d6e"/><text x="26" y="34" font-size="20" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="bold">ZC</text></svg>');
   window.checkBuild = async (d, b) => ({ known: true, cached: b !== 2802, missingMB: 1505 });
+  window.findFiveM = async id => { setTimeout(() => window.onFindFiveM({ reqId: id, path: 'D:\\FiveM' }), 300); return true; };
   window.fivemIcon = async () => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" rx="2" fill="#3a6"/></svg>');
   window.triggerRecover = async () => { setTimeout(() => window.onGameMode({ active: true, game: 'FiveM_b3095_GTAProcess.exe', since: Date.now() / 1000 - 4000, hk: 'ok', rec: { at: Math.floor(Date.now() / 1000), game: true, freedMB: 2310, trimmed: 143, freeMB: 9400, prio: true, aff: true, power: true, vramPct: 95, gameMB: 7600, lv: 'warn', advice: 'VRAM การ์ดจอเต็ม (95%) ส่วนนี้กู้จากข้างนอกเกมไม่ได้ ให้กด "รีเกมแล้วเข้าเซิร์ฟเดิม" และลด Texture Quality ลง 1 ขั้นจะไม่กลับมาเต็มอีก' } }), 1200); return true; };
   window.gameModeInfo = async () => ({ pCores: 6, pThreads: 12, timer: false, build: 19044 });
@@ -1172,13 +1173,30 @@ async function loadSysInfo() {
   $('#iOs').textContent = (i.os || '-').replace('Microsoft ', '') + (i.build ? ` (build ${i.build})` : '');
   $('#iNet').textContent = i.net ? `${i.net}${i.link ? ' (' + i.link + ')' : ''}` : 'ไม่ได้เชื่อมต่อ';
   $('#sCpu').textContent = (i.cores || '-') + ' threads';
-  $('#fmState').textContent = i.fivem ? 'เจอ FiveM ในเครื่องนี้' : 'ยังหา FiveM ไม่เจอ';
-  $('#fmSub').textContent = i.fivem ? `${i.fivemPath}  ·  แคช ${(i.cache || 0).toLocaleString()} MB` : 'ถ้าลงไว้ไดรฟ์อื่น เลือกโฟลเดอร์เองได้ในหน้าเครื่องมือ';
-  fivemDir = i.fivem ? i.fivemPath : '';
-  setFivemIcon();
-  $('#fmPathTool').textContent = i.fivem ? i.fivemPath : 'ยังหาไม่เจอ กดปุ่มด้านล่างแล้วเลือกโฟลเดอร์ที่มี FiveM.exe';
+  if (i.fivem) fivemDir = i.fivemPath;
+  fmPaint(i.fivem ? `${i.fivemPath}  ·  แคช ${(i.cache || 0).toLocaleString()} MB` : '');
 }
 
+function fmPaint(sub) {
+  $('#fmState').textContent = fivemDir ? 'เจอ FiveM ในเครื่องนี้' : 'ยังหา FiveM ไม่เจอ';
+  $('#fmSub').textContent = fivemDir ? (sub || fivemDir) : 'ถ้าลงไว้ไดรฟ์อื่น เลือกโฟลเดอร์เองได้ในหน้าเครื่องมือ';
+  $('#fmPathTool').textContent = fivemDir || 'ยังหาไม่เจอ กดปุ่มด้านล่างแล้วเลือกโฟลเดอร์ที่มี FiveM.exe';
+  setFivemIcon();
+}
+// ค้นหาโฟลเดอร์ FiveM อัตโนมัติ (ฝั่ง Go เร็วกว่า PowerShell) ใช้ตอนเปิดโปรแกรมและตอนกดเข้าเซิร์ฟ
+let fmFindReq = 0, fmFindP = null;
+const fmFindWait = {};
+window.onFindFiveM = r => { const f = fmFindWait[r.reqId]; if (f) { delete fmFindWait[r.reqId]; f(r.path || ''); } };
+function findFiveMAuto() {
+  if (!window.findFiveM) return Promise.resolve('');
+  if (fmFindP) return fmFindP;
+  fmFindP = new Promise(ok => { const id = ++fmFindReq; fmFindWait[id] = ok; window.findFiveM(id); }).then(p => {
+    fmFindP = null;
+    if (p && !fivemDir) { fivemDir = p; fmPaint(); log('✓ เจอ FiveM อัตโนมัติ: ' + p, 'ok'); checkBuilds().then(renderServers); }
+    return p;
+  });
+  return fmFindP;
+}
 let fmIconFor = null;
 async function setFivemIcon() {
   if (!fivemDir || fmIconFor === fivemDir || !window.fivemIcon) return;
@@ -1469,7 +1487,12 @@ async function liveTick() {
 async function joinServer(i, btn, force = false) {
   btn = btn || document.createElement('button');
   const v = servers[i]; if (!v) return;
-  if (!fivemDir) { if (await confirmBox('หาโฟลเดอร์ FiveM ไม่เจอ', 'เลือกโฟลเดอร์ที่มีไฟล์ FiveM.exe ก่อน', 'เลือกโฟลเดอร์')) await pickFiveM(); if (!fivemDir) return; }
+  if (!fivemDir) {
+    btn.disabled = true; btn.textContent = 'หา FiveM...';
+    await findFiveMAuto();
+    btn.disabled = false; btn.textContent = 'เข้า';
+    if (!fivemDir) { if (await confirmBox('หาโฟลเดอร์ FiveM ไม่เจอ', 'ค้นหาทุกไดรฟ์แล้วยังไม่เจอ เลือกโฟลเดอร์ที่มีไฟล์ FiveM.exe เอง', 'เลือกโฟลเดอร์')) await pickFiveM(); if (!fivemDir) return; }
+  }
   btn.disabled = true; btn.textContent = '...';
   const r = await lookup(v.connect);
   if (!r.ok) { btn.disabled = false; btn.textContent = 'เข้า'; toast(r.err || 'เซิร์ฟไม่ตอบ', 'er'); return; }
@@ -1698,6 +1721,7 @@ setInterval(async () => {
 (async () => {
   renderTweaks();
   log('เปิดโปรแกรม', 'in');
+  findFiveMAuto();
   tick(); setInterval(() => { if (appActive) tick(); }, 2000);
   await loadSysInfo();
   await refreshStatus();

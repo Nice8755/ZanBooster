@@ -31,7 +31,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "1.9.8"
+const appVersion = "1.9.9"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -158,6 +158,7 @@ func main() {
 	must(w.Bind("gameModeInfo", a.gameModeInfo))
 	must(w.Bind("triggerRecover", a.triggerRecover))
 	must(w.Bind("fivemIcon", a.fivemIcon))
+	must(w.Bind("findFiveM", a.findFiveMAsync))
 	must(w.Bind("cacheScan", a.cacheScanAsync))
 	must(w.Bind("cacheClean", a.cacheCleanAsync))
 	must(w.Bind("winDrag", a.winDrag))
