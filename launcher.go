@@ -16,6 +16,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 	"unsafe"
 
@@ -578,6 +579,26 @@ func logSince(fivemDir string, t time.Time) string {
 	return out.String()
 }
 
+// makeShortcut สร้าง .lnk ไปที่ FiveM.exe พร้อมตัวเลือก ให้ Explorer เปิด (เหมือนผู้ใช้ดับเบิลคลิก shortcut)
+func (a *app) makeShortcut(target, args, workDir string) (string, error) {
+	dir := filepath.Join(a.dataDir, "launch")
+	os.MkdirAll(dir, 0o755)
+	lnk := filepath.Join(dir, "FiveM.lnk")
+	os.Remove(lnk)
+	q := func(s string) string { return "'" + strings.ReplaceAll(s, "'", "''") + "'" }
+	ps := "$s=(New-Object -ComObject WScript.Shell).CreateShortcut(" + q(lnk) + ");$s.TargetPath=" + q(target) +
+		";$s.Arguments=" + q(args) + ";$s.WorkingDirectory=" + q(workDir) + ";$s.Save()"
+	c := exec.Command("powershell", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", ps)
+	c.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000}
+	if err := c.Run(); err != nil {
+		return "", err
+	}
+	if !fileExists(lnk) {
+		return "", fmt.Errorf("สร้าง shortcut ไม่สำเร็จ")
+	}
+	return lnk, nil
+}
+
 func explorerOpen(target string) error {
 	return exec.Command(filepath.Join(os.Getenv("SystemRoot"), "explorer.exe"), target).Start()
 }
@@ -643,8 +664,19 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 		}
 
 		start = time.Now().Add(-2 * time.Second)
-		step("กำลังเปิด FiveM")
-		if err := explorerOpen(exe); err != nil {
+		// เปิดด้วย -b / -pure_ แบบเดียวกับที่ FiveM รีเกมเอง (RestartGameToOtherBuild)
+		// FiveM รุ่น production ไม่อ่าน PureLevel จาก ini ต้องส่งเป็นตัวเลือกตอนเปิดเท่านั้น
+		// และต้องถูกเปิดจาก Explorer จึงสร้าง shortcut ที่มีตัวเลือกแล้วให้ Explorer เปิด
+		args := fmt.Sprintf("-b%d", build)
+		if pure > 0 {
+			args += fmt.Sprintf(" -pure_%d", pure)
+		}
+		step("กำลังเปิด FiveM (" + args + ")")
+		target := exe
+		if lnk, err := a.makeShortcut(exe, args, fivemDir); err == nil {
+			target = lnk
+		}
+		if err := explorerOpen(target); err != nil {
 			return launchResult{Message: "เปิด FiveM ไม่ได้: " + err.Error()}
 		}
 	}

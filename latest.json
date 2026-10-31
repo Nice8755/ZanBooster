@@ -1,6 +1,6 @@
 {
-  "version": "2.0.0",
-  "sha256": "65df62578d2a56ed044491cb831fdb7e5b3d63037297c387af7a27a88e9bbbc7",
+  "version": "2.0.1",
+  "sha256": "82a76e5e7add237cb1af5bb9532d27f79363c3c3844de35cc2b48a3d4c30663b",
   "file": "release/ZanBooster.exe",
-  "notes": "แก้ FiveM needs to restart: อ่าน pure / build ที่เกมเปิดอยู่จริงจากตัว FiveM แทนไฟล์ตั้งค่า ถ้าไม่ตรงเซิร์ฟ เปิดเกมใหม่ด้วยค่าที่ถูกให้เอง"
+  "notes": "แก้เข้าเซิร์ฟแล้ว FiveM ถามรีสตาร์ทเรื่อง pure mode: เปิดเกมด้วย -b / -pure_ ตามที่เซิร์ฟต้องการ (แบบเดียวกับ FiveM) เกมขึ้นมาค่าตรงตั้งแต่แรก"
 }
