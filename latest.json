@@ -1,6 +1,6 @@
 {
-  "version": "2.0.2",
-  "sha256": "1e264a67d916a1fed2dce0e2c1d08d86dba106ca309d824d70c930cd1a240cda",
+  "version": "2.0.3",
+  "sha256": "631c70a35a6a6a9ad2aefc95b89b89aa0232e8c5b0b1b32d8bb6a23d90862e6f",
   "file": "release/ZanBooster.exe",
-  "notes": "ลดจุดที่โปรแกรมสแกนไวรัสมองว่าน่าสงสัย: สร้าง shortcut ด้วย Windows โดยตรงแทน PowerShell, เลิกใช้ ExecutionPolicy Bypass, ไม่ตัดข้อมูล symbol ออกจากไฟล์"
+  "notes": "ปุ่ม \"ใช้แบบนี้\" ในหน้ากราฟิกเกมเป็นสีเดียวกันทั้ง 3 แบบ"
 }
