@@ -28,7 +28,7 @@ var engineScript []byte
 //go:embed ui.html
 var uiHTML string
 
-const appVersion = "1.7.3"
+const appVersion = "1.7.4"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -158,7 +158,7 @@ func main() {
 	must(w.Bind("loadSettings", a.loadSettings))
 	must(w.Bind("saveSettings", a.saveSettings))
 	must(w.Bind("openPath", openURL))
-	must(w.Bind("launchServer", a.launchServer))
+	must(w.Bind("launchServer", a.launchServerAsync))
 	must(w.Bind("loadRecent", a.loadRecent))
 	must(w.Bind("saveRecent", a.saveRecent))
 

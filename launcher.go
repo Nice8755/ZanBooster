@@ -350,6 +350,7 @@ type launchResult struct {
 	OK      bool   `json:"ok"`
 	Message string `json:"m,omitempty"`
 	Cmd     string `json:"cmd,omitempty"`
+	Mode    string `json:"mode,omitempty"`
 }
 
 func writeIni(path, section, key, val string) {
@@ -424,34 +425,72 @@ func launchUnelevated(exe, args, dir string) error {
 	return cmd.Start()
 }
 
-// launchServer ตั้ง CitizenFX.ini ให้ตรงกับเซิร์ฟ แล้วเปิด FiveM พร้อม -b / -pure และ connect ทีเดียว
-func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int, pool string) launchResult {
+func fivemRunningAny() bool {
+	snap, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
+	if err != nil {
+		return false
+	}
+	defer windows.CloseHandle(snap)
+	var pe windows.ProcessEntry32
+	pe.Size = uint32(unsafe.Sizeof(pe))
+	for err := windows.Process32First(snap, &pe); err == nil; err = windows.Process32Next(snap, &pe) {
+		if strings.HasPrefix(strings.ToLower(windows.UTF16ToString(pe.ExeFile[:])), "fivem") {
+			return true
+		}
+	}
+	return false
+}
+
+func waitFiveM(sec int) bool {
+	for i := 0; i < sec*2; i++ {
+		if fivemRunningAny() {
+			return true
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
+	return false
+}
+
+// launchServer
+//   fast = true  : ตั้ง CitizenFX.ini + -b/-pure ให้ตรงกับเซิร์ฟ เปิดเกมรอบเดียว (ใช้เมื่อ build นั้นมีในเครื่องแล้ว)
+//   fast = false : เปิดแบบเดียวกับกดเข้าเซิร์ฟใน FiveM ปกติ ให้ FiveM จัดการโหลด/สลับ build เอง (ชัวร์ที่สุด)
+func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int, pool string, fast bool) launchResult {
 	exe := filepath.Join(fivemDir, "FiveM.exe")
 	if _, err := os.Stat(exe); err != nil {
 		return launchResult{Message: "ไม่เจอ FiveM.exe ใน " + fivemDir}
 	}
 	ini := filepath.Join(fivemDir, "FiveM.app", "CitizenFX.ini")
-	if _, err := os.Stat(ini); err != nil {
-		return launchResult{Message: "ไม่เจอไฟล์ CitizenFX.ini เปิด FiveM ปกติสักครั้งก่อน"}
-	}
 	if killFiveM() > 0 {
-		time.Sleep(1500 * time.Millisecond)
+		time.Sleep(2 * time.Second)
 	}
-	writeIni(ini, "Game", "PoolSizesIncrease", pool)
-	writeIni(ini, "Game", "DefaultBuild", strconv.Itoa(effDefault))
-	writeIni(ini, "Game", "PureLevel", strconv.Itoa(pure))
-	if build == fivemDefaultBuild {
-		writeIni(ini, "Game", "SavedBuildNumber", strconv.Itoa(build))
+	link := `"fivem://connect/` + connect + `"`
+	args := link
+	mode := "ปกติ"
+	if fast {
+		if _, err := os.Stat(ini); err == nil {
+			writeIni(ini, "Game", "PoolSizesIncrease", pool)
+			writeIni(ini, "Game", "DefaultBuild", strconv.Itoa(effDefault))
+			writeIni(ini, "Game", "PureLevel", strconv.Itoa(pure))
+			if build == fivemDefaultBuild {
+				writeIni(ini, "Game", "SavedBuildNumber", strconv.Itoa(build))
+			}
+			args = fmt.Sprintf("-b%d", build)
+			if pure > 0 {
+				args += fmt.Sprintf(" -pure_%d", pure)
+			}
+			args += " " + link
+			mode = "เร็ว"
+		}
 	}
-	args := fmt.Sprintf("-b%d", build)
-	if pure > 0 {
-		args += fmt.Sprintf(" -pure_%d", pure)
+	if err := launchUnelevated(exe, args, fivemDir); err != nil || !waitFiveM(20) {
+		// สำรอง: เปิดผ่านลิงก์ fivem:// ของ Windows แบบเดียวกับกดจากเว็บ
+		openURL("fivem://connect/" + connect)
+		if !waitFiveM(20) {
+			return launchResult{Message: "เปิด FiveM ไม่ขึ้น ลองเปิด FiveM เองหนึ่งครั้งแล้วกดเข้าใหม่", Cmd: "FiveM.exe " + args}
+		}
+		return launchResult{OK: true, Cmd: "fivem://connect/" + connect + " (สำรอง)", Mode: "สำรอง"}
 	}
-	args += ` "fivem://connect/` + connect + `"`
-	if err := launchUnelevated(exe, args, fivemDir); err != nil {
-		return launchResult{Message: "เปิด FiveM ไม่ได้: " + err.Error()}
-	}
-	return launchResult{OK: true, Cmd: "FiveM.exe " + args}
+	return launchResult{OK: true, Cmd: "FiveM.exe " + args, Mode: mode}
 }
 
 // ---- รายการเซิร์ฟที่เคยเข้า ----
@@ -498,12 +537,57 @@ func (a *app) checkBuild(fivemDir string, build int) buildCheck {
 		return buildCheck{}
 	}
 	dir := filepath.Join(fivemDir, "FiveM.app", "data", "game-storage")
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return buildCheck{Known: true, MissingMB: totalMB(files)}
+	}
+	// รายการไฟล์ในเครื่อง: ชื่อจริง + ขนาด
+	type fe struct {
+		name string
+		size int64
+	}
+	var have []fe
+	for _, e := range entries {
+		if info, err := e.Info(); err == nil && !e.IsDir() {
+			have = append(have, fe{e.Name(), info.Size()})
+		}
+	}
 	res := buildCheck{Known: true, Cached: true}
 	for _, f := range files {
-		if st, err := os.Stat(filepath.Join(dir, f.F)); err != nil || st.Size() == 0 {
+		found := false
+		prefix := f.F[:strings.LastIndex(f.F, "_")+1] // เช่น "update+update.rpf_"
+		for _, h := range have {
+			// ตรงชื่อเป๊ะ (hash เดียวกัน) หรือไฟล์ชนิดเดียวกันที่ขนาดเท่ากัน (FiveM บางเวอร์ชันใช้ hash ต่างกัน)
+			if h.name == f.F || (strings.HasPrefix(h.name, prefix) && h.size == f.N) {
+				found = h.size > 0
+				break
+			}
+		}
+		if !found {
 			res.Cached = false
 			res.MissingMB += float64(f.N) / (1 << 20)
 		}
 	}
 	return res
+}
+
+func totalMB(files []buildFile) float64 {
+	var t int64
+	for _, f := range files {
+		t += f.N
+	}
+	return float64(t) / (1 << 20)
+}
+
+// launchServerAsync เรียก launchServer ในเบื้องหลัง (ไม่ให้หน้าต่างค้าง) ผลส่งไป window.onLaunch
+func (a *app) launchServerAsync(fivemDir, connect string, build, pure, effDefault int, pool string, fast bool, reqID int) bool {
+	go func() {
+		r := a.launchServer(fivemDir, connect, build, pure, effDefault, pool, fast)
+		b, _ := json.Marshal(struct {
+			launchResult
+			ReqID int `json:"reqId"`
+		}{r, reqID})
+		a.emit("onLaunch", string(b))
+	}()
+	return true
 }
