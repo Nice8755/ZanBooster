@@ -28,7 +28,7 @@ var engineScript []byte
 //go:embed ui.html
 var uiHTML string
 
-const appVersion = "1.7.0"
+const appVersion = "1.7.1"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -142,6 +142,7 @@ func main() {
 	must(w.Bind("purgeMemory", a.purgeMemory))
 	must(w.Bind("serverLookup", a.serverLookup))
 	must(w.Bind("serverStatus", a.serverStatusCheck))
+	must(w.Bind("checkBuild", a.checkBuild))
 	must(w.Bind("checkUpdate", a.checkUpdate))
 	must(w.Bind("applyUpdate", a.applyUpdate))
 	must(w.Bind("about", a.about))

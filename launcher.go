@@ -3,6 +3,7 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -467,4 +468,42 @@ func (a *app) saveRecent(s string) bool {
 		return false
 	}
 	return os.WriteFile(a.recentPath(), []byte(s), 0o644) == nil
+}
+
+// ---- ตรวจว่า build ที่เซิร์ฟต้องการ มีไฟล์ในเครื่องแล้วหรือยัง ----
+// ข้อมูลไฟล์ของแต่ละ build มาจาก g_entriesToLoadPerBuild ใน code/client/launcher/GameCache.cpp ของ FiveM
+//
+//go:embed builds.json
+var buildsJSON []byte
+
+type buildFile struct {
+	F string `json:"f"` // ชื่อไฟล์ใน data\game-storage
+	N int64  `json:"n"` // ขนาดเต็ม (byte)
+}
+
+type buildCheck struct {
+	Known     bool    `json:"known"`
+	Cached    bool    `json:"cached"`
+	MissingMB float64 `json:"missingMB"`
+}
+
+var buildTable map[string][]buildFile
+
+func (a *app) checkBuild(fivemDir string, build int) buildCheck {
+	if buildTable == nil {
+		json.Unmarshal(buildsJSON, &buildTable)
+	}
+	files, ok := buildTable[strconv.Itoa(build)]
+	if !ok || fivemDir == "" {
+		return buildCheck{}
+	}
+	dir := filepath.Join(fivemDir, "FiveM.app", "data", "game-storage")
+	res := buildCheck{Known: true, Cached: true}
+	for _, f := range files {
+		if st, err := os.Stat(filepath.Join(dir, f.F)); err != nil || st.Size() == 0 {
+			res.Cached = false
+			res.MissingMB += float64(f.N) / (1 << 20)
+		}
+	}
+	return res
 }
