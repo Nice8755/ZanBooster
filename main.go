@@ -28,7 +28,7 @@ var engineScript []byte
 //go:embed ui.html
 var uiHTML string
 
-const appVersion = "1.7.1"
+const appVersion = "1.7.2"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -41,6 +41,7 @@ var (
 	pSetWindowLongPtr   = user32.NewProc("SetWindowLongPtrW")
 	pSetWindowPos       = user32.NewProc("SetWindowPos")
 	pShowWindow         = user32.NewProc("ShowWindow")
+	pIsIconic           = user32.NewProc("IsIconic")
 	pReleaseCapture     = user32.NewProc("ReleaseCapture")
 	pPostMessage        = user32.NewProc("PostMessageW")
 	pMessageBox         = user32.NewProc("MessageBoxW")
@@ -103,6 +104,8 @@ func main() {
 		height = maxH
 	}
 
+	// ลดทรัพยากรของ WebView2: process เดียวสำหรับหน้าจอ ปิดฟีเจอร์เบื้องหลังที่ไม่ใช้
+	os.Setenv("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--renderer-process-limit=1 --disable-extensions --disable-background-networking --disable-component-update --disable-sync --disable-features=msSmartScreenProtection,msWebOOUI,msPdfOOUI,SpareRendererForSitePerProcess,AutofillServerCommunication --js-flags=--max-old-space-size=64")
 	w := webview2.NewWithOptions(webview2.WebViewOptions{
 		Debug:     false,
 		AutoFocus: true,
@@ -143,6 +146,7 @@ func main() {
 	must(w.Bind("serverLookup", a.serverLookup))
 	must(w.Bind("serverStatus", a.serverStatusCheck))
 	must(w.Bind("checkBuild", a.checkBuild))
+	must(w.Bind("isMinimized", func() bool { r, _, _ := pIsIconic.Call(a.hwnd); return r != 0 }))
 	must(w.Bind("checkUpdate", a.checkUpdate))
 	must(w.Bind("applyUpdate", a.applyUpdate))
 	must(w.Bind("about", a.about))

@@ -28,9 +28,9 @@ input{font-family:var(--mono)}
    linear-gradient(180deg,#05070f,#04060b)}
 .grid{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
   background-image:linear-gradient(rgba(0,229,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.05) 1px,transparent 1px);
-  background-size:42px 42px;mask-image:radial-gradient(ellipse at 50% 40%,#000 30%,transparent 85%);animation:gridmove 30s linear infinite}
+  background-size:42px 42px;mask-image:radial-gradient(ellipse at 50% 40%,#000 30%,transparent 85%)}
 @keyframes gridmove{to{background-position:0 42px,42px 0}}
-.scan{position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px)}
+.scan{display:none;position:fixed;inset:0;z-index:1;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px)}
 
 /* ---------- shell ---------- */
 .app{position:relative;z-index:2;display:grid;grid-template-columns:220px 1fr;grid-template-rows:52px 1fr;height:100vh;border:1px solid rgba(0,229,255,.22)}
@@ -73,7 +73,7 @@ main{position:relative;overflow:hidden}
 .ph p{color:var(--muted);margin-top:4px}
 .code{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:2px}
 
-.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;backdrop-filter:blur(6px)}
+.card{position:relative;background:rgba(13,19,35,.92);border:1px solid var(--line);border-radius:14px;padding:18px}
 .card:before,.card:after{content:"";position:absolute;width:14px;height:14px;border:2px solid var(--cyan);opacity:.7}
 .card:before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-top-left-radius:14px}
 .card:after{bottom:-1px;right:-1px;border-left:0;border-top:0;border-bottom-right-radius:14px}
@@ -101,7 +101,8 @@ main{position:relative;overflow:hidden}
 .boost{position:relative;width:100%;max-width:360px;padding:18px;border-radius:14px;font-family:var(--head);font-size:19px;font-weight:700;letter-spacing:5px;color:#021018;
   background:linear-gradient(100deg,var(--cyan),#5ad8ff 40%,var(--violet) 75%,var(--mag));box-shadow:0 0 30px rgba(0,229,255,.35),0 0 60px rgba(139,92,255,.2),inset 0 1px 0 rgba(255,255,255,.5);overflow:hidden;transition:.2s}
 .boost:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(0,229,255,.55),0 0 80px rgba(255,43,214,.3)}
-.boost:before{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:shine 3s infinite}
+.boost:before{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);}
+.boost:hover:before{animation:shine 1.1s}
 @keyframes shine{60%,100%{left:130%}}
 .boost:disabled{filter:grayscale(.8) brightness(.6);cursor:not-allowed}
 .ghost{margin-top:12px;padding:10px 18px;border-radius:10px;border:1px solid var(--line2);color:var(--muted);font-weight:600;font-size:12.5px;letter-spacing:.5px;transition:.15s}
@@ -291,7 +292,7 @@ canvas#pingChart{width:100%;height:196px;display:block}
 .mspecs b{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lbar{display:flex;align-items:center;justify-content:space-between;margin:10px 0 12px}
 .live{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
-.live .dot{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime);animation:pulse 1.4s infinite}
+.live .dot{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}
 .slist{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-content:start;padding-right:4px}
 .sc{position:relative;display:grid;grid-template-columns:52px 1fr;gap:12px;padding:12px;border-radius:12px;background:rgba(0,0,0,.28);border:1px solid rgba(0,229,255,.14);transition:.15s}
 .sc:hover{border-color:rgba(0,229,255,.45);background:rgba(0,229,255,.05)}
@@ -339,7 +340,7 @@ canvas#pingChart{width:100%;height:196px;display:block}
 #p-tools .tool{padding:14px}
 #p-tools .tool p{font-size:12px}
 #t2 .tips{margin-top:0}
-.upd{font-size:12px;padding:6px 12px;border-radius:20px;color:#021018;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--mag));box-shadow:0 0 14px rgba(0,229,255,.45);animation:pulse 1.6s infinite}
+.upd{font-size:12px;padding:6px 12px;border-radius:20px;color:#021018;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--mag));box-shadow:0 0 14px rgba(0,229,255,.45)}
 .lopts{margin-top:10px}
 .aboutg{display:grid;grid-template-columns:.9fr 1.1fr;gap:16px;align-items:start}
 .abhero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px 20px}
@@ -398,6 +399,7 @@ canvas#pingChart{width:100%;height:196px;display:block}
 .kv li:before{display:none}
 .kv li span{color:var(--muted)}
 .kv li b{font-weight:600;color:#fff;text-align:right}
+body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paused!important}
 </style>
 </head>
 <body>
@@ -408,7 +410,7 @@ canvas#pingChart{width:100%;height:196px;display:block}
     <div class="brand">
       <svg class="logo" viewBox="0 0 64 64"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00e5ff"/><stop offset="1" stop-color="#ff2bd6"/></linearGradient></defs>
         <path d="M32 3 57 17v30L32 61 7 47V17Z" fill="none" stroke="url(#lg)" stroke-width="4"/><path d="M36 12 20 36h11l-3 16 16-24H33Z" fill="url(#lg)"/></svg>
-      <div><h1>ZAN <b>BOOSTER</b></h1><small id="ver">สำหรับ FiveM · v1.7.1</small></div>
+      <div><h1>ZAN <b>BOOSTER</b></h1><small id="ver">สำหรับ FiveM · v1.7.2</small></div>
     </div>
     <div class="tb-spacer"></div>
     <button class="upd" id="bUpd" style="display:none"></button>
@@ -694,7 +696,7 @@ if (!NATIVE) {
   window.pingStart = async () => { clearInterval(pt); pt = setInterval(() => window.onPing({ ok: Math.random() > .03, ms: 24 + Math.random() * 9, mode: 'ICMP' }), 1000); return true; };
   window.pingStop = async () => clearInterval(pt);
   window.winMin = window.winClose = window.winDrag = window.openUrl = window.openDataDir = async () => {};
-  window.appVersion = async () => '1.7.1';
+  window.appVersion = async () => '1.7.2';
   let rec = JSON.stringify([{ name: 'Zan City RP | ภาษาไทย | Economy', connect: 'cfx.re/join/abc123', base: 'https://x.users.cfx.re/', country: 'TH', build: 3095, pure: 1, players: 187, maxPlayers: 300 },
     { name: 'Bangkok Life Roleplay', connect: '203.0.113.10:30120', base: 'http://203.0.113.10:30120/', country: 'TH', build: 3258, players: 64, maxPlayers: 128 },
     { name: 'NoPixel Inspired | US East', connect: 'cfx.re/join/us1234', base: 'https://y.users.cfx.re/', country: 'US', build: 2802, players: 41, maxPlayers: 64 },
@@ -1013,7 +1015,7 @@ function line(g, data, w, h, max, color, fill) {
   const n = data.length, step = w / (n - 1);
   g.beginPath();
   data.forEach((v, i) => { const x = i * step, y = h - 4 - (Math.min(v, max) / max) * (h - 10); i ? g.lineTo(x, y) : g.moveTo(x, y); });
-  g.strokeStyle = color; g.lineWidth = 2; g.shadowColor = color; g.shadowBlur = 10; g.stroke(); g.shadowBlur = 0;
+  g.strokeStyle = color; g.lineWidth = 2; g.stroke();
   if (fill) { g.lineTo(w, h); g.lineTo(0, h); g.closePath(); const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, fill); gr.addColorStop(1, 'transparent'); g.fillStyle = gr; g.fill(); }
 }
 function drawSpark() {
@@ -1078,7 +1080,7 @@ function drawPing() {
   g.beginPath(); let started = false;
   data.forEach((p, i) => { if (p == null) { started = false; return; } const x = 34 + i * step, y = 6 + (h - 16) * (1 - p / max); started ? g.lineTo(x, y) : g.moveTo(x, y); started = true; });
   const gr = g.createLinearGradient(0, 0, w, 0); gr.addColorStop(0, '#00e5ff'); gr.addColorStop(1, '#ff2bd6');
-  g.strokeStyle = gr; g.lineWidth = 2.2; g.shadowColor = '#00e5ff'; g.shadowBlur = 12; g.stroke(); g.shadowBlur = 0;
+  g.strokeStyle = gr; g.lineWidth = 2.2; g.stroke();
   data.forEach((p, i) => { if (p === null) { const x = 34 + i * step; g.fillStyle = 'rgba(255,77,109,.5)'; g.fillRect(x - 1, 6, 2, h - 16); } });
   const last = data.length - 1; if (data[last] != null) { const x = 34 + last * step, y = 6 + (h - 16) * (1 - data[last] / max); g.fillStyle = '#fff'; g.shadowColor = '#00e5ff'; g.shadowBlur = 14; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill(); g.shadowBlur = 0; }
 }
@@ -1270,7 +1272,7 @@ $('#bAdd').onclick = addServer;
 $('#srvInput').addEventListener('keydown', e => { if (e.key === 'Enter') addServer(); });
 window.loadRecent().then(t => {
   try { servers = (JSON.parse(t) || []).filter(x => x && x.connect); } catch (e) { servers = []; }
-  renderServers(); refreshServers(); setInterval(refreshServers, 15000);
+  renderServers(); refreshServers(); setInterval(() => { if (appActive && $('#p-dash').classList.contains('show')) refreshServers(); }, 15000);
 });
 
 /* ================= settings / pre-join ================= */
@@ -1327,11 +1329,19 @@ $('#bCopyHash').onclick = () => {
 };
 setTimeout(() => window.checkUpdate(), 2500);
 
+/* ================= idle / minimized ================= */
+let appActive = true;
+setInterval(async () => {
+  const min = window.isMinimized ? await window.isMinimized() : false;
+  const act = !min && !document.hidden;
+  if (act !== appActive) { appActive = act; document.body.classList.toggle('paused', !act); }
+}, 1500);
+
 /* ================= boot ================= */
 (async () => {
   renderTweaks();
   log('เปิดโปรแกรม', 'in');
-  tick(); setInterval(tick, 1000);
+  tick(); setInterval(() => { if (appActive) tick(); }, 2000);
   await loadSysInfo();
   await refreshStatus();
   log('ตรวจเครื่องเสร็จ', 'ok');
