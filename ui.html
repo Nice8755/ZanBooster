@@ -536,6 +536,27 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan)!im
 /* เกี่ยวกับ */
 .aboutg{align-items:stretch}
 .abhero{justify-content:center}
+
+#gtabs .tab{padding:7px 14px}
+.drvhead{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:14px 18px}
+.drvhead b{display:block;font-size:15px}.drvhead small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.dv{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-family:var(--head);font-weight:700;font-size:13px;background:linear-gradient(135deg,rgba(0,229,255,.18),rgba(139,92,255,.18));color:var(--cyan);box-shadow:0 0 16px rgba(0,229,255,.15)}
+.dv.nvidia{background:rgba(118,185,0,.14);color:#8fd400;box-shadow:0 0 16px rgba(118,185,0,.2)}
+.dv.amd{background:rgba(237,28,36,.14);color:#ff5a5f;box-shadow:0 0 16px rgba(237,28,36,.2)}
+.drvst{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--line2);color:var(--muted);white-space:nowrap}
+.drvst.on{color:var(--lime);border-color:rgba(57,255,156,.4);background:rgba(57,255,156,.07)}
+.drvgrid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px}
+.drvlist{gap:0!important}
+.drvlist li{padding:7px 0!important;border-bottom:1px solid rgba(255,255,255,.04);font-size:12.6px!important}
+.drvlist li:last-child{border-bottom:0}
+.drvlist li b{color:var(--cyan)!important}
+.caprow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.caprow input{width:110px;padding:9px 12px;border-radius:9px;border:1px solid var(--line2);background:rgba(0,0,0,.35);color:#fff;font:inherit;font-family:var(--head);font-size:16px}
+.caprow span{color:var(--muted)}
+.caprow.off{opacity:.45;pointer-events:none}
+.tw{padding:13px 16px}
+.hsum{padding:10px 18px!important;margin-bottom:10px!important}.hsum .big{font-size:34px}
+.hlist{gap:8px!important}.hrow.ok{padding-top:9px;padding-bottom:9px}.hrow.ok .hi{width:26px;height:26px}
 </style>
 </head>
 <body>
@@ -687,7 +708,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan)!im
 
     <!-- GRAPHICS -->
     <section class="page" id="p-gfx">
-      <div class="ph"><div><h2>กราฟิก<span>เกม</span></h2><p>เลือกแบบที่ต้องการ โปรแกรมจะแก้ไฟล์ตั้งค่ากราฟิกของ FiveM ให้ ต้องปิดเกมก่อนกด</p></div></div>
+      <div class="ph"><div><h2>กราฟิก<span>เกม</span></h2><p id="gfxSub">เลือกแบบที่ต้องการ โปรแกรมจะแก้ไฟล์ตั้งค่ากราฟิกของ FiveM ให้ ต้องปิดเกมก่อนกด</p></div><div class="tabs" id="gtabs" style="margin:0"><button class="tab active" data-g="g1">ตั้งค่าในเกม</button><button class="tab" data-g="g2">ไดรเวอร์การ์ดจอ</button></div></div>
+      <div id="g1">
       <div class="card specbar" id="gfxSpec">กำลังดูสเปกเครื่อง...</div>
       <div class="presetg">
         <div class="card pcard hot"><h3>ลื่นสุด</h3><div class="pf">ต่ำสุดทุกอย่าง ได้เฟรมมากที่สุด ภาพจะดูเรียบ</div><ul class="kv" id="pl-performance"></ul>
@@ -702,6 +724,29 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan)!im
         <button class="btn" id="bGfxRestore">คืนกราฟิกเดิม</button>
       </div>
       <div class="note">ถ้า FPS ยังไม่ขึ้นมากหลังเลือก "ลื่นสุด" แปลว่าเครื่องติดที่ CPU ไม่ใช่การ์ดจอ ซึ่งเจอบ่อยใน FiveM เพราะเซิร์ฟที่มีคนเยอะและสคริปต์เยอะกิน CPU หนัก ทางแก้ที่ได้ผลคือเปิด XMP ของแรม (ดูหน้าตรวจเครื่อง) และใช้โหมดก่อนเล่น ส่วนความละเอียดจอโปรแกรมไม่แตะ ถ้ายังไม่พอให้ลดในเกมเอง</div>
+      </div>
+      <div id="g2" style="display:none">
+        <div class="card drvhead">
+          <div class="dv" id="drvLogo">GPU</div>
+          <div style="flex:1;min-width:0"><b id="drvName">กำลังดูการ์ดจอ...</b><small id="drvSub">ตั้งค่า Global ของไดรเวอร์ ใช้กับทุกเกม</small></div>
+          <span class="drvst" id="drvSt">-</span>
+        </div>
+        <div class="drvgrid">
+          <div class="card"><div class="ct">ค่าที่จะตั้ง (ทุกเกม)</div><ul class="kv drvlist" id="drvList"><li><span>กำลังโหลด...</span></li></ul></div>
+          <div class="gmcol">
+            <div class="card">
+              <div class="ct">ล็อก FPS<div class="chk" id="capOn"><span class="box"></span>เปิด</div></div>
+              <div class="caprow"><input type="number" id="capVal" min="30" max="1000" value="141"><span>FPS</span></div>
+              <p class="cnote" id="capNote">ไม่ล็อก = ได้ FPS สูงสุด · ล็อกต่ำกว่ารีเฟรชเรตจอนิดหน่อย เฟรมจะนิ่งกว่า โดยเฉพาะในเมืองที่คนเยอะ</p>
+            </div>
+            <div class="card">
+              <button class="btn pri" id="bDrvApply" style="width:100%">ตั้งค่าไดรเวอร์ให้ FPS สูงสุด</button>
+              <button class="btn" id="bDrvRestore" style="width:100%;margin-top:8px">คืนค่าไดรเวอร์เดิม</button>
+              <p class="cnote" style="margin:10px 0 0" id="drvNote">เก็บค่าเดิมไว้ทุกครั้ง กดคืนได้ ไม่ต้องรีสตาร์ท มีผลกับเกมที่เปิดใหม่</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- NETWORK -->
@@ -933,6 +978,9 @@ if (!NATIVE) {
   window.loadRecent = async () => rec; window.saveRecent = async s => { rec = s; return true; };
   const MI = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><rect width="52" height="52" fill="#3a1d6e"/><text x="26" y="34" font-size="20" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="bold">ZC</text></svg>');
   window.checkBuild = async (d, b) => ({ known: true, cached: b !== 2802, missingMB: 1505 });
+  window.gpuInfo = async id => { setTimeout(() => window.onGpu({ reqId: id, r: { vendor: 'nvidia', applied: false, backup: false, cap: 0, refresh: 165, settings: [['Power management mode','Prefer maximum performance'],['Texture filtering - Quality','High performance'],['Texture filtering - Anisotropic sample optimization','On'],['Vertical sync','Off'],['Shader Cache','On'],['Shader Cache size','Unlimited'],['Threaded optimization','On'],['Preferred refresh rate','Highest available'],['FXAA','Off'],['Ansel','Off']].map(([name,label]) => ({ name, label })) } }), 200); return true; };
+  window.gpuApply = async (cap, id) => { setTimeout(() => window.onGpu({ reqId: id, r: { ok: true, done: ['a','b','c','d','e','f','g','h','i','j','k'], failed: [] } }), 600); return true; };
+  window.gpuRestore = async id => { setTimeout(() => window.onGpu({ reqId: id, r: { ok: true, done: [], failed: [] } }), 400); return true; };
   window.findFiveM = async id => { setTimeout(() => window.onFindFiveM({ reqId: id, path: 'D:\\FiveM' }), 300); return true; };
   window.fivemIcon = async () => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" rx="2" fill="#3a6"/></svg>');
   window.triggerRecover = async () => { setTimeout(() => window.onGameMode({ active: true, game: 'FiveM_b3095_GTAProcess.exe', since: Date.now() / 1000 - 4000, hk: 'ok', rec: { at: Math.floor(Date.now() / 1000), game: true, freedMB: 2310, trimmed: 143, freeMB: 9400, prio: true, aff: true, power: true, vramPct: 95, gameMB: 7600, lv: 'warn', advice: 'VRAM การ์ดจอเต็ม (95%) ส่วนนี้กู้จากข้างนอกเกมไม่ได้ ให้กด "รีเกมแล้วเข้าเซิร์ฟเดิม" และลด Texture Quality ลง 1 ขั้นจะไม่กลับมาเต็มอีก' } }), 1200); return true; };
@@ -963,7 +1011,9 @@ if (!NATIVE) {
       { id: 'fivemdisk', title: 'ไดรฟ์ที่ลง FiveM', status: 'ok', detail: 'ไดรฟ์ D: เป็น NVMe SSD', fix: '' },
       { id: 'gtadisk', title: 'ไดรฟ์ที่ลง GTA V', status: 'warn', detail: 'E:\\SteamLibrary\\steamapps\\common\\Grand Theft Auto V (HDD)', fix: 'GTA V อยู่บน HDD ทำให้แมพโหลดช้าและกระตุกตอนขับรถเร็ว ควรย้ายไป SSD' },
       { id: 'space', title: 'พื้นที่ว่างไดรฟ์ C:', status: 'ok', detail: 'เหลือ 182 GB (38%)', fix: '' },
-      { id: 'plan', title: 'Power Plan', status: 'ok', detail: 'ใช้โหมดประสิทธิภาพสูงอยู่', fix: '' }] });
+      { id: 'plan', title: 'Power Plan', status: 'ok', detail: 'ใช้โหมดประสิทธิภาพสูงอยู่', fix: '' },
+      { id: 'hvci', title: 'Memory Integrity (Core Isolation)', status: 'warn', detail: 'เปิดอยู่ บางเครื่องเสีย FPS 5-15%', fix: 'ปิดได้ในหน้าปรับแต่ง "ปิด Memory Integrity" แล้วรีสตาร์ท (ความปลอดภัยของเครื่องจะลดลงเล็กน้อย)' },
+      { id: 'overlay', title: 'Overlay ที่อาจเปิดอยู่', status: 'info', detail: 'NVIDIA Overlay, Discord, Steam', fix: 'NVIDIA app > ปิด In-game overlay · Discord > Game Overlay > ปิด · Steam > In Game > ปิด Steam Overlay (ถ้าไม่ได้ใช้ ปิดไว้เฟรมนิ่งกว่า)' }] });
     if (a === 'GfxPlan') { const P = (t, s, sh, so, g, rf, pf, ms, fx, l, ml, d) => ({ TextureQuality: t, ShaderQuality: s, ShadowQuality: sh, Shadow_SoftShadows: so, GrassQuality: g, ReflectionQuality: rf, PostFX: pf, MSAA: ms, FXAA_Enabled: fx, LodScale: l, MaxLodScale: ml, CityDensity: d });
       E({ t: 'result', action: a, gpu: 'NVIDIA GeForce RTX 4060 Ti', vram: 8, cpu: '13th Gen Intel(R) Core(TM) i5-13400F', ram: 24, gpuTier: 4, cpuTier: 4,
         presets: { performance: P(0, 0, 1, 0, 0, 0, 0, 0, 'false', 0, 0, 0), balanced: P(1, 1, 2, 2, 2, 2, 2, 0, 'true', .8, 0, .8), quality: P(2, 2, 3, 3, 2, 3, 3, 0, 'true', 1, .4, 1) } }); }
@@ -985,9 +1035,11 @@ const TWEAKS = [
   { id: 'GameDVR', cat: 'fps', rec: true, title: 'ปิดการอัดคลิปของ Xbox Game Bar', desc: 'ตัวอัดคลิปเบื้องหลังกินการ์ดจอกับดิสก์ตลอด ปิดแล้วเฟรมนิ่งขึ้น' },
   { id: 'MMCSS', cat: 'fps', rec: true, title: 'ให้เกมได้คิวก่อน', desc: 'ตั้ง Multimedia Scheduler ให้งานประเภทเกมได้ CPU และการ์ดจอก่อนงานเบื้องหลัง' },
   { id: 'PowerThrottle', cat: 'fps', rec: true, title: 'ปิด Power Throttling', desc: 'กันไม่ให้ Windows ลดความเร็ว CPU ของเกมตอนสลับหน้าจอ' },
+  { id: 'GpuPref', cat: 'fps', rec: true, title: 'ให้ FiveM ใช้การ์ดจอแยก', desc: 'โน้ตบุ๊กที่มีการ์ดจอ 2 ตัว บางเครื่องเกมไปใช้การ์ดจอออนบอร์ด FPS หายครึ่งหนึ่ง เครื่องตั้งโต๊ะไม่มีผล' },
+  { id: 'HVCI', cat: 'fps', rec: false, warn: 'ลดความปลอดภัย · ต้องรีสตาร์ท', title: 'ปิด Memory Integrity', desc: 'Core Isolation ของ Windows บางเครื่องกิน FPS 5-15% ปิดแล้วเครื่องปลอดภัยน้อยลงเล็กน้อย' },
   { id: 'HAGS', cat: 'fps', rec: false, warn: 'ต้องรีสตาร์ท', title: 'Hardware-accelerated GPU Scheduling', desc: 'สำหรับการ์ดจอ GTX 10 series / RX 5000 ขึ้นไป บางเครื่องลื่นขึ้น บางเครื่องกระตุก ลองแล้ววัดดู' },
-  { id: 'VisualFX', cat: 'fps', rec: false, title: 'ปิดเอฟเฟกต์ของ Windows', desc: 'ปิดแอนิเมชันกับความโปร่งใส เหมาะกับเครื่องสเปกต่ำ' },
-  { id: 'BgApps', cat: 'fps', rec: false, title: 'ปิดแอป Store ที่รันเบื้องหลัง', desc: 'ลดแอปที่แอบใช้แรมกับ CPU (เห็นผลใน Windows 10) แอปบางตัวอาจไม่เด้งแจ้งเตือน' },
+  { id: 'VisualFX', cat: 'sys', rec: false, title: 'ปิดเอฟเฟกต์ของ Windows', desc: 'ปิดแอนิเมชันกับความโปร่งใส เหมาะกับเครื่องสเปกต่ำ' },
+  { id: 'BgApps', cat: 'sys', rec: false, title: 'ปิดแอป Store ที่รันเบื้องหลัง', desc: 'ลดแอปที่แอบใช้แรมกับ CPU (เห็นผลใน Windows 10) แอปบางตัวอาจไม่เด้งแจ้งเตือน' },
   { id: 'PrioSep', cat: 'input', rec: true, title: 'ให้ CPU ตอบสนองหน้าต่างเกมเร็วขึ้น', desc: 'ปรับ Win32PrioritySeparation เป็น 0x26 เกมที่เปิดอยู่จะได้รอบ CPU ถี่ขึ้น' },
   { id: 'MouseAccel', cat: 'input', rec: true, title: 'ปิดเร่งความเร็วเมาส์', desc: 'ขยับเมาส์เท่าเดิม เป้าไปเท่าเดิมทุกครั้ง เล็งง่ายขึ้น' },
   { id: 'UsbSuspend', cat: 'input', rec: true, title: 'ไม่ให้ Windows พักพอร์ต USB', desc: 'กันเมาส์ คีย์บอร์ด หูฟัง สะดุดหรือหลุดไปแป๊บหนึ่ง' },
@@ -1729,6 +1781,51 @@ function qPaint() {
   const v = lastServer(); $('#qLastT').textContent = v ? v.name : 'ยังไม่เคยเข้าเซิร์ฟ';
   $('#qLast').disabled = !v;
 }
+
+/* ================= ไดรเวอร์การ์ดจอ ================= */
+let gpuReq = 0, gpuInfoCache = null;
+const gpuWait = {};
+window.onGpu = m => { const f = gpuWait[m.reqId]; if (f) { delete gpuWait[m.reqId]; f(m.r); } };
+const gpuCall = (fn, ...a) => new Promise(ok => { const id = ++gpuReq; gpuWait[id] = ok; window[fn](...a, id); });
+$$('#gtabs .tab').forEach(b => b.onclick = () => {
+  $$('#gtabs .tab').forEach(x => x.classList.toggle('active', x === b));
+  $('#g1').style.display = b.dataset.g === 'g1' ? '' : 'none'; $('#g2').style.display = b.dataset.g === 'g2' ? '' : 'none';
+  $('#gfxSub').textContent = b.dataset.g === 'g1' ? 'เลือกแบบที่ต้องการ โปรแกรมจะแก้ไฟล์ตั้งค่ากราฟิกของ FiveM ให้ ต้องปิดเกมก่อนกด' : 'ตั้งค่า Global ของ NVIDIA / AMD ให้ได้ FPS มากที่สุด ใช้กับทุกเกม';
+  if (b.dataset.g === 'g2') drvLoad();
+});
+function capPaint() { const on = $('#capOn').classList.contains('on'); $('.caprow').classList.toggle('off', !on); }
+$('#capOn').onclick = () => { $('#capOn').classList.toggle('on'); capPaint(); };
+async function drvLoad() {
+  if (!window.gpuInfo) return;
+  const i = gpuInfoCache = await gpuCall('gpuInfo');
+  const logo = $('#drvLogo'); logo.className = 'dv ' + i.vendor; logo.textContent = i.vendor === 'nvidia' ? 'NV' : i.vendor === 'amd' ? 'AMD' : 'GPU';
+  $('#drvName').textContent = i.vendor === 'nvidia' ? 'NVIDIA · ตั้งผ่าน Global profile (เหมือน Control Panel)' : i.vendor === 'amd' ? 'AMD Radeon · ตั้งผ่านค่า Adrenalin' : 'ไม่เจอการ์ดจอ NVIDIA หรือ AMD';
+  $('#drvSub').textContent = i.m ? i.m : (i.vendor === 'none' ? 'การ์ดจอออนบอร์ด Intel ไม่มีค่าให้ปรับ' : 'ใช้กับทุกเกม เกมที่มีโปรไฟล์ของค่ายการ์ดจอเองอาจใช้ค่าของเกมนั้นแทนบางข้อ');
+  const st = $('#drvSt'); st.className = 'drvst' + (i.applied ? ' on' : ''); st.textContent = i.applied ? 'ตั้งค่าแล้ว' : i.vendor === 'none' ? 'ใช้ไม่ได้' : 'ยังไม่ได้ตั้ง';
+  $('#drvList').innerHTML = (i.settings || []).map(x => { const [n, v] = x.label.includes(':') ? x.label.split(/:\s*/) : [x.name, x.label]; return `<li><span>${esc(n)}</span><b>${esc(v)}</b></li>`; }).join('') || '<li><span>-</span></li>';
+  const ref = i.refresh || 0;
+  $('#capOn').classList.toggle('on', !!i.cap); $('#capVal').value = i.cap || (ref > 60 ? ref - 3 : 141);
+  $('#capNote').textContent = (ref ? `จอนี้ ${ref} Hz · ` : '') + 'ไม่ล็อก = ได้ FPS สูงสุด · ล็อกต่ำกว่ารีเฟรชเรตจอนิดหน่อย เฟรมจะนิ่งกว่า';
+  capPaint();
+  $('#bDrvApply').disabled = i.vendor === 'none'; $('#bDrvRestore').disabled = !i.backup;
+  $('#drvNote').textContent = i.vendor === 'amd' ? 'เก็บค่าเดิมไว้ กดคืนได้ ถ้าไปกดรีเซ็ตใน Adrenalin ค่าบางข้ออาจถูกเปลี่ยนกลับ ต้องกดตั้งใหม่' : 'เก็บค่าเดิมไว้ทุกครั้ง กดคืนได้ ไม่ต้องรีสตาร์ท มีผลกับเกมที่เปิดใหม่';
+}
+$('#bDrvApply').onclick = async () => {
+  const cap = $('#capOn').classList.contains('on') ? Math.max(30, Math.min(1000, +$('#capVal').value || 0)) : 0;
+  const b = $('#bDrvApply'); b.disabled = true; b.textContent = 'กำลังตั้งค่า...';
+  const r = await gpuCall('gpuApply', cap);
+  b.disabled = false; b.textContent = 'ตั้งค่าไดรเวอร์ให้ FPS สูงสุด';
+  if (r.ok) { toast(`ตั้งค่าไดรเวอร์แล้ว ${r.done.length} ข้อ${cap ? ' · ล็อก ' + cap + ' FPS' : ''}`, 'ok'); log(`✓ ไดรเวอร์การ์ดจอ: ${r.done.join(', ')}${r.failed?.length ? ' | ไม่สำเร็จ: ' + r.failed.join(', ') : ''}`, 'ok'); }
+  else { toast(r.m || 'ตั้งค่าไม่สำเร็จ', 'er'); log('✕ ไดรเวอร์การ์ดจอ: ' + (r.m || r.failed?.join(', ')), 'er'); }
+  drvLoad();
+};
+$('#bDrvRestore').onclick = async () => {
+  if (!await confirmBox('คืนค่าไดรเวอร์เดิม', 'คืนค่าไดรเวอร์การ์ดจอกลับเป็นแบบก่อนกดตั้งค่า', 'คืนค่า')) return;
+  const r = await gpuCall('gpuRestore');
+  if (r.ok) toast('คืนค่าไดรเวอร์เดิมแล้ว', 'ok'); else toast(r.m || 'คืนค่าบางข้อไม่ได้', 'er');
+  log((r.ok ? '✓ คืนค่าไดรเวอร์เดิม' : '✕ คืนค่าไดรเวอร์: ' + (r.m || r.failed?.join(', '))), r.ok ? 'ok' : 'er');
+  drvLoad();
+};
 /* ================= update / about ================= */
 let updInfo = null, promptedVer = null;
 // เด้งถามอัปเดต 1 ครั้งต่อการเปิดโปรแกรม: รอให้งานสแกนตอนเปิดเสร็จ และไม่มีหน้าต่างอื่นค้างอยู่ก่อน

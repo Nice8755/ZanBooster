@@ -403,6 +403,25 @@ $Tweaks = [ordered]@{
         }
         Check = { $Script:Backup.Adapters.Count -gt 0 }
     }
+    HVCI = @{
+        # Memory Integrity (Core Isolation) บางเครื่องกิน FPS 5-15% ต้องรีสตาร์ทถึงมีผล
+        Apply = { Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Enabled' 0 }
+        Check = { (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Enabled') -ne 1 }
+    }
+    GpuPref = @{
+        # ให้ FiveM / GTA ใช้การ์ดจอแยกเสมอ (โน้ตบุ๊กที่มีการ์ดจอ 2 ตัว) เครื่องตั้งโต๊ะไม่มีผลอะไร
+        Apply = {
+            $key = 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences'
+            $n = 0
+            foreach ($exe in Get-FiveMExes) { Set-RegValue $key $exe 'GpuPreference=2;' 'String'; $n++ }
+            Write-Log "ตั้งการ์ดจอแยกให้ $n ไฟล์"
+        }
+        Check = {
+            $key = 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences'
+            $exes = @(Get-FiveMExes)
+            $exes.Count -gt 0 -and @($exes | Where-Object { (Get-Reg $key $_) -ne 'GpuPreference=2;' }).Count -eq 0
+        }
+    }
     Services = @{
         Apply = {
             # Start: 3 = Manual (เปิดเองเมื่อจำเป็น), 4 = Disabled
@@ -645,6 +664,24 @@ function Get-DriveMedia([string]$path) {
     } catch { 'ไม่ทราบ' }
 }
 
+# ไฟล์ exe ของ FiveM ที่ควรใช้การ์ดจอแยก (FiveM.exe + ตัวเกมทุก build ใน cache\subprocess + GTA5.exe)
+function Get-FiveMExes {
+    $out = New-Object System.Collections.Generic.List[string]
+    $fd = Get-FiveMData
+    if ($fd) {
+        $root = Split-Path (Split-Path $fd -Parent) -Parent
+        $fe = Join-Path $root 'FiveM.exe'; if (Test-Path -LiteralPath $fe) { $out.Add($fe) }
+        $sub = Join-Path $fd 'cache\subprocess'
+        if (Test-Path -LiteralPath $sub) { Get-ChildItem -LiteralPath $sub -Filter '*.exe' -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'GTAProcess|GameProcess' } | ForEach-Object { $out.Add($_.FullName) } }
+        $ini = Join-Path (Split-Path $fd -Parent) 'CitizenFX.ini'
+        if (Test-Path -LiteralPath $ini) {
+            $m = Select-String -LiteralPath $ini -Pattern '^IVPath=(.+)$' -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($m) { $g = Join-Path $m.Matches[0].Groups[1].Value.Trim() 'GTA5.exe'; if (Test-Path -LiteralPath $g) { $out.Add($g) } }
+        }
+    }
+    $out
+}
+
 function Do-Health {
     $r = New-Object System.Collections.Generic.List[object]
     function Add($id, $title, $status, $detail, $fix) { $r.Add([ordered]@{ id = $id; title = $title; status = $status; detail = $detail; fix = $fix }) }
@@ -721,6 +758,28 @@ function Do-Health {
             if ($bat.BatteryStatus -eq 1) { Add 'power' 'แหล่งไฟ' 'warn' 'กำลังใช้แบตเตอรี่' 'เสียบสายชาร์จตอนเล่น โน้ตบุ๊กจะลดความเร็วการ์ดจอกับ CPU ตอนใช้แบต' }
             else { Add 'power' 'แหล่งไฟ' 'ok' 'เสียบสายชาร์จอยู่' '' }
         }
+    } catch { }
+
+    # Memory Integrity (Core Isolation)
+    try {
+        $dg = Get-CimInstance -Namespace root\Microsoft\Windows\DeviceGuard -ClassName Win32_DeviceGuard -ErrorAction Stop
+        $hvci = @($dg.SecurityServicesRunning) -contains 2
+        $locked = (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Locked') -eq 1
+        if ($hvci) { Add 'hvci' 'Memory Integrity (Core Isolation)' 'warn' 'เปิดอยู่ บางเครื่องเสีย FPS 5-15%' $(if ($locked) { 'ถูกล็อกไว้จาก UEFI/องค์กร ต้องปิดใน Windows Security > Device security > Core isolation' } else { 'ปิดได้ในหน้าปรับแต่ง "ปิด Memory Integrity" แล้วรีสตาร์ท (ความปลอดภัยของเครื่องจะลดลงเล็กน้อย)' }) }
+        else { Add 'hvci' 'Memory Integrity (Core Isolation)' 'ok' 'ปิดอยู่ ไม่กิน FPS' '' }
+    } catch { }
+
+    # overlay ที่ทำให้เฟรมสะดุด
+    try {
+        $names = @(Get-Process -ErrorAction SilentlyContinue | ForEach-Object { $_.ProcessName.ToLower() })
+        $ov = New-Object System.Collections.Generic.List[string]; $tips = New-Object System.Collections.Generic.List[string]
+        if ($names -contains 'nvidia overlay' -or $names -contains 'nvidia share') { $ov.Add('NVIDIA Overlay'); $tips.Add('NVIDIA app/GeForce Experience > ปิด In-game overlay') }
+        if ($names -contains 'discord' -or $names -contains 'discordptb' -or $names -contains 'discordcanary') { $ov.Add('Discord'); $tips.Add('Discord > User Settings > Game Overlay > ปิด Enable in-game overlay') }
+        if ($names -contains 'steam') { $ov.Add('Steam'); $tips.Add('Steam > Settings > In Game > ปิด Steam Overlay') }
+        if ($names -contains 'radeonsoftware' -or $names -contains 'amdrsserv') { $ov.Add('AMD Adrenalin'); $tips.Add('Adrenalin > Preferences > ปิด In-Game Overlay') }
+        if ((Get-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled') -ne 0) { $ov.Add('Xbox Game Bar'); $tips.Add('หน้าปรับแต่ง > ปิดการอัดคลิปของ Xbox Game Bar') }
+        if ($ov.Count) { Add 'overlay' 'Overlay ที่อาจเปิดอยู่' 'info' ($ov -join ', ') (($tips -join ' · ') + ' (ถ้าไม่ได้ใช้ ปิดไว้เฟรมนิ่งกว่า)') }
+        else { Add 'overlay' 'Overlay' 'ok' 'ไม่เจอ overlay ที่เปิดอยู่' '' }
     } catch { }
 
     # power plan

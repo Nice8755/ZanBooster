@@ -31,7 +31,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "2.1.0"
+const appVersion = "2.2.0"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -159,6 +159,9 @@ func main() {
 	must(w.Bind("triggerRecover", a.triggerRecover))
 	must(w.Bind("fivemIcon", a.fivemIcon))
 	must(w.Bind("findFiveM", a.findFiveMAsync))
+	must(w.Bind("gpuInfo", a.gpuInfoAsync))
+	must(w.Bind("gpuApply", a.gpuApplyAsync))
+	must(w.Bind("gpuRestore", a.gpuRestoreAsync))
 	must(w.Bind("cacheScan", a.cacheScanAsync))
 	must(w.Bind("cacheClean", a.cacheCleanAsync))
 	must(w.Bind("winDrag", a.winDrag))
