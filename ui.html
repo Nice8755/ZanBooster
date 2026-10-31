@@ -126,6 +126,7 @@ canvas.spark{width:100%;height:70px;display:block;margin-top:12px}
 .spec b{font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .fivem{display:flex;align-items:center;gap:16px}
+.fivem .ic.img{background:#0b0f18;border-color:var(--line2);padding:7px}.fivem .ic img{width:100%;height:100%;object-fit:contain;display:block}
 .fivem .ic{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(255,138,0,.25),rgba(255,43,214,.15));border:1px solid rgba(255,159,28,.4);color:#ffae42;font-family:var(--head);font-weight:700;font-size:20px}
 .fivem .info{flex:1}
 .fivem .info b{display:block;font-size:14px}
@@ -527,7 +528,7 @@ kbd{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;bor
       <div class="home">
         <div class="card launcher">
           <div class="fivem">
-            <div class="ic">5M</div>
+            <div class="ic" id="fmIcon">5M</div>
             <div class="info"><b>เข้าเซิร์ฟ FiveM</b><small><span id="fmState">กำลังหา FiveM...</span> · <span id="fmSub">&nbsp;</span></small></div>
             <button class="btn" id="bQuickCache">ล้างแคช</button>
             <button class="btn" id="bQuickPre">โหมดก่อนเล่น</button>
@@ -874,6 +875,7 @@ if (!NATIVE) {
   window.loadRecent = async () => rec; window.saveRecent = async s => { rec = s; return true; };
   const MI = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><rect width="52" height="52" fill="#3a1d6e"/><text x="26" y="34" font-size="20" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="bold">ZC</text></svg>');
   window.checkBuild = async (d, b) => ({ known: true, cached: b !== 2802, missingMB: 1505 });
+  window.fivemIcon = async () => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" rx="2" fill="#3a6"/></svg>');
   window.triggerRecover = async () => { setTimeout(() => window.onGameMode({ active: true, game: 'FiveM_b3095_GTAProcess.exe', since: Date.now() / 1000 - 4000, hk: 'ok', rec: { at: Math.floor(Date.now() / 1000), game: true, freedMB: 2310, trimmed: 143, freeMB: 9400, prio: true, aff: true, power: true, vramPct: 95, gameMB: 7600, lv: 'warn', advice: 'VRAM การ์ดจอเต็ม (95%) ส่วนนี้กู้จากข้างนอกเกมไม่ได้ ให้กด "รีเกมแล้วเข้าเซิร์ฟเดิม" และลด Texture Quality ลง 1 ขั้นจะไม่กลับมาเต็มอีก' } }), 1200); return true; };
   window.gameModeInfo = async () => ({ pCores: 6, pThreads: 12, timer: false, build: 19044 });
   window.cacheScan = async (d, days, id) => { setTimeout(() => window.onCache({ reqId: id, ok: true, totalMB: 6830, files: 4200, oldMB: days === 7 ? 4100 : days === 14 ? 3120 : 1900, oldFiles: 1800, logsMB: 240, days, running: false }), 300); return true; };
@@ -1173,7 +1175,17 @@ async function loadSysInfo() {
   $('#fmState').textContent = i.fivem ? 'เจอ FiveM ในเครื่องนี้' : 'ยังหา FiveM ไม่เจอ';
   $('#fmSub').textContent = i.fivem ? `${i.fivemPath}  ·  แคช ${(i.cache || 0).toLocaleString()} MB` : 'ถ้าลงไว้ไดรฟ์อื่น เลือกโฟลเดอร์เองได้ในหน้าเครื่องมือ';
   fivemDir = i.fivem ? i.fivemPath : '';
+  setFivemIcon();
   $('#fmPathTool').textContent = i.fivem ? i.fivemPath : 'ยังหาไม่เจอ กดปุ่มด้านล่างแล้วเลือกโฟลเดอร์ที่มี FiveM.exe';
+}
+
+let fmIconFor = null;
+async function setFivemIcon() {
+  if (!fivemDir || fmIconFor === fivemDir || !window.fivemIcon) return;
+  fmIconFor = fivemDir;
+  const u = await window.fivemIcon(fivemDir);
+  const el = $('#fmIcon');
+  if (u) { el.innerHTML = `<img src="${u}" alt="FiveM">`; el.classList.add('img'); } else { el.textContent = '5M'; el.classList.remove('img'); }
 }
 
 /* ================= live stats ================= */
