@@ -75,6 +75,27 @@ func (a *app) checkUpdate() bool {
 		if updateRepo == "" {
 			return
 		}
+		// ช่องทางหลัก: ไฟล์ latest.json ใน repo (อัปเดตได้ด้วยการ push อย่างเดียว)
+		if r, err := ghGet("https://raw.githubusercontent.com/" + updateRepo + "/main/latest.json"); err == nil {
+			var lj struct {
+				Version string `json:"version"`
+				SHA256  string `json:"sha256"`
+				Notes   string `json:"notes"`
+				File    string `json:"file"`
+			}
+			ok := r.StatusCode == 200 && json.NewDecoder(r.Body).Decode(&lj) == nil && lj.Version != ""
+			r.Body.Close()
+			if ok {
+				if lj.File == "" {
+					lj.File = "release/ZanBooster.exe"
+				}
+				ui.Latest, ui.Notes, ui.SHA256 = strings.TrimPrefix(lj.Version, "v"), lj.Notes, strings.ToLower(lj.SHA256)
+				ui.URL = "https://raw.githubusercontent.com/" + updateRepo + "/main/" + strings.TrimPrefix(lj.File, "/")
+				ui.Available = newerThan(ui.Latest, appVersion)
+				return
+			}
+		}
+		// สำรอง: GitHub Releases
 		resp, err := ghGet("https://api.github.com/repos/" + updateRepo + "/releases/latest")
 		if err != nil {
 			ui.Err = "ต่อ GitHub ไม่ได้"
@@ -117,7 +138,9 @@ func (a *app) checkUpdate() bool {
 
 // applyUpdate ดาวน์โหลด exe ใหม่ ตรวจ SHA256 แล้วสลับไฟล์และเปิดใหม่
 func (a *app) applyUpdate(url, sum string) string {
-	if updateRepo == "" || !strings.HasPrefix(url, "https://github.com/"+updateRepo+"/releases/") {
+	okURL := strings.HasPrefix(url, "https://github.com/"+updateRepo+"/releases/") ||
+		strings.HasPrefix(url, "https://raw.githubusercontent.com/"+updateRepo+"/")
+	if updateRepo == "" || !okURL {
 		return "ลิงก์อัปเดตไม่ถูกต้อง"
 	}
 	self, err := os.Executable()
@@ -143,6 +166,10 @@ func (a *app) applyUpdate(url, sum string) string {
 	if err != nil || n < 1<<20 {
 		os.Remove(tmp)
 		return "ไฟล์ที่ดาวน์โหลดไม่สมบูรณ์"
+	}
+	if sum == "" && strings.HasPrefix(url, "https://raw.githubusercontent.com/") {
+		os.Remove(tmp)
+		return "ไม่มีค่า SHA256 สำหรับตรวจไฟล์ ยกเลิกการอัปเดต"
 	}
 	if sum != "" && !strings.EqualFold(hex.EncodeToString(h.Sum(nil)), sum) {
 		os.Remove(tmp)
