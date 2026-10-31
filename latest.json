@@ -1,6 +1,6 @@
 {
-  "version": "1.9.7",
-  "sha256": "baf89526e2109dbc1bc8941cc62407c460bad79031f40e44e70e1f810fa9a015",
+  "version": "1.9.8",
+  "sha256": "5d0cd53cbe2fa8f5240ae6058c612c8d044bb0754cbbd5671468239fa79549c9",
   "file": "release/ZanBooster.exe",
-  "notes": "หน้าหลักแสดงไอคอน FiveM จริงจากเครื่อง แทนตัวหนังสือ 5M"
+  "notes": "กดเข้าเซิร์ฟตอน FiveM เปิดอยู่: เช็ก pure / build / pool ก่อน ถ้าไม่ตรงเซิร์ฟ ตั้งค่าให้ตรงแล้วเปิดเกมใหม่รอบเดียวเอง ไม่เด้ง FiveM needs to restart"
 }

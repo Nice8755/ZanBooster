@@ -28,6 +28,7 @@ var fivemDefaultBuild = 3258
 
 var (
 	pWritePrivateProfile = kernel32.NewProc("WritePrivateProfileStringW")
+	pGetPrivateProfile   = kernel32.NewProc("GetPrivateProfileStringW")
 )
 
 type serverInfo struct {
@@ -356,6 +357,52 @@ func writeIni(path, section, key, val string) {
 	pWritePrivateProfile.Call(uintptr(unsafe.Pointer(s)), uintptr(unsafe.Pointer(k)), uintptr(unsafe.Pointer(v)), uintptr(unsafe.Pointer(p)))
 }
 
+func readIni(path, section, key, def string) string {
+	s, _ := windows.UTF16PtrFromString(section)
+	k, _ := windows.UTF16PtrFromString(key)
+	d, _ := windows.UTF16PtrFromString(def)
+	p, _ := windows.UTF16PtrFromString(path)
+	buf := make([]uint16, 4096)
+	pGetPrivateProfile.Call(uintptr(unsafe.Pointer(s)), uintptr(unsafe.Pointer(k)), uintptr(unsafe.Pointer(d)), uintptr(unsafe.Pointer(&buf[0])), uintptr(len(buf)), uintptr(unsafe.Pointer(p)))
+	return strings.TrimSpace(windows.UTF16ToString(buf))
+}
+
+func normPool(s string) string {
+	var m map[string]uint32
+	if json.Unmarshal([]byte(strings.TrimSpace(s)), &m) != nil || len(m) == 0 {
+		return ""
+	}
+	b, _ := json.Marshal(m) // เรียง key ให้เทียบกันได้
+	return string(b)
+}
+
+// gameMismatch บอกว่าเกมที่เปิดอยู่ตั้งค่าไม่ตรงกับที่เซิร์ฟต้องการ (ต้องเปิดเกมใหม่)
+// FiveM อ่าน build / pure / pool / default build จาก CitizenFX.ini ตอนเปิดเกม (CrossBuildLaunch.cpp)
+// และเขียน ini ก่อนรีเกมเองทุกครั้ง ค่าใน ini จึงตรงกับเกมที่กำลังเปิดอยู่
+// เงื่อนไขเหมือน NetLibrary.cpp: build ต่าง, pure ของเซิร์ฟสูงกว่า, pool ต่าง, exe build ต่าง
+func gameMismatch(fivemDir string, build, pure, effDefault int, pool string) string {
+	ini := filepath.Join(fivemDir, "FiveM.app", "CitizenFX.ini")
+	def := strconv.Itoa(fivemDefaultBuild)
+	curBuild := atoi(readIni(ini, "Game", "SavedBuildNumber", def))
+	curPure := atoi(readIni(ini, "Game", "PureLevel", "0"))
+	curPool := normPool(readIni(ini, "Game", "PoolSizesIncrease", ""))
+	curDef := atoi(readIni(ini, "Game", "DefaultBuild", def))
+	var why []string
+	if build > 0 && build != curBuild {
+		why = append(why, fmt.Sprintf("build %d → %d", curBuild, build))
+	}
+	if pure > curPure {
+		why = append(why, fmt.Sprintf("pure %d → %d", curPure, pure))
+	}
+	if normPool(pool) != curPool {
+		why = append(why, "pool size")
+	}
+	if effDefault > 0 && curDef > 0 && effDefault != curDef {
+		why = append(why, fmt.Sprintf("exe %d → %d", curDef, effDefault))
+	}
+	return strings.Join(why, ", ")
+}
+
 func killFiveM() int {
 	n := 0
 	snap, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
@@ -503,8 +550,15 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 	}
 	link := "fivem://connect/" + connect
 
-	// เกมเปิดอยู่ที่หน้าเมนูแล้ว: ส่ง IP เข้าไปเลย ไม่ต้องปิดเกม
-	// (ถ้า build/pure/pool ไม่ตรง FiveM จะสลับเองแล้วต่อเซิร์ฟให้อัตโนมัติ)
+	// เกมเปิดอยู่แต่ pure / build / pool ไม่ตรงกับเซิร์ฟ: เปลี่ยนตอนเกมเปิดอยู่ไม่ได้ ต้องเปิดใหม่ (เราเปิดเองรอบเดียว ไม่ให้ FiveM ถาม)
+	if !force && fivemRunningAny() {
+		if why := gameMismatch(fivemDir, build, pure, effDefault, pool); why != "" {
+			step("ค่าเกมไม่ตรงเซิร์ฟ (" + why + ") เปิดเกมใหม่ให้")
+			force = true
+		}
+	}
+
+	// เกมเปิดอยู่ที่หน้าเมนู และค่าตรงกับเซิร์ฟแล้ว: ส่ง IP เข้าไปเลย ไม่ต้องรีเกม
 	if pid, _ := gtaProcess(); !force && pid != 0 && (menuReady() || gameWindowVisible(pid)) {
 		step("เกมเปิดอยู่ ส่ง IP เข้าไปเลย")
 		if r, done := sendConnect(fivemDir, link, time.Now().Add(-2*time.Second), 1, step); done {
