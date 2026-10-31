@@ -303,7 +303,10 @@ canvas#pingChart{width:100%;height:196px;display:block}
 .sc .sn .cc{font-size:10px;font-family:var(--mono);color:var(--muted);flex:none}
 .sc .sn b{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sc .pl{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:12px;color:var(--muted)}
-.sc .pl b{font-family:var(--head);font-size:15px;color:#fff;font-weight:600}
+.sc .pl b{font-family:var(--head);font-size:15px;color:#fff;font-weight:600;font-variant-numeric:tabular-nums}
+.sc .pl .dl{font-style:normal;font-size:11px;font-weight:700;opacity:0;transition:opacity .3s}
+.sc .pl .dl.up{opacity:1;color:var(--green,#2bff9a)}
+.sc .pl .dl.dn{opacity:1;color:var(--red)}
 .sc .pbar{flex:1;height:5px;border-radius:5px;background:#16203a;overflow:hidden}
 .sc .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--mag));transition:width .6s}
 .sc .row3{display:flex;align-items:center;gap:6px;margin-top:8px}
@@ -457,7 +460,7 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
           </div>
           <div class="lbar">
             <div class="chk" id="optPreJoin"><span class="box"></span>เตรียมเครื่องก่อนเข้า</div>
-            <div class="live"><span class="dot"></span><span id="liveTxt">อัปเดตจำนวนคนทุก 15 วินาที</span></div>
+            <div class="live"><span class="dot"></span><span id="liveTxt">ติดตามจำนวนคนสด</span></div>
           </div>
           <div class="slist" id="slist"></div>
         </div>
@@ -786,6 +789,7 @@ function go(p) {
   if (p === 'health' && !healthDone) runHealth();
   if (p === 'gfx') { gfxStatus(); if (!gfxPlanned) { gfxPlanned = true; gfxPlan(); } }
   if (p === 'tools') loadApps();
+  if (p === 'dash' && typeof liveTick === 'function') liveTick();
 }
 $$('.navbtn').forEach(b => b.onclick = () => go(b.dataset.page));
 
@@ -1221,9 +1225,9 @@ function renderServers() {
       <div class="sic">${icon}</div>
       <div style="min-width:0">
         <div class="sn">${flagImg(v.country)}<b title="${esc(v.name)}">${esc(v.name)}</b></div>
-        <div class="row3">${v.ping ? `<span class="tg png">${Math.round(v.ping)} ms</span>` : ''}${v.build ? (() => { const c = buildState[v.build]; return c?.known && !c.cached ? `<span class="tg warnb" title="เข้าครั้งแรก FiveM จะโหลดไฟล์ของ build นี้ครั้งเดียว">b${v.build} · โหลด ${gb(c.missingMB)}</span>` : `<span class="tg${c?.cached ? ' okb' : ''}">b${v.build}${c?.cached ? ' ✓' : ''}</span>`; })() : ''}${v.pure ? `<span class="tg">Pure ${v.pure}</span>` : ''}${v.poolCount ? '<span class="tg">Pool+</span>' : ''}</div>
+        <div class="row3"><span class="tg png" data-png="${i}"${v.ping ? '' : ' style="display:none"'}>${Math.round(v.ping || 0)} ms</span>${v.build ? (() => { const c = buildState[v.build]; return c?.known && !c.cached ? `<span class="tg warnb" title="เข้าครั้งแรก FiveM จะโหลดไฟล์ของ build นี้ครั้งเดียว">b${v.build} · โหลด ${gb(c.missingMB)}</span>` : `<span class="tg${c?.cached ? ' okb' : ''}">b${v.build}${c?.cached ? ' ✓' : ''}</span>`; })() : ''}${v.pure ? `<span class="tg">Pure ${v.pure}</span>` : ''}${v.poolCount ? '<span class="tg">Pool+</span>' : ''}</div>
       </div>
-      <div class="plcol"><div class="pl"><b>${v.offline ? 'ออฟไลน์' : (v.players ?? '-') + (v.maxPlayers ? '/' + v.maxPlayers : '')}</b><small>${v.offline ? '' : 'คน'}</small></div><div class="pbar"><i style="width:${pct}%"></i></div></div>
+      <div class="plcol"><div class="pl"><b data-pl="${i}">${v.offline ? 'ออฟไลน์' : (v.players ?? '-') + (v.maxPlayers ? '/' + v.maxPlayers : '')}</b><small>${v.offline ? '' : 'คน'}</small><em class="dl" data-dl="${i}"></em></div><div class="pbar"><i data-bar="${i}" style="width:${pct}%"></i></div></div>
       <button class="join" data-join="${i}">เข้า</button></div>`;
   }).join('');
   $$('#slist [data-rm]').forEach(b => b.onclick = async e => { e.stopPropagation(); const v = servers[+b.dataset.rm]; if (!await confirmBox('ลบเซิร์ฟ', `ลบ "${v.name}" ออกจากรายการ?`, 'ลบ')) return; servers.splice(+b.dataset.rm, 1); saveServers(); renderServers(); });
@@ -1249,7 +1253,35 @@ async function refreshServers() {
   }
   await checkBuilds();
   renderServers();
-  $('#liveTxt').textContent = 'อัปเดตล่าสุด ' + new Date().toTimeString().slice(0, 5) + ' · ทุก 15 วินาที';
+  $('#liveTxt').textContent = 'สด · ' + new Date().toTimeString().slice(0, 8);
+}
+// ติดตามจำนวนคนแบบสด: ดึง dynamic.json ทุก 3 วินาที แล้วอัปเดตเฉพาะตัวเลข (ไม่วาดรายการใหม่)
+let liveBusy = false;
+function countTo(el, from, to, max) {
+  const t0 = performance.now(), d = 700;
+  const f = now => { const k = Math.min(1, (now - t0) / d), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(from + (to - from) * e) + (max ? '/' + max : ''); if (k < 1) requestAnimationFrame(f); };
+  requestAnimationFrame(f);
+}
+async function liveTick() {
+  if (liveBusy || !servers.length) return; liveBusy = true;
+  try {
+    await Promise.all(servers.map(async (v, i) => {
+      if (!v.base) return;
+      const st = await srvStatus(v.base);
+      if (servers[i] !== v) return;
+      const b = $(`#slist [data-pl="${i}"]`), bar = $(`#slist [data-bar="${i}"]`), png = $(`#slist [data-png="${i}"]`), dl = $(`#slist [data-dl="${i}"]`);
+      if (!st.ok) { if (!v.offline) { v.offline = true; renderServers(); } return; }
+      if (v.offline) { v.offline = false; Object.assign(v, { players: st.players, maxPlayers: st.maxPlayers || v.maxPlayers, ping: st.ping }); renderServers(); return; }
+      const old = v.players ?? st.players; v.players = st.players; v.maxPlayers = st.maxPlayers || v.maxPlayers; v.ping = st.ping;
+      if (b && old !== v.players) {
+        countTo(b, old, v.players, v.maxPlayers);
+        if (dl) { const d = v.players - old; dl.textContent = (d > 0 ? '+' : '') + d; dl.className = 'dl ' + (d > 0 ? 'up' : 'dn'); clearTimeout(dl._t); dl._t = setTimeout(() => { dl.className = 'dl'; }, 1800); }
+      } else if (b) b.textContent = v.players + (v.maxPlayers ? '/' + v.maxPlayers : '');
+      if (bar) bar.style.width = (v.maxPlayers ? Math.min(100, v.players / v.maxPlayers * 100) : 0) + '%';
+      if (png && v.ping) { png.style.display = ''; png.textContent = Math.round(v.ping) + ' ms'; }
+    }));
+    $('#liveTxt').textContent = 'สด · ' + new Date().toTimeString().slice(0, 8);
+  } finally { liveBusy = false; }
 }
 async function joinServer(i, btn) {
   const v = servers[i]; if (!v) return;
@@ -1279,7 +1311,9 @@ $('#bAdd').onclick = addServer;
 $('#srvInput').addEventListener('keydown', e => { if (e.key === 'Enter') addServer(); });
 window.loadRecent().then(t => {
   try { servers = (JSON.parse(t) || []).filter(x => x && x.connect); } catch (e) { servers = []; }
-  renderServers(); refreshServers(); setInterval(() => { if (appActive && $('#p-dash').classList.contains('show')) refreshServers(); }, 15000);
+  renderServers(); refreshServers();
+  setInterval(() => { if (appActive && $('#p-dash').classList.contains('show')) refreshServers(); }, 60000);
+  setInterval(() => { if (appActive && $('#p-dash').classList.contains('show')) liveTick(); }, 3000);
 });
 
 /* ================= settings / pre-join ================= */
