@@ -31,7 +31,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "1.9.0"
+const appVersion = "1.9.1"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -75,13 +75,18 @@ type app struct {
 
 	cpuMu                          sync.Mutex
 	lastIdle, lastKernel, lastUser uint64
-
-	gmStop func()
 }
 
 // ------------------------------------------------------------------ main --
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "--gamemode" {
+		runGameModeHelper()
+		return
+	}
+	if p, err := windows.UTF16PtrFromString(uiMutexName); err == nil {
+		windows.CreateMutex(nil, false, p) // ให้ตัวเบื้องหลังรู้ว่าหน้าโปรแกรมเปิดอยู่
+	}
 	a := &app{}
 	a.dataDir = filepath.Join(os.Getenv("ProgramData"), "ZanBooster")
 	_ = os.MkdirAll(a.dataDir, 0o755)
@@ -173,8 +178,8 @@ func main() {
 	must(w.Bind("saveRecent", a.saveRecent))
 
 	cleanupOldExe()
-	go a.priorityWatcher()
-	go a.gameWatcher()
+	go a.ensureGameModeHelper()
+	go a.gameModeRelay()
 	a.loadRemoteConfig()
 	w.SetHtml(uiHTML)
 	w.Run()
@@ -217,9 +222,7 @@ func (a *app) makeFrameless(width, height int) {
 func (a *app) winMin() { pShowWindow.Call(a.hwnd, 6) } // SW_MINIMIZE
 func (a *app) winClose() {
 	a.pingStopFn()
-	if a.gmStop != nil {
-		a.gmStop() // คืนแผนพลังงาน/จังหวะนาฬิกา ถ้าปิดโปรแกรมระหว่างเล่น
-	}
+	// โหมดเล่นเกมอยู่ใน process เบื้องหลัง ทำงานต่อแม้ปิดหน้าโปรแกรม
 	a.w.Terminate()
 }
 func (a *app) winDrag() {

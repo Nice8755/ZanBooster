@@ -10,6 +10,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
@@ -323,7 +324,8 @@ func verdict(gpu, cpuMax float64) (string, string) {
 
 // ---- ตัวคุมหลัก ----
 
-func (a *app) gameWatcher() {
+// gameWatcher ทำงานใน process เบื้องหลัง (--gamemode) ไม่มีหน้าต่าง เขียนสถานะลงไฟล์ให้หน้าโปรแกรมอ่าน
+func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(idle time.Duration) bool) {
 	var (
 		st            gmStatus
 		pid           uint32
@@ -355,16 +357,26 @@ func (a *app) gameWatcher() {
 		pid, gpuS, cpuS = 0, nil, nil
 		st = gmStatus{}
 	}
-	a.gmStop = func() {
-		gameModeStateLock.Lock()
-		defer gameModeStateLock.Unlock()
-		stop()
-	}
+	lastGame := time.Now()
 	for {
 		time.Sleep(3 * time.Second)
+		if quit() {
+			stop()
+			publish(`{"active":false}`)
+			return
+		}
+		a.boostPriority()
 		gameModeStateLock.Lock()
 		cfg := a.gmConfig()
 		gp, name := gtaProcess()
+		if gp != 0 {
+			lastGame = time.Now()
+		} else if idleExit(time.Since(lastGame)) {
+			stop()
+			gameModeStateLock.Unlock()
+			publish(`{"active":false}`)
+			return
+		}
 		if gp == 0 || !cfg.On {
 			if pid != 0 {
 				stop()
@@ -461,7 +473,7 @@ func (a *app) gameWatcher() {
 		gameModeStateLock.Unlock()
 		if s := string(b); s != lastEmit {
 			lastEmit = s
-			a.emit("onGameMode", s)
+			publish(s)
 		}
 	}
 }
@@ -476,4 +488,106 @@ func median(v []float64) float64 {
 func (a *app) gameModeInfo() map[string]any {
 	_, pc, th := perfCoreMask()
 	return map[string]any{"pCores": pc, "pThreads": th, "timer": winBuild() >= 22000, "build": winBuild()}
+}
+
+// ---- process เบื้องหลัง ----
+
+const (
+	gmMutexName = `Local\ZanBoosterGM`
+	gmQuitName  = `Local\ZanBoosterGMQuit`
+	uiMutexName = `Local\ZanBoosterUI`
+)
+
+func mutexExists(name string) bool {
+	p, _ := windows.UTF16PtrFromString(name)
+	h, err := windows.OpenMutex(windows.SYNCHRONIZE, false, p)
+	if err != nil {
+		return false
+	}
+	windows.CloseHandle(h)
+	return true
+}
+
+func (a *app) statusPath() string { return filepath.Join(a.dataDir, "gm_status.json") }
+
+// runGameModeHelper = ZanBooster.exe --gamemode
+// อยู่ต่อได้แม้ปิดหน้าโปรแกรม ปิดตัวเองเมื่อไม่มีเกมเปิดนาน 15 นาทีและหน้าโปรแกรมไม่ได้เปิด
+func runGameModeHelper() {
+	a := &app{dataDir: filepath.Join(os.Getenv("ProgramData"), "ZanBooster")}
+	mn, _ := windows.UTF16PtrFromString(gmMutexName)
+	m, err := windows.CreateMutex(nil, false, mn)
+	if err != nil { // มีตัวทำงานอยู่แล้ว
+		return
+	}
+	defer windows.CloseHandle(m)
+	qn, _ := windows.UTF16PtrFromString(gmQuitName)
+	q, _ := windows.CreateEvent(nil, 1, 0, qn)
+	windows.ResetEvent(q)
+	defer windows.CloseHandle(q)
+	publish := func(s string) {
+		// แนบเวอร์ชันไว้ ให้หน้าโปรแกรมรู้ว่าต้องเปลี่ยนตัวเบื้องหลังหลังอัปเดตไหม
+		var m map[string]any
+		if json.Unmarshal([]byte(s), &m) != nil {
+			return
+		}
+		m["ver"], m["pid"] = appVersion, os.Getpid()
+		b, _ := json.Marshal(m)
+		tmp := a.statusPath() + ".tmp"
+		if os.WriteFile(tmp, b, 0o644) == nil {
+			os.Rename(tmp, a.statusPath())
+		}
+	}
+	publish(`{"active":false}`)
+	a.gameWatcher(publish,
+		func() bool { r, _ := windows.WaitForSingleObject(q, 0); return r == windows.WAIT_OBJECT_0 },
+		func(idle time.Duration) bool { return idle > 15*time.Minute && !mutexExists(uiMutexName) })
+}
+
+// ensureGameModeHelper เปิดตัวเบื้องหลังถ้ายังไม่มี / เปลี่ยนตัวใหม่ถ้าเป็นเวอร์ชันเก่า
+func (a *app) ensureGameModeHelper() {
+	if mutexExists(gmMutexName) {
+		var st struct {
+			Ver string `json:"ver"`
+		}
+		if b, err := os.ReadFile(a.statusPath()); err == nil {
+			json.Unmarshal(b, &st)
+		}
+		if st.Ver == appVersion {
+			return
+		}
+		qn, _ := windows.UTF16PtrFromString(gmQuitName)
+		if q, err := windows.OpenEvent(windows.EVENT_MODIFY_STATE, false, qn); err == nil {
+			windows.SetEvent(q)
+			windows.CloseHandle(q)
+		}
+		for i := 0; i < 40 && mutexExists(gmMutexName); i++ {
+			time.Sleep(250 * time.Millisecond)
+		}
+	}
+	exe, err := os.Executable()
+	if err != nil {
+		return
+	}
+	c := exec.Command(exe, "--gamemode")
+	c.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x00000008 | 0x00000200} // DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+	if c.Start() == nil {
+		c.Process.Release()
+	}
+}
+
+// gameModeRelay อ่านสถานะจากตัวเบื้องหลังแล้วส่งให้หน้าโปรแกรม และเปิดตัวเบื้องหลังใหม่ถ้าหายไป
+func (a *app) gameModeRelay() {
+	last := ""
+	for i := 0; ; i++ {
+		if i%10 == 5 && !mutexExists(gmMutexName) {
+			a.ensureGameModeHelper()
+		}
+		if b, err := os.ReadFile(a.statusPath()); err == nil {
+			if s := string(b); s != last && json.Valid(b) {
+				last = s
+				a.emit("onGameMode", s)
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
 }

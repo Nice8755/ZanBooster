@@ -642,7 +642,7 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
       <div class="tools">
         <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-9 0 1 14h8l1-14"/></svg></div><h4>ล้างแคช FiveM</h4><p>ลบ cache, server-cache และ crash log แต่เก็บไฟล์เกมไว้ ช่วยแก้โหลดค้าง ภาพเพี้ยน เข้าเซิร์ฟไม่ได้</p><button class="btn" data-act="CleanCache">ล้างแคช</button></div>
         <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4zM6 8v12h12V8M10 12h4"/></svg></div><h4>ล้างไฟล์ขยะ + DNS</h4><p>ลบไฟล์ Temp ของ Windows และล้าง DNS ไฟล์ที่เปิดใช้อยู่จะข้ามไป</p><button class="btn" data-act="CleanTemp">ล้างเลย</button></div>
-        <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c3 3 5 7 5 11l-5 4-5-4c0-4 2-8 5-11zM9 17l-2 5 5-2 5 2-2-5"/></svg></div><h4>ดัน Priority เกม</h4><p>เปิดเกมก่อนแล้วกด FiveM จะได้ CPU ก่อนโปรแกรมอื่นทันที</p><div class="chk on" id="optAutoPrio" style="margin-bottom:4px"><span class="box"></span>ดันให้อัตโนมัติทุกครั้งที่เปิดเกม</div><button class="btn" data-act="BoostNow">ดัน Priority</button></div>
+        <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c3 3 5 7 5 11l-5 4-5-4c0-4 2-8 5-11zM9 17l-2 5 5-2 5 2-2-5"/></svg></div><h4>ดัน Priority เกม</h4><p>เปิดเกมก่อนแล้วกด FiveM จะได้ CPU ก่อนโปรแกรมอื่นทันที</p><div class="chk on" id="optAutoPrio" style="margin-bottom:4px"><span class="box"></span>ดันให้อัตโนมัติทุกครั้งที่เปิดเกม (ปิดโปรแกรมก็ยังทำ)</div><button class="btn" data-act="BoostNow">ดัน Priority</button></div>
         <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div><h4>โฟลเดอร์ FiveM</h4><p id="fmPathTool" style="font-family:var(--mono);font-size:11px;word-break:break-all">กำลังค้นหา...</p><button class="btn" id="bPick">เลือกโฟลเดอร์เอง</button></div>
         <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h6l2 2h10v10H3z"/></svg></div><h4>ไฟล์ Backup และ Log</h4><p>เก็บอยู่ที่ C:\ProgramData\ZanBooster</p><button class="btn" id="bData">เปิดโฟลเดอร์</button></div>
       </div>
@@ -650,7 +650,7 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
       <div id="t3" style="display:none"><div class="gmgrid">
         <div class="card">
           <div class="ct">โหมดเล่นเกม<div class="chk on" id="gmOn"><span class="box"></span>เปิดใช้</div></div>
-          <div class="gmst" id="gmState"><span class="dot"></span><span>รอเกมเปิด เปิดเองตอนเข้าเกม และคืนค่าเองตอนออก</span></div>
+          <div class="gmst" id="gmState"><span class="dot"></span><span>รอเกมเปิด ทำงานเบื้องหลัง ปิดหน้าโปรแกรมได้เลย</span></div>
           <div class="gmrow" data-k="aff"><div class="chk on" data-gm="aff"><span class="box"></span></div><div><b>ให้เกมใช้แต่แกนตัวแรง</b><p id="gmAffD">-</p><small id="gmAff"></small></div></div>
           <div class="gmrow" data-k="timer"><div class="chk on" data-gm="timer"><span class="box"></span></div><div><b>จังหวะนาฬิกา 0.5 ms</b><p id="gmTimerD">-</p><small id="gmTimer"></small></div></div>
           <div class="gmrow" data-k="ram"><div class="chk on" data-gm="ram"><span class="box"></span></div><div><b>ล้างแรมอัตโนมัติ</b><p>ล้างแรม Standby ให้เองเมื่อแรมว่างต่ำกว่า 1 GB (ห่างกันอย่างน้อย 1 นาที)</p><small id="gmRam"></small></div></div>
@@ -1407,7 +1407,7 @@ const setSm = (id, t, ok) => { const e = $('#' + id); e.textContent = t || ''; e
 window.onGameMode = s => {
   $('#gmPill').classList.toggle('on', !!s.active);
   const st = $('#gmState'); st.classList.toggle('on', !!s.active);
-  st.lastElementChild.textContent = s.active ? `ทำงานอยู่กับ ${s.game} ตั้งแต่ ${new Date(s.since * 1000).toTimeString().slice(0, 5)}` : 'รอเกมเปิด เปิดเองตอนเข้าเกม และคืนค่าเองตอนออก';
+  st.lastElementChild.textContent = s.active ? `ทำงานกับ ${(s.game || '').replace(/_?GTAProcess\.exe$/i, '')} ตั้งแต่ ${new Date(s.since * 1000).toTimeString().slice(0, 5)} · ปิดโปรแกรมได้` : 'รอเกมเปิด ทำงานเบื้องหลัง ปิดหน้าโปรแกรมได้เลย';
   setSm('gmAff', s.aff, s.affOk); setSm('gmTimer', s.timer, s.timerOk); setSm('gmRam', s.ram, s.ramOk); setSm('gmPower', s.power, s.powerOk);
   if (s.active && s.samples) {
     $('#bnGpu').style.width = s.gpu + '%'; $('#bnGpu').classList.toggle('hot', s.gpu >= 90); $('#bnGpuT').textContent = Math.round(s.gpu) + '%';

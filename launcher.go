@@ -733,33 +733,30 @@ func (a *app) launchServerAsync(fivemDir, connect string, build, pure, effDefaul
 }
 
 // ---- ดัน Priority ของ FiveM เป็น High อัตโนมัติขณะเปิดโปรแกรม (ไม่แก้ registry) ----
-func (a *app) priorityWatcher() {
-	for {
-		time.Sleep(5 * time.Second)
-		var cfg struct {
-			AutoPrio *bool `json:"autoPrio"`
-		}
-		json.Unmarshal([]byte(a.loadSettings()), &cfg)
-		if cfg.AutoPrio != nil && !*cfg.AutoPrio {
-			continue
-		}
-		snap, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
-		if err != nil {
-			continue
-		}
-		var pe windows.ProcessEntry32
-		pe.Size = uint32(unsafe.Sizeof(pe))
-		for err := windows.Process32First(snap, &pe); err == nil; err = windows.Process32Next(snap, &pe) {
-			name := strings.ToLower(windows.UTF16ToString(pe.ExeFile[:]))
-			if strings.HasPrefix(name, "fivem") && strings.Contains(name, "gtaprocess") {
-				if h, err := windows.OpenProcess(windows.PROCESS_SET_INFORMATION|windows.PROCESS_QUERY_LIMITED_INFORMATION, false, pe.ProcessID); err == nil {
-					if pc, _ := windows.GetPriorityClass(h); pc != windows.HIGH_PRIORITY_CLASS {
-						windows.SetPriorityClass(h, windows.HIGH_PRIORITY_CLASS)
-					}
-					windows.CloseHandle(h)
+func (a *app) boostPriority() {
+	var cfg struct {
+		AutoPrio *bool `json:"autoPrio"`
+	}
+	json.Unmarshal([]byte(a.loadSettings()), &cfg)
+	if cfg.AutoPrio != nil && !*cfg.AutoPrio {
+		return
+	}
+	snap, err := windows.CreateToolhelp32Snapshot(windows.TH32CS_SNAPPROCESS, 0)
+	if err != nil {
+		return
+	}
+	defer windows.CloseHandle(snap)
+	var pe windows.ProcessEntry32
+	pe.Size = uint32(unsafe.Sizeof(pe))
+	for err := windows.Process32First(snap, &pe); err == nil; err = windows.Process32Next(snap, &pe) {
+		name := strings.ToLower(windows.UTF16ToString(pe.ExeFile[:]))
+		if strings.HasPrefix(name, "fivem") && strings.Contains(name, "gtaprocess") {
+			if h, err := windows.OpenProcess(windows.PROCESS_SET_INFORMATION|windows.PROCESS_QUERY_LIMITED_INFORMATION, false, pe.ProcessID); err == nil {
+				if pc, _ := windows.GetPriorityClass(h); pc != windows.HIGH_PRIORITY_CLASS {
+					windows.SetPriorityClass(h, windows.HIGH_PRIORITY_CLASS)
 				}
+				windows.CloseHandle(h)
 			}
 		}
-		windows.CloseHandle(snap)
 	}
 }
