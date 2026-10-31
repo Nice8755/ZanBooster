@@ -1,6 +1,6 @@
 {
-  "version": "1.9.3",
-  "sha256": "0f7e9275f3735bc8d6e684adf16e7254a3ee248904c81f100748fe3bd57ec576",
+  "version": "1.9.4",
+  "sha256": "c71037e69bb68b54929af360cfe314db22e24be8ebfad0739abe64cf228a7985",
   "file": "release/ZanBooster.exe",
-  "notes": "เอาตัวเลือก Fullscreen Exclusive แบบเดิมออก (ใช้ Fullscreen แต่ Alt-Tab ไว แทน)"
+  "notes": "รายงานการเล่น: บันทึก VRAM, แรมของเกม, ความเร็วซีพียู, อุณหภูมิการ์ดจอทุก 30 วินาทีระหว่างเล่น แล้วบอกว่าทำไมเล่นนาน ๆ แล้ว FPS ตก พร้อมวิธีแก้"
 }

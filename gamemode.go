@@ -234,7 +234,7 @@ func (a *app) ensureZanScheme() bool {
 // ---- ตัวถ่วง (PDH) ----
 
 type pdhQuery struct {
-	q, gpu, cpu uintptr
+	q, gpu, cpu, perf, gmem, amem uintptr
 }
 
 func openPdh() *pdhQuery {
@@ -248,6 +248,9 @@ func openPdh() *pdhQuery {
 	}
 	add(`\GPU Engine(*engtype_3D)\Utilization Percentage`, &p.gpu)
 	add(`\Processor(*)\% Processor Time`, &p.cpu)
+	add(`\Processor Information(_Total)\% Processor Performance`, &p.perf)
+	add(`\GPU Process Memory(*)\Dedicated Usage`, &p.gmem)
+	add(`\GPU Adapter Memory(*)\Dedicated Usage`, &p.amem)
 	pPdhCollect.Call(p.q)
 	return p
 }
@@ -309,6 +312,23 @@ func (p *pdhQuery) sample() (gpu, cpu, cpuMax float64, ok bool) {
 	return gpu, cpu, cpuMax, true
 }
 
+// extra อ่านค่าจากรอบ collect ล่าสุด: % ความเร็วซีพียู, VRAM ของเกม (MB), VRAM ทั้งเครื่อง (MB)
+func (p *pdhQuery) extra(pid uint32) (perf, vramGame, vramAll float64) {
+	for _, v := range pdhArray(p.perf) {
+		perf = v
+	}
+	pre := fmt.Sprintf("pid_%d_", pid)
+	for k, v := range pdhArray(p.gmem) {
+		if strings.HasPrefix(k, pre) {
+			vramGame += v
+		}
+	}
+	for _, v := range pdhArray(p.amem) {
+		vramAll += v
+	}
+	return perf, vramGame / (1 << 20), vramAll / (1 << 20)
+}
+
 func verdict(gpu, cpuMax float64) (string, string) {
 	switch {
 	case gpu >= 90:
@@ -337,6 +357,7 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 		pqAge         int
 		gpuS, cpuS    []float64
 		lastEmit      string
+		rec           *recorder
 		pMask, pc, th = perfCoreMask()
 	)
 	stop := func() {
@@ -354,7 +375,7 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 			pq.close()
 			pq = nil
 		}
-		pid, gpuS, cpuS = 0, nil, nil
+		pid, gpuS, cpuS, rec = 0, nil, nil, nil
 		st = gmStatus{}
 	}
 	lastGame := time.Now()
@@ -407,6 +428,7 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 						st.Timer = "ปิดอยู่"
 					}
 					pq, pqAge = openPdh(), 0
+					rec = newRecorder(a.dataDir, name)
 				}
 				pid = gp
 				st.Game = name
@@ -448,6 +470,9 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 			// ตัวถ่วง: เฉลี่ย 30 วินาทีล่าสุด
 			if pq != nil {
 				if g, c, cm, ok := pq.sample(); ok {
+					if rec != nil && (rec.ticks+1)%10 == 0 {
+						rec.perf, rec.vg, rec.va = pq.extra(gp) // อ่านก่อนเปิด query ใหม่
+					}
 					gpuS, cpuS = append(gpuS, g), append(cpuS, cm)
 					if len(gpuS) > 10 {
 						gpuS, cpuS = gpuS[1:], cpuS[1:]
@@ -457,11 +482,15 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 				if pqAge++; pqAge >= 20 { // เปิดใหม่เป็นระยะ ให้เห็นงานการ์ดจอของตัวเกมที่เพิ่งเริ่ม
 					pq.close()
 					pq, pqAge = openPdh(), 0
+					rec = newRecorder(a.dataDir, name)
 				}
 			}
 			st.Samples = len(gpuS)
 			if len(gpuS) > 0 {
 				st.GPU, st.CPUMax = median(gpuS), median(cpuS)
+			}
+			if rec != nil && pq != nil && len(gpuS) > 0 {
+				rec.tick(gp, st.GPU, st.CPUMax, st.CPU)
 			}
 			if len(gpuS) >= 4 {
 				st.VerdictID, st.Verdict = verdict(st.GPU, st.CPUMax)
