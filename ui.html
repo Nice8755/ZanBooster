@@ -483,6 +483,59 @@ kbd{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;bor
 .radv.warn{border-color:var(--amber)}.radv.info{border-color:var(--cyan)}
 .hardto{margin-top:8px;font-size:12px;color:var(--muted)}
 #t4 .empty{padding:22px 10px;text-align:center;color:var(--muted);font-size:13px}
+
+/* ===== v2.1 เกลา UI (คงธีมนีออนเดิม) ===== */
+.card{background:linear-gradient(180deg,rgba(17,25,44,.95),rgba(11,16,30,.95));box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 12px 32px rgba(0,0,0,.28)}
+.btn{transition:border-color .15s,background .15s,box-shadow .2s,transform .08s,filter .15s}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn:not(.pri):hover{box-shadow:0 0 16px rgba(0,229,255,.18)}
+.btn.pri:hover{filter:brightness(1.07)}
+.btn:disabled{cursor:not-allowed}
+.tab{transition:color .15s,background .15s}
+.tab:hover:not(.active){color:#fff;background:rgba(255,255,255,.04)}
+.tab.active{background:linear-gradient(100deg,rgba(0,229,255,.2),rgba(139,92,255,.2));box-shadow:inset 0 0 0 1px rgba(0,229,255,.35),0 0 14px rgba(0,229,255,.12)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan)!important;box-shadow:0 0 0 3px rgba(0,229,255,.14)}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,229,255,.16);border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,229,255,.32)}
+.ph h2{text-shadow:0 0 22px rgba(0,229,255,.18)}
+/* รายการเซิร์ฟ */
+.sc{transition:border-color .15s,background .15s,transform .15s,box-shadow .2s}
+.sc:hover{border-color:rgba(0,229,255,.42);background:rgba(0,229,255,.035);transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,0,0,.32)}
+.sc:before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:3px;background:linear-gradient(var(--cyan),var(--violet));opacity:0;transition:opacity .15s}
+.sc:hover:before{opacity:1}
+.sc .sic{box-shadow:0 0 0 1px rgba(0,229,255,.22),0 0 16px rgba(0,229,255,.12)}
+.sc .join{transition:box-shadow .2s,transform .08s}.sc .join:active{transform:scale(.95)}
+/* แถบลัดหน้าหลัก */
+.qbar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.qt{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid rgba(0,229,255,.12);text-align:left;color:var(--text);transition:border-color .15s,background .15s,box-shadow .2s;cursor:pointer;min-width:0}
+.qt:hover{border-color:rgba(0,229,255,.42);background:rgba(0,229,255,.05);box-shadow:0 0 16px rgba(0,229,255,.12)}
+.qt i{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(0,229,255,.18),rgba(139,92,255,.18));color:var(--cyan)}
+.qt i svg{width:18px;height:18px}
+.qt b{display:block;font-size:13px}.qt small{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qt>div{min-width:0}
+.qt.on i{background:rgba(57,255,156,.14);color:var(--lime);box-shadow:0 0 12px rgba(57,255,156,.25)}
+.qt.on small{color:var(--lime)}
+/* ตรวจเครื่อง: 2 คอลัมน์ ไม่ต้องเลื่อน */
+.hlist{grid-template-columns:1fr 1fr;align-items:stretch}
+.hrow{padding:12px 14px;transition:border-color .15s}
+.hrow:hover{border-color:rgba(0,229,255,.3)}
+.hrow .hf{margin-top:6px;padding:7px 10px;font-size:12px;line-height:1.5}
+.hsum{padding:14px 18px}
+/* กราฟิก */
+.pcard,.pcard.hot{border-color:var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 12px 32px rgba(0,0,0,.28);transition:border-color .2s,box-shadow .2s,transform .2s}
+.pcard:hover{border-color:rgba(0,229,255,.45);box-shadow:0 0 26px rgba(0,229,255,.14);transform:translateY(-2px)}
+.pcard{gap:8px}.pcard h3{font-size:17px}
+.kv{gap:3px!important}.kv li{font-size:12.3px!important}
+#p-gfx .note{margin-top:10px;padding:10px 14px;line-height:1.6}
+#p-gfx .specbar{padding-top:13px;padding-bottom:13px}
+/* การ์ดเครื่องมือ */
+.tool{transition:border-color .2s,box-shadow .2s,transform .2s}
+.tool:hover{border-color:rgba(0,229,255,.38);box-shadow:0 0 22px rgba(0,229,255,.1);transform:translateY(-2px)}
+/* เกี่ยวกับ */
+.aboutg{align-items:stretch}
+.abhero{justify-content:center}
 </style>
 </head>
 <body>
@@ -542,6 +595,11 @@ kbd{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;bor
             <div class="live"><span class="dot"></span><span id="liveTxt">ติดตามจำนวนคนสด</span></div>
           </div>
           <div class="slist" id="slist"></div>
+          <div class="qbar">
+            <button class="qt" id="qRecover"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M13 7l-3 6h4l-3 5"/></svg></i><div><b>กู้ FPS</b><small>Ctrl + Alt + F ในเกม</small></div></button>
+            <button class="qt" id="qGm"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M7 12h4M9 10v4"/><circle cx="16" cy="11" r="1" fill="currentColor"/><circle cx="18" cy="13" r="1" fill="currentColor"/></svg></i><div><b>โหมดเล่นเกม</b><small id="qGmT">รอเกมเปิด</small></div></button>
+            <button class="qt" id="qLast"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></i><div><b>รีเกมเข้าเซิร์ฟเดิม</b><small id="qLastT">ยังไม่เคยเข้า</small></div></button>
+          </div>
         </div>
         <div class="side">
           <div class="card mini">
@@ -1433,6 +1491,7 @@ function renderServers() {
   }).join('');
   $$('#slist [data-rm]').forEach(b => b.onclick = async e => { e.stopPropagation(); const v = servers[+b.dataset.rm]; if (!await confirmBox('ลบเซิร์ฟ', `ลบ "${v.name}" ออกจากรายการ?`, 'ลบ')) return; servers.splice(+b.dataset.rm, 1); saveServers(); renderServers(); });
   $$('#slist [data-join]').forEach(b => b.onclick = e => { e.stopPropagation(); joinServer(+b.dataset.join, b); });
+  if (typeof qPaint === 'function') try { qPaint(); } catch (e) {}
 }
 async function addServer() {
   const v = $('#srvInput').value.trim(); if (!v) { toast('ใส่ IP:Port หรือโค้ดเซิร์ฟก่อน', 'er'); return; }
@@ -1526,7 +1585,7 @@ window.loadRecent().then(t => {
 
 /* ================= settings / pre-join ================= */
 let settings = {};
-window.loadSettings().then(t => { try { settings = JSON.parse(t) || {}; } catch (e) { settings = {}; } $('#optPreJoin').classList.toggle('on', !!settings.preJoin); $('#optAutoPrio').classList.toggle('on', settings.autoPrio !== false); gmPaint(); if (!settings.guideSeen) setTimeout(() => guideOpenFn(0), 600); });
+window.loadSettings().then(t => { try { settings = JSON.parse(t) || {}; } catch (e) { settings = {}; } $('#optPreJoin').classList.toggle('on', !!settings.preJoin); $('#optAutoPrio').classList.toggle('on', settings.autoPrio !== false); gmPaint(); try { qPaint(); } catch (e) {} if (!settings.guideSeen) setTimeout(() => guideOpenFn(0), 600); });
 $('#optAutoPrio').onclick = () => { $('#optAutoPrio').classList.toggle('on'); settings.autoPrio = $('#optAutoPrio').classList.contains('on'); window.saveSettings(JSON.stringify(settings)); };
 $('#optPreJoin').onclick = () => { $('#optPreJoin').classList.toggle('on'); settings.preJoin = $('#optPreJoin').classList.contains('on'); window.saveSettings(JSON.stringify(settings)); };
 async function prepareBeforeJoin() {
@@ -1650,13 +1709,25 @@ $('#bHardRec').onclick = async () => {
   go('dash'); joinServer(servers.indexOf(v), $(`#slist [data-join="${servers.indexOf(v)}"]`), true);
 };
 function onRecoverStatus(s) {
-  lastGM = s;
+  lastGM = s; qPaint();
   if (s.rec && recWaitAt && s.rec.at >= recWaitAt) {
     recWaitAt = 0; clearTimeout(recTimer); $('#bRecover').disabled = false; $('#bRecover').classList.remove('run');
     toast(`กู้แล้ว คืนแรม ${Math.round(s.rec.freedMB).toLocaleString()} MB`, s.rec.lv === 'warn' ? '' : 'ok');
     log(`✓ กู้ FPS: คืนแรม ${Math.round(s.rec.freedMB)} MB · ${s.rec.advice}`, 'ok');
   }
   if ($('#t4').style.display !== 'none') recPaint();
+}
+
+/* ----- แถบลัดหน้าหลัก ----- */
+$('#qRecover').onclick = () => $('#bRecover').click();
+$('#qGm').onclick = () => { go('tools'); $('#ttabs [data-t="t3"]').click(); };
+$('#qLast').onclick = () => $('#bHardRec').click();
+function qPaint() {
+  const s = lastGM || {}, c = (typeof gmCfg === 'function') ? gmCfg() : { on: true };
+  $('#qGm').classList.toggle('on', !!s.active);
+  $('#qGmT').textContent = !c.on ? 'ปิดอยู่' : s.active ? 'ทำงานอยู่ · ' + (s.game || '').replace(/_?GTAProcess\.exe$/i, '') : 'รอเกมเปิด เปิดให้เอง';
+  const v = lastServer(); $('#qLastT').textContent = v ? v.name : 'ยังไม่เคยเข้าเซิร์ฟ';
+  $('#qLast').disabled = !v;
 }
 /* ================= update / about ================= */
 let updInfo = null, promptedVer = null;
