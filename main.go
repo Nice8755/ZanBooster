@@ -31,7 +31,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "1.8.2"
+const appVersion = "1.9.0"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -75,6 +75,8 @@ type app struct {
 
 	cpuMu                          sync.Mutex
 	lastIdle, lastKernel, lastUser uint64
+
+	gmStop func()
 }
 
 // ------------------------------------------------------------------ main --
@@ -148,6 +150,9 @@ func main() {
 	must(w.Bind("pingStop", a.pingStopFn))
 	must(w.Bind("winMin", a.winMin))
 	must(w.Bind("winClose", a.winClose))
+	must(w.Bind("gameModeInfo", a.gameModeInfo))
+	must(w.Bind("cacheScan", a.cacheScanAsync))
+	must(w.Bind("cacheClean", a.cacheCleanAsync))
 	must(w.Bind("winDrag", a.winDrag))
 	must(w.Bind("openUrl", openURL))
 	must(w.Bind("openDataDir", func() { openURL(a.dataDir) }))
@@ -169,6 +174,7 @@ func main() {
 
 	cleanupOldExe()
 	go a.priorityWatcher()
+	go a.gameWatcher()
 	a.loadRemoteConfig()
 	w.SetHtml(uiHTML)
 	w.Run()
@@ -208,8 +214,14 @@ func (a *app) makeFrameless(width, height int) {
 	}
 }
 
-func (a *app) winMin()   { pShowWindow.Call(a.hwnd, 6) } // SW_MINIMIZE
-func (a *app) winClose() { a.pingStopFn(); a.w.Terminate() }
+func (a *app) winMin() { pShowWindow.Call(a.hwnd, 6) } // SW_MINIMIZE
+func (a *app) winClose() {
+	a.pingStopFn()
+	if a.gmStop != nil {
+		a.gmStop() // คืนแผนพลังงาน/จังหวะนาฬิกา ถ้าปิดโปรแกรมระหว่างเล่น
+	}
+	a.w.Terminate()
+}
 func (a *app) winDrag() {
 	pReleaseCapture.Call()
 	pPostMessage.Call(a.hwnd, 0x00A1, 2, 0) // WM_NCLBUTTONDOWN, HTCAPTION

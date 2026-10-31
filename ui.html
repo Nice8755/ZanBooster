@@ -305,7 +305,7 @@ canvas#pingChart{width:100%;height:196px;display:block}
 .sc .pl{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:12px;color:var(--muted)}
 .sc .pl b{font-family:var(--head);font-size:15px;color:#fff;font-weight:600;font-variant-numeric:tabular-nums}
 .sc .pl .dl{font-style:normal;font-size:11px;font-weight:700;opacity:0;transition:opacity .3s}
-.sc .pl .dl.up{opacity:1;color:var(--green,#2bff9a)}
+.sc .pl .dl.up{opacity:1;color:var(--lime)}
 .sc .pl .dl.dn{opacity:1;color:var(--red)}
 .sc .pbar{flex:1;height:5px;border-radius:5px;background:#16203a;overflow:hidden}
 .sc .pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--mag));transition:width .6s}
@@ -405,6 +405,33 @@ canvas#pingChart{width:100%;height:196px;display:block}
 .kv li span{color:var(--muted)}
 .kv li b{font-weight:600;color:#fff;text-align:right}
 body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paused!important}
+
+.gmpill{display:none}.gmpill.on{display:flex;color:var(--cyan);border-color:rgba(0,229,255,.4)}.gmpill.on .dot{background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:pulse 1.4s infinite}
+.gmgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:14px}
+.gmcol{display:flex;flex-direction:column;gap:14px}
+.gmst{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);padding:9px 12px;border-radius:9px;background:rgba(0,0,0,.25);margin-bottom:10px}
+.gmst .dot{width:8px;height:8px;border-radius:50%;background:#56648a;flex:none}
+.gmst.on{color:var(--lime)}.gmst.on .dot{background:var(--lime);box-shadow:0 0 8px var(--lime);animation:pulse 1.4s infinite}
+.gmrow{display:flex;gap:12px;padding:10px 2px;border-top:1px solid var(--line)}
+.gmrow .chk{margin-top:2px}
+.gmrow b{font-size:13.5px;color:var(--text)}
+.gmrow p{margin:3px 0 0;font-size:12px;color:var(--muted);line-height:1.45}
+.gmrow small{display:block;margin-top:4px;font-size:11.5px;color:var(--muted)}
+.gmrow small.ok{color:var(--lime)}.gmrow small.no{color:var(--amber)}
+.gmrow.dis b,.gmrow.dis p{opacity:.45}
+.bn{display:grid;grid-template-columns:130px 1fr 44px;align-items:center;gap:10px;font-size:12.5px;color:var(--muted);margin-bottom:10px}
+.bnbar{height:8px;border-radius:6px;background:#16203a;overflow:hidden}
+.bnbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet));transition:width .8s}
+.bnbar i.hot{background:linear-gradient(90deg,var(--amber),var(--red))}
+.bn b{text-align:right;color:#fff;font-family:var(--head);font-weight:600}
+.bnv{font-size:12.5px;line-height:1.5;padding:10px 12px;border-radius:9px;background:rgba(0,0,0,.25);color:var(--muted)}
+.bnv.gpu,.bnv.cpu{color:var(--amber);border:1px solid rgba(255,181,71,.35)}.bnv.ok{color:var(--lime)}.bnv.cap{color:var(--cyan)}
+.cstat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.cstat div{padding:10px;border-radius:9px;background:rgba(0,0,0,.25)}
+.cstat b{display:block;font-family:var(--head);font-size:17px;color:#fff}
+.cstat small{font-size:11px;color:var(--muted)}
+.cnote{font-size:11.5px;color:var(--muted);line-height:1.5;margin:0 0 12px}
+#cDays .tab{padding:4px 10px;font-size:11.5px}
 </style>
 </head>
 <body>
@@ -419,7 +446,7 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
     </div>
     <div class="tb-spacer"></div>
     <button class="upd" id="bUpd" style="display:none"></button>
-    <div class="pill" id="fivemPill"><span class="dot"></span><span id="fivemTxt">FiveM ยังไม่เปิด</span></div>
+    <div class="pill gmpill" id="gmPill" title="โหมดเล่นเกมกำลังทำงาน"><span class="dot"></span>โหมดเล่นเกม</div><div class="pill" id="fivemPill"><span class="dot"></span><span id="fivemTxt">FiveM ยังไม่เปิด</span></div>
     <div class="winbtns">
       <button class="winbtn" id="bMin" title="ย่อ"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 6h10" stroke="currentColor" stroke-width="1.4"/></svg></button>
       <button class="winbtn x" id="bClose" title="ปิด"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1 1 11" stroke="currentColor" stroke-width="1.4"/></svg></button>
@@ -600,7 +627,7 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
 
     <!-- TOOLS -->
     <section class="page" id="p-tools">
-      <div class="ph"><div><h2>เครื่อง<span>มือ</span></h2><p>ใช้ได้ทุกเมื่อ ไม่ต้องรีสตาร์ท</p></div><div class="tabs" id="ttabs" style="margin:0"><button class="tab active" data-t="t1">เครื่องมือ</button><button class="tab" data-t="t2">คำแนะนำการตั้งค่า</button></div></div>
+      <div class="ph"><div><h2>เครื่อง<span>มือ</span></h2><p>ใช้ได้ทุกเมื่อ ไม่ต้องรีสตาร์ท</p></div><div class="tabs" id="ttabs" style="margin:0"><button class="tab active" data-t="t1">เครื่องมือ</button><button class="tab" data-t="t3">โหมดเล่นเกม</button><button class="tab" data-t="t2">คำแนะนำการตั้งค่า</button></div></div>
       <div id="t1">
       <div class="card" style="margin-bottom:14px">
         <div class="ct" style="display:flex;justify-content:space-between;align-items:center">โหมดก่อนเล่น<button class="btn" id="bAppsRefresh" style="padding:6px 12px;font-size:12px">รีเฟรชรายการ</button></div>
@@ -620,6 +647,30 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
         <div class="card tool"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h6l2 2h10v10H3z"/></svg></div><h4>ไฟล์ Backup และ Log</h4><p>เก็บอยู่ที่ C:\ProgramData\ZanBooster</p><button class="btn" id="bData">เปิดโฟลเดอร์</button></div>
       </div>
       </div>
+      <div id="t3" style="display:none"><div class="gmgrid">
+        <div class="card">
+          <div class="ct">โหมดเล่นเกม<div class="chk on" id="gmOn"><span class="box"></span>เปิดใช้</div></div>
+          <div class="gmst" id="gmState"><span class="dot"></span><span>รอเกมเปิด เปิดเองตอนเข้าเกม และคืนค่าเองตอนออก</span></div>
+          <div class="gmrow" data-k="aff"><div class="chk on" data-gm="aff"><span class="box"></span></div><div><b>ให้เกมใช้แต่แกนตัวแรง</b><p id="gmAffD">-</p><small id="gmAff"></small></div></div>
+          <div class="gmrow" data-k="timer"><div class="chk on" data-gm="timer"><span class="box"></span></div><div><b>จังหวะนาฬิกา 0.5 ms</b><p id="gmTimerD">-</p><small id="gmTimer"></small></div></div>
+          <div class="gmrow" data-k="ram"><div class="chk on" data-gm="ram"><span class="box"></span></div><div><b>ล้างแรมอัตโนมัติ</b><p>ล้างแรม Standby ให้เองเมื่อแรมว่างต่ำกว่า 1 GB (ห่างกันอย่างน้อย 1 นาที)</p><small id="gmRam"></small></div></div>
+          <div class="gmrow" data-k="power"><div class="chk on" data-gm="power"><span class="box"></span></div><div><b>แผนพลังงานสูงสุดเฉพาะตอนเล่น</b><p>ใช้ ZAN_Project_Optimizer ระหว่างเล่น ปิดเกมแล้วกลับเป็นแผนเดิม</p><small id="gmPower"></small></div></div>
+        </div>
+        <div class="gmcol">
+          <div class="card">
+            <div class="ct">อะไรเป็นตัวถ่วง<small id="bnN" style="color:var(--muted);font-weight:400">ดูเฉลี่ย 30 วินาที</small></div>
+            <div class="bn"><span>การ์ดจอ</span><div class="bnbar"><i id="bnGpu"></i></div><b id="bnGpuT">-</b></div>
+            <div class="bn"><span>ซีพียู (แกนที่หนักสุด)</span><div class="bnbar"><i id="bnCpu"></i></div><b id="bnCpuT">-</b></div>
+            <div class="bnv" id="bnV">เปิดเกมแล้วเล่นสักพัก จะบอกว่าควรลดอะไร</div>
+          </div>
+          <div class="card">
+            <div class="ct">ล้างไฟล์เก่าในแคชเซิร์ฟ<div class="tabs" id="cDays" style="margin:0"><button class="tab" data-d="7">7 วัน</button><button class="tab active" data-d="14">14 วัน</button><button class="tab" data-d="30">30 วัน</button></div></div>
+            <div class="cstat"><div><b id="cTotal">-</b><small>แคชเซิร์ฟทั้งหมด</small></div><div><b id="cOld" style="color:var(--amber)">-</b><small id="cOldL">ไม่ได้ใช้เกิน 14 วัน</small></div><div><b id="cLogs">-</b><small>log และไฟล์ crash</small></div></div>
+            <p class="cnote">FiveM เก็บไฟล์ของทุกเซิร์ฟรวมกันในที่เดียว จะลบเฉพาะไฟล์ที่ไม่ได้ใช้นาน ไฟล์ของเซิร์ฟที่เล่นอยู่ยังอยู่ ถ้าเซิร์ฟไหนต้องใช้ไฟล์ที่ลบไป FiveM จะโหลดให้ใหม่เอง</p>
+            <button class="btn pri" id="bCacheOld" disabled>ล้างไฟล์เก่า</button>
+          </div>
+        </div>
+      </div></div>
       <div id="t2" style="display:none"><div class="tips">
         <div class="card"><div class="ct">ตั้งค่าในเกม</div><ul>
           <li>Display Mode เป็น <b>Fullscreen</b> แล้วเปิดตัว <b>Alt-Tab ไว</b> ในหน้าปรับแต่ง</li>
@@ -709,6 +760,10 @@ if (!NATIVE) {
   window.loadRecent = async () => rec; window.saveRecent = async s => { rec = s; return true; };
   const MI = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><rect width="52" height="52" fill="#3a1d6e"/><text x="26" y="34" font-size="20" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="bold">ZC</text></svg>');
   window.checkBuild = async (d, b) => ({ known: true, cached: b !== 2802, missingMB: 1505 });
+  window.gameModeInfo = async () => ({ pCores: 6, pThreads: 12, timer: false, build: 19044 });
+  window.cacheScan = async (d, days, id) => { setTimeout(() => window.onCache({ reqId: id, ok: true, totalMB: 6830, files: 4200, oldMB: days === 7 ? 4100 : days === 14 ? 3120 : 1900, oldFiles: 1800, logsMB: 240, days, running: false }), 300); return true; };
+  window.cacheClean = async (d, days, id) => { setTimeout(() => window.onCache({ reqId: id, ok: true, totalMB: 3710, files: 2400, oldMB: 0, oldFiles: 0, logsMB: 240, days, freedMB: 3120, deleted: 1800 }), 600); return true; };
+  setTimeout(() => window.onGameMode({ active: true, game: 'FiveM_b3095_GTAProcess.exe', since: Date.now() / 1000 - 600, aff: 'เกมใช้แกนตัวแรง 6 แกน (12 เธรด)', affOk: true, timer: 'Windows 10 ไม่ยอมให้โปรแกรมอื่นปรับให้เกม (ต้อง Windows 11)', ram: 'คอยดูอยู่ แรมว่าง 6120 MB', ramOk: true, power: 'ใช้แผน ZAN_Project_Optimizer ระหว่างเล่น', powerOk: true, gpu: 97, cpuMax: 62, cpu: 31, samples: 10, vid: 'gpu', verdict: 'การ์ดจอทำงานเต็มที่ (97%) อยากได้เฟรมเพิ่มให้ลดกราฟิก เช่น เงา, MSAA, Post FX หรือลดความละเอียดจอ' }), 2500);
   window.serverStatus = async (b, id) => { setTimeout(() => window.onServerStatus({ reqId: id, ok: !b.includes('dead'), players: Math.floor(100 + Math.random() * 150), maxPlayers: 300, ping: 15 + Math.random() * 30 }), 200); return true; };
   window.serverLookup = async (v, id) => { setTimeout(() => window.onServerInfo({ reqId: id, ok: true, input: v, connect: v, base: 'http://' + v + '/', icon: MI, country: v.startsWith('9') ? 'DE' : 'TH', hostname: v.startsWith('9') ? 'German Roleplay Community' : 'Zan City RP | ภาษาไทย | Economy | Gang', players: 187, maxPlayers: 300, ping: 18, build: 3095, pure: 1, pool: '{"CMoveObject":200,"TxdStore":5000}', poolCount: 2, effDefault: 3095, onesync: 'true', resources: 412 }), 500); return true; };
   window.launchServer = async (d, c, b, p, e, pl, fast, id) => { ['ปิดเกมเดิม','กำลังเปิด FiveM','รอเกมโหลดหน้าเมนู','หน้าเมนูขึ้นแล้ว รอให้นิ่ง','ส่ง IP เข้าเกม (ครั้งที่ 1)'].forEach((t, i) => setTimeout(() => window.onLaunchStep({ reqId: id, t }), 300 * i)); setTimeout(() => window.onLaunch({ reqId: id, ok: true, cmd: 'fivem://connect/' + c }), 1700); return true; };
@@ -1197,7 +1252,7 @@ async function preGame() {
   loadApps();
 }
 $('#bPreGame').onclick = preGame;
-$$('#ttabs .tab').forEach(b => b.onclick = () => { $$('#ttabs .tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); $('#t1').style.display = b.dataset.t === 't1' ? '' : 'none'; $('#t2').style.display = b.dataset.t === 't2' ? '' : 'none'; });
+$$('#ttabs .tab').forEach(b => b.onclick = () => { $$('#ttabs .tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); ['t1', 't2', 't3'].forEach(t => $('#' + t).style.display = b.dataset.t === t ? '' : 'none'); if (b.dataset.t === 't3') { gmInfo(); cacheRefresh(); } });
 $('#bQuickPre').onclick = () => go('tools');
 $('#bGoOpt').onclick = () => go('opt');
 
@@ -1318,7 +1373,7 @@ window.loadRecent().then(t => {
 
 /* ================= settings / pre-join ================= */
 let settings = {};
-window.loadSettings().then(t => { try { settings = JSON.parse(t) || {}; } catch (e) { settings = {}; } $('#optPreJoin').classList.toggle('on', !!settings.preJoin); $('#optAutoPrio').classList.toggle('on', settings.autoPrio !== false); });
+window.loadSettings().then(t => { try { settings = JSON.parse(t) || {}; } catch (e) { settings = {}; } $('#optPreJoin').classList.toggle('on', !!settings.preJoin); $('#optAutoPrio').classList.toggle('on', settings.autoPrio !== false); gmPaint(); });
 $('#optAutoPrio').onclick = () => { $('#optAutoPrio').classList.toggle('on'); settings.autoPrio = $('#optAutoPrio').classList.contains('on'); window.saveSettings(JSON.stringify(settings)); };
 $('#optPreJoin').onclick = () => { $('#optPreJoin').classList.toggle('on'); settings.preJoin = $('#optPreJoin').classList.contains('on'); window.saveSettings(JSON.stringify(settings)); };
 async function prepareBeforeJoin() {
@@ -1329,6 +1384,59 @@ async function prepareBeforeJoin() {
   if (parts.length) log('✓ เตรียมเครื่อง: ' + parts.join(', '), 'ok');
 }
 
+
+/* ================= game mode ================= */
+const gmKeys = ['aff', 'timer', 'ram', 'power'];
+function gmCfg() { return Object.assign({ on: true, aff: true, timer: true, ram: true, power: true }, settings.gm || {}); }
+function gmPaint() {
+  const c = gmCfg();
+  $('#gmOn').classList.toggle('on', c.on);
+  gmKeys.forEach(k => { $(`[data-gm="${k}"]`).classList.toggle('on', c[k]); $(`.gmrow[data-k="${k}"]`).classList.toggle('dis', !c.on || !c[k]); });
+}
+function gmSave() { window.saveSettings(JSON.stringify(settings)); gmPaint(); }
+$('#gmOn').onclick = () => { const c = gmCfg(); c.on = !c.on; settings.gm = c; gmSave(); };
+gmKeys.forEach(k => $(`[data-gm="${k}"]`).onclick = () => { const c = gmCfg(); c[k] = !c[k]; settings.gm = c; gmSave(); });
+let gmInfoDone = false;
+async function gmInfo() {
+  gmPaint(); if (gmInfoDone || !window.gameModeInfo) return; gmInfoDone = true;
+  const i = await window.gameModeInfo();
+  $('#gmAffD').textContent = i.pCores ? `ซีพียูนี้มีแกนตัวแรง ${i.pCores} แกน (${i.pThreads} เธรด) กับแกนประหยัดไฟ Windows 10 บางทีส่งเกมไปแกนประหยัดไฟ เฟรมเลยตก` : 'ซีพียูเครื่องนี้มีแกนแบบเดียว ข้อนี้ไม่ต้องใช้';
+  $('#gmTimerD').textContent = i.timer ? 'ภาพออกมาสม่ำเสมอขึ้น เมาส์ตอบไวขึ้นนิดหน่อย (ครั้งแรกต้องรีสตาร์ทเครื่อง 1 ครั้ง)' : `Windows 10 (build ${i.build}) ไม่ยอมให้โปรแกรมอื่นปรับให้เกม ข้อนี้ใช้ได้เฉพาะ Windows 11`;
+}
+const setSm = (id, t, ok) => { const e = $('#' + id); e.textContent = t || ''; e.className = t ? (ok ? 'ok' : 'no') : ''; };
+window.onGameMode = s => {
+  $('#gmPill').classList.toggle('on', !!s.active);
+  const st = $('#gmState'); st.classList.toggle('on', !!s.active);
+  st.lastElementChild.textContent = s.active ? `ทำงานอยู่กับ ${s.game} ตั้งแต่ ${new Date(s.since * 1000).toTimeString().slice(0, 5)}` : 'รอเกมเปิด เปิดเองตอนเข้าเกม และคืนค่าเองตอนออก';
+  setSm('gmAff', s.aff, s.affOk); setSm('gmTimer', s.timer, s.timerOk); setSm('gmRam', s.ram, s.ramOk); setSm('gmPower', s.power, s.powerOk);
+  if (s.active && s.samples) {
+    $('#bnGpu').style.width = s.gpu + '%'; $('#bnGpu').classList.toggle('hot', s.gpu >= 90); $('#bnGpuT').textContent = Math.round(s.gpu) + '%';
+    $('#bnCpu').style.width = s.cpuMax + '%'; $('#bnCpu').classList.toggle('hot', s.cpuMax >= 85); $('#bnCpuT').textContent = Math.round(s.cpuMax) + '%';
+  }
+  const v = $('#bnV');
+  if (s.active) { v.textContent = s.verdict || 'กำลังเก็บข้อมูล...'; v.className = 'bnv ' + (s.vid || ''); }
+  else if (v.dataset.last !== '1') { v.textContent = 'เปิดเกมแล้วเล่นสักพัก จะบอกว่าควรลดอะไร'; v.className = 'bnv'; }
+  if (s.active && s.vid && s.vid !== 'wait') v.dataset.last = '1';
+};
+/* ----- old cache ----- */
+let cDays = 14, cReq = 0;
+const cWait = {};
+window.onCache = r => { const f = cWait[r.reqId]; if (f) { delete cWait[r.reqId]; f(r); } };
+const cacheCall = (fn, d) => new Promise(ok => { const id = ++cReq; cWait[id] = ok; window[fn](fivemDir, d, id); });
+function cachePaint(r) {
+  $('#cTotal').textContent = gb(r.totalMB); $('#cOld').textContent = gb(r.oldMB); $('#cLogs').textContent = gb(r.logsMB);
+  $('#cOldL').textContent = `ไม่ได้ใช้เกิน ${r.days} วัน (${r.oldFiles.toLocaleString()} ไฟล์)`;
+  const b = $('#bCacheOld'); b.disabled = !r.oldFiles; b.textContent = r.running ? 'ปิด FiveM ก่อนล้าง' : r.oldFiles ? `ล้างไฟล์เก่า ${gb(r.oldMB)}` : 'ไม่มีไฟล์เก่า'; if (r.running) b.disabled = true;
+}
+async function cacheRefresh() { if (!fivemDir || !window.cacheScan) return; $('#bCacheOld').disabled = true; $('#bCacheOld').textContent = 'กำลังดู...'; cachePaint(await cacheCall('cacheScan', cDays)); }
+$$('#cDays .tab').forEach(b => b.onclick = () => { $$('#cDays .tab').forEach(x => x.classList.toggle('active', x === b)); cDays = +b.dataset.d; cacheRefresh(); });
+$('#bCacheOld').onclick = async () => {
+  const b = $('#bCacheOld'); b.disabled = true; b.textContent = 'กำลังล้าง...';
+  const r = await cacheCall('cacheClean', cDays);
+  if (!r.ok) { toast(r.m || 'ล้างไม่ได้', 'er'); return cacheRefresh(); }
+  toast(`ลบไฟล์เก่า ${r.deleted.toLocaleString()} ไฟล์ ได้พื้นที่คืน ${gb(r.freedMB)}`, 'ok'); log(`✓ ล้างแคชเซิร์ฟที่ไม่ได้ใช้เกิน ${cDays} วัน: ${r.deleted} ไฟล์ ${gb(r.freedMB)}`, 'ok');
+  cachePaint(r);
+};
 /* ================= update / about ================= */
 let updInfo = null, promptedVer = null;
 // เด้งถามอัปเดต 1 ครั้งต่อการเปิดโปรแกรม: รอให้งานสแกนตอนเปิดเสร็จ และไม่มีหน้าต่างอื่นค้างอยู่ก่อน
