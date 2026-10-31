@@ -462,21 +462,26 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
 .guide .gf small{font-size:11.5px;color:var(--muted)}.guide .gf div{display:flex;gap:8px}
 #gBack{visibility:hidden}
 
-.repgrid{display:grid;grid-template-columns:1.25fr 1fr;gap:14px}
-.repsel{background:rgba(0,0,0,.35);color:var(--text);border:1px solid var(--line2);border-radius:8px;padding:5px 8px;font:inherit;font-size:12px;max-width:230px}
-.charts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mc{padding:10px 12px 8px;border-radius:10px;background:rgba(0,0,0,.25);border:1px solid var(--line)}
-.mc.bad{border-color:rgba(255,77,109,.45)}
-.mc .mh{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
-.mc .mv{font-family:var(--head);font-size:16px;color:#fff;margin:3px 0 2px}.mc .mv small{font-size:11px;color:var(--muted);font-family:var(--body)}
-.mc svg{display:block;width:100%;height:96px}
-.mc .mx{display:flex;justify-content:space-between;font-size:10.5px;color:#5d6b8f}
-.finds{display:flex;flex-direction:column;gap:9px}
-.fd{padding:11px 13px;border-radius:10px;background:rgba(0,0,0,.25);border-left:3px solid var(--muted)}
-.fd.bad{border-color:var(--red)}.fd.warn{border-color:var(--amber)}.fd.info{border-color:var(--cyan)}.fd.ok{border-color:var(--lime)}
-.fd b{font-size:13.5px;color:#fff}.fd p{margin:4px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
-.fd .fx{margin-top:6px;font-size:12.3px;color:#d8e2f7;line-height:1.5}.fd .fx:before{content:"แก้: ";color:var(--lime);font-weight:700}
-#t4 .empty{grid-column:1/-1;padding:30px 10px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}
+
+.recgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:14px}
+.recbtn{width:100%;display:flex;align-items:center;gap:16px;padding:20px 22px;border-radius:14px;margin:4px 0 14px;text-align:left;color:#021018;background:linear-gradient(110deg,var(--cyan),var(--violet));box-shadow:0 0 24px rgba(0,229,255,.28);transition:.15s}
+.recbtn:hover{box-shadow:0 0 34px rgba(0,229,255,.5);transform:translateY(-1px)}
+.recbtn:disabled{opacity:.6;transform:none}
+.recbtn svg{width:42px;height:42px;flex:none}
+.recbtn b{display:block;font-size:19px;font-family:var(--head);letter-spacing:.5px}.recbtn small{font-size:12.5px;opacity:.8}
+.recbtn.run svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hk{font-size:12.5px;color:var(--muted);line-height:1.7;padding:10px 12px;border-radius:9px;background:rgba(0,0,0,.25);margin-bottom:12px}
+.hk.busy{color:var(--amber)}.hk.off{opacity:.5}
+kbd{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:5px;border:1px solid var(--line2);border-bottom-width:2px;background:#0b1222;color:#fff}
+.recdo{margin:0;padding-left:18px;font-size:12.5px;color:var(--muted);line-height:1.7}
+.rr{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.rr div{padding:9px 10px;border-radius:9px;background:rgba(0,0,0,.25)}
+.rr b{display:block;font-family:var(--head);font-size:16px;color:#fff}.rr small{font-size:11px;color:var(--muted)}
+.radv{font-size:12.5px;line-height:1.5;padding:10px 12px;border-radius:9px;background:rgba(0,0,0,.25);border-left:3px solid var(--lime);color:#d8e2f7}
+.radv.warn{border-color:var(--amber)}.radv.info{border-color:var(--cyan)}
+.hardto{margin-top:8px;font-size:12px;color:var(--muted)}
+#t4 .empty{padding:22px 10px;text-align:center;color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
@@ -673,7 +678,7 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
 
     <!-- TOOLS -->
     <section class="page" id="p-tools">
-      <div class="ph"><div><h2>เครื่อง<span>มือ</span></h2><p>ใช้ได้ทุกเมื่อ ไม่ต้องรีสตาร์ท</p></div><div class="tabs" id="ttabs" style="margin:0"><button class="tab active" data-t="t1">เครื่องมือ</button><button class="tab" data-t="t3">โหมดเล่นเกม</button><button class="tab" data-t="t4">รายงานการเล่น</button><button class="tab" data-t="t2">คำแนะนำการตั้งค่า</button></div></div>
+      <div class="ph"><div><h2>เครื่อง<span>มือ</span></h2><p>ใช้ได้ทุกเมื่อ ไม่ต้องรีสตาร์ท</p></div><div class="tabs" id="ttabs" style="margin:0"><button class="tab active" data-t="t1">เครื่องมือ</button><button class="tab" data-t="t3">โหมดเล่นเกม</button><button class="tab" data-t="t4">กู้ FPS</button><button class="tab" data-t="t2">คำแนะนำการตั้งค่า</button></div></div>
       <div id="t1">
       <div class="card" style="margin-bottom:14px">
         <div class="ct" style="display:flex;justify-content:space-between;align-items:center">โหมดก่อนเล่น<button class="btn" id="bAppsRefresh" style="padding:6px 12px;font-size:12px">รีเฟรชรายการ</button></div>
@@ -717,14 +722,28 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
           </div>
         </div>
       </div></div>
-      <div id="t4" style="display:none"><div class="repgrid">
-        <div class="card">
-          <div class="ct">เทียบช่วงต้นกับช่วงท้ายของการเล่น<select id="repSel" class="repsel"></select></div>
-          <div class="charts" id="repCharts"><div class="empty">ยังไม่มีบันทึก เปิดเกมเล่นตามปกติ โหมดเล่นเกมจะเก็บข้อมูลทุก 30 วินาที</div></div>
+      <div id="t4" style="display:none"><div class="recgrid">
+        <div class="card recmain">
+          <div class="ct">กู้ FPS ไม่ต้องออกเกม<div class="chk on" id="hkOn"><span class="box"></span>ปุ่มลัดในเกม</div></div>
+          <button class="recbtn" id="bRecover"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M13 7l-3 6h4l-3 5"/></svg><span><b>กู้ FPS ตอนนี้</b><small>ใช้เวลา 1–3 วินาที เล่นต่อได้เลย</small></span></button>
+          <div class="hk" id="hkBox">ระหว่างเล่น กด <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>F</kbd> ได้เลย ไม่ต้องสลับออกจากเกม จะมีเสียง "ติ๊ง" ตอนเริ่มกู้</div>
+          <ul class="recdo">
+            <li>คืนแรมจากโปรแกรมอื่นที่เปิดค้าง (Chrome, Discord ฯลฯ) และล้างแรม Standby</li>
+            <li>ตั้ง Priority เกมเป็น High, ให้เกมใช้แกนตัวแรง และแผนพลังงานสูงสุดให้ใหม่</li>
+            <li>เช็กว่า VRAM การ์ดจอ หรือแรมของเกมเต็มหรือยัง</li>
+          </ul>
         </div>
-        <div class="card">
-          <div class="ct">ทำไม FPS ตก</div>
-          <div id="repFind" class="finds"><div class="empty">เล่นให้ถึงช่วงที่ FPS ตก แล้วกลับมาดูหน้านี้</div></div>
+        <div class="gmcol">
+          <div class="card">
+            <div class="ct">ผลการกู้ล่าสุด<small id="recAt" style="color:var(--muted);font-weight:400"></small></div>
+            <div id="recRes"><div class="empty">ยังไม่ได้กู้ กดปุ่มหรือใช้ปุ่มลัดตอน FPS ตก</div></div>
+          </div>
+          <div class="card">
+            <div class="ct">ถ้ากู้แบบเร็วแล้วยังไม่หาย</div>
+            <p class="cnote">VRAM เต็ม หรือสคริปต์เซิร์ฟกินแรมสะสม กู้จากข้างนอกเกมไม่ได้ ต้องเปิดเกมใหม่ ปุ่มนี้จะปิดเกม เปิดใหม่รอบเดียว แล้วพาเข้าเซิร์ฟเดิมให้เอง</p>
+            <button class="btn pri" id="bHardRec">รีเกมแล้วเข้าเซิร์ฟเดิม</button>
+            <div class="hardto" id="hardTo"></div>
+          </div>
         </div>
       </div></div>
       <div id="t2" style="display:none"><div class="tips">
@@ -824,7 +843,7 @@ body.paused *,body.paused *:before,body.paused *:after{animation-play-state:paus
       <ul class="gpl">
         <li><a data-gg="boost">บูสต์</a><span>กดทีเดียว เครื่องเร็วขึ้นทันทีแบบชั่วคราว</span></li>
         <li><a data-gg="net">วัดปิง</a><span>ดูปิงกับอาการเน็ตกระตุก</span></li>
-        <li><a data-gg="tools">เครื่องมือ</a><span><b>แท็บ เครื่องมือ:</b> ล้างแคช FiveM, ล้างไฟล์ขยะ, ดัน Priority, เตรียมเครื่องก่อนเล่น<br><b>แท็บ โหมดเล่นเกม:</b> เปิด/ปิดแต่ละข้อได้ ดูว่าอะไรเป็นตัวถ่วง และล้างไฟล์เก่าในแคชเซิร์ฟ (ต้องปิด FiveM ก่อน)<br><b>แท็บ คำแนะนำการตั้งค่า:</b> ทิปปรับในเกมและการ์ดจอ</span></li>
+        <li><a data-gg="tools">เครื่องมือ</a><span><b>แท็บ เครื่องมือ:</b> ล้างแคช FiveM, ล้างไฟล์ขยะ, ดัน Priority, เตรียมเครื่องก่อนเล่น<br><b>แท็บ โหมดเล่นเกม:</b> เปิด/ปิดแต่ละข้อได้ ดูว่าอะไรเป็นตัวถ่วง และล้างไฟล์เก่าในแคชเซิร์ฟ (ต้องปิด FiveM ก่อน)<br><b>แท็บ กู้ FPS:</b> FPS ตกตอนเล่นนาน ๆ กดกู้ หรือกด Ctrl+Alt+F ในเกม<br><b>แท็บ คำแนะนำการตั้งค่า:</b> ทิปปรับในเกมและการ์ดจอ</span></li>
         <li><a data-gg="log">บันทึก</a><span>ดูว่าโปรแกรมทำอะไรไปบ้าง ถ้ามีปัญหาส่งภาพหน้านี้มาให้ดู</span></li>
         <li><a data-gg="about">เกี่ยวกับ</a><span>เช็กอัปเดต และส่งรายงานปัญหา</span></li>
       </ul>
@@ -855,12 +874,7 @@ if (!NATIVE) {
   window.loadRecent = async () => rec; window.saveRecent = async s => { rec = s; return true; };
   const MI = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><rect width="52" height="52" fill="#3a1d6e"/><text x="26" y="34" font-size="20" text-anchor="middle" fill="#fff" font-family="Arial" font-weight="bold">ZC</text></svg>');
   window.checkBuild = async (d, b) => ({ known: true, cached: b !== 2802, missingMB: 1505 });
-  window.sessionList = async () => [{ file: 'a.json', start: Date.now() / 1000 - 7200, min: 104, game: 'FiveM_b3095_GTAProcess.exe' }, { file: 'b.json', start: Date.now() / 1000 - 90000, min: 38, game: 'x' }];
-  window.sessionLoad = async () => { const ss = []; for (let i = 0; i <= 208; i++) { const t = i / 2; ss.push({ t, g: 92 - t * 0.1, cm: 55 + t * 0.05, c: 30, p: 118 - (t > 70 ? (t - 70) * 0.2 : 0), m: 6200 + t * 52, v: 4200 + t * 30, va: Math.min(8100, 5000 + t * 32), f: 9000, tp: 66 + Math.min(10, t / 8) }); }
-    return { ok: true, hasTemp: true, s: { start: Date.now() / 1000 - 7200, vramCap: 8188, samples: ss }, findings: [
-      { lv: 'bad', title: 'หน่วยความจำการ์ดจอ (VRAM) เต็ม', detail: 'ช่วงท้ายใช้ 7.9 GB จาก 8.0 GB (98%) พอเต็ม เกมต้องดึงภาพจากแรมเครื่องแทน FPS เลยตกและกระตุก', fix: 'ลด Texture Quality ลง 1 ขั้น และเลื่อน Extended Texture Budget ไปซ้ายสุด ช่วยมากที่สุด หรือใช้กราฟิกแบบ "สมดุล" ใน Zan Booster' },
-      { lv: 'bad', title: 'แรมที่เกมใช้โตขึ้นเรื่อย ๆ', detail: 'จาก 6.7 GB ช่วงต้น เป็น 11.2 GB ช่วงท้าย อาการนี้มักมาจากสคริปต์ของเซิร์ฟที่คืนหน่วยความจำไม่หมด', fix: 'ออกแล้วเข้าเซิร์ฟใหม่ทุก 1–1.5 ชม. (กด "เข้า" ใน Zan Booster ตอนเกมเปิดอยู่ ไม่ต้องรีเกม) ถ้ายังไม่หาย ให้ปิดเกมแล้วเปิดใหม่' },
-      { lv: 'info', title: 'ซีพียูหนักขึ้นช่วงท้าย', detail: 'แกนที่หนักสุดขึ้นจาก 56% เป็น 72%', fix: 'ช่วงคนหรือรถรอบตัวเยอะ ให้ลดระยะมองเห็น จำนวนคนและรถในเกม' }] }; };
+  window.triggerRecover = async () => { setTimeout(() => window.onGameMode({ active: true, game: 'FiveM_b3095_GTAProcess.exe', since: Date.now() / 1000 - 4000, hk: 'ok', rec: { at: Math.floor(Date.now() / 1000), game: true, freedMB: 2310, trimmed: 143, freeMB: 9400, prio: true, aff: true, power: true, vramPct: 95, gameMB: 7600, lv: 'warn', advice: 'VRAM การ์ดจอเต็ม (95%) ส่วนนี้กู้จากข้างนอกเกมไม่ได้ ให้กด "รีเกมแล้วเข้าเซิร์ฟเดิม" และลด Texture Quality ลง 1 ขั้นจะไม่กลับมาเต็มอีก' } }), 1200); return true; };
   window.gameModeInfo = async () => ({ pCores: 6, pThreads: 12, timer: false, build: 19044 });
   window.cacheScan = async (d, days, id) => { setTimeout(() => window.onCache({ reqId: id, ok: true, totalMB: 6830, files: 4200, oldMB: days === 7 ? 4100 : days === 14 ? 3120 : 1900, oldFiles: 1800, logsMB: 240, days, running: false }), 300); return true; };
   window.cacheClean = async (d, days, id) => { setTimeout(() => window.onCache({ reqId: id, ok: true, totalMB: 3710, files: 2400, oldMB: 0, oldFiles: 0, logsMB: 240, days, freedMB: 3120, deleted: 1800 }), 600); return true; };
@@ -1352,7 +1366,7 @@ async function preGame() {
   loadApps();
 }
 $('#bPreGame').onclick = preGame;
-$$('#ttabs .tab').forEach(b => b.onclick = () => { $$('#ttabs .tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); ['t1', 't2', 't3', 't4'].forEach(t => $('#' + t).style.display = b.dataset.t === t ? '' : 'none'); if (b.dataset.t === 't3') { gmInfo(); cacheRefresh(); } if (b.dataset.t === 't4') repList(); });
+$$('#ttabs .tab').forEach(b => b.onclick = () => { $$('#ttabs .tab').forEach(x => x.classList.remove('active')); b.classList.add('active'); ['t1', 't2', 't3', 't4'].forEach(t => $('#' + t).style.display = b.dataset.t === t ? '' : 'none'); if (b.dataset.t === 't3') { gmInfo(); cacheRefresh(); } if (b.dataset.t === 't4') recPaint(); });
 $('#bQuickPre').onclick = () => go('tools');
 $('#bGoOpt').onclick = () => go('opt');
 
@@ -1438,7 +1452,8 @@ async function liveTick() {
     $('#liveTxt').textContent = 'สด · ' + new Date().toTimeString().slice(0, 8);
   } finally { liveBusy = false; }
 }
-async function joinServer(i, btn) {
+async function joinServer(i, btn, force = false) {
+  btn = btn || document.createElement('button');
   const v = servers[i]; if (!v) return;
   if (!fivemDir) { if (await confirmBox('หาโฟลเดอร์ FiveM ไม่เจอ', 'เลือกโฟลเดอร์ที่มีไฟล์ FiveM.exe ก่อน', 'เลือกโฟลเดอร์')) await pickFiveM(); if (!fivemDir) return; }
   btn.disabled = true; btn.textContent = '...';
@@ -1454,10 +1469,11 @@ async function joinServer(i, btn) {
   const res = await new Promise(ok => {
     const id = ++srvReq; lnWait[id] = ok;
     lnStep[id] = t => { btn.textContent = t.length > 10 ? t.slice(0, 9) + '…' : t; btn.title = t; $('#liveTxt').textContent = 'FiveM: ' + t; log('› ' + t); };
-    window.launchServer(fivemDir, r.connect, r.build, r.pure, r.effDefault, r.pool || '', fast, id);
+    window.launchServer(fivemDir, r.connect, r.build, r.pure, r.effDefault, r.pool || '', force, id);
   });
   btn.disabled = false; btn.textContent = 'เข้า'; btn.title = ''; btn.classList.remove('busy');
   if (!res?.ok) { toast(res?.m || 'เปิดเกมไม่ได้', 'er'); log('✕ ' + (res?.m || 'เปิดเกมไม่ได้') + (res?.cmd ? ' | ' + res.cmd : ''), 'er'); return; }
+  settings.lastJoin = v.connect; window.saveSettings(JSON.stringify(settings));
   toast(`${res.mode === 'ไม่รีเกม' ? 'ส่ง IP เข้าเกมที่เปิดอยู่แล้ว' : 'เกมพร้อมแล้ว'} กำลังเชื่อมต่อ ${v.name}`, 'ok');
   log(`✓ ส่ง IP เข้าเกมแล้ว เกมกำลังเชื่อมต่อ ${res.cmd || ''}`, 'ok');
   servers.splice(i, 1); servers.unshift(v); saveServers(); renderServers();
@@ -1505,6 +1521,7 @@ async function gmInfo() {
 }
 const setSm = (id, t, ok) => { const e = $('#' + id); e.textContent = t || ''; e.className = t ? (ok ? 'ok' : 'no') : ''; };
 window.onGameMode = s => {
+  onRecoverStatus(s);
   $('#gmPill').classList.toggle('on', !!s.active);
   const st = $('#gmState'); st.classList.toggle('on', !!s.active);
   st.lastElementChild.textContent = s.active ? `ทำงานกับ ${(s.game || '').replace(/_?GTAProcess\.exe$/i, '')} ตั้งแต่ ${new Date(s.since * 1000).toTimeString().slice(0, 5)} · ปิดโปรแกรมได้` : 'รอเกมเปิด ทำงานเบื้องหลัง ปิดหน้าโปรแกรมได้เลย';
@@ -1561,42 +1578,48 @@ $$('#gov [data-gg]').forEach(a => a.onclick = () => { guideClose(); go(a.dataset
 $('#bHelp').onclick = () => guideOpenFn(0);
 $('#bGuide').onclick = () => guideOpenFn(0);
 
-/* ================= รายงานการเล่น ================= */
-let repFiles = [];
-function spark(vals, color, maxV, refV) {
-  const w = 300, h = 96, n = vals.length; if (n < 2) return '';
-  const mx = maxV || Math.max(...vals) * 1.1 || 1;
-  const pts = vals.map((v, i) => [(i / (n - 1)) * w, h - 4 - (Math.max(0, v) / mx) * (h - 10)]);
-  const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
-  const ref = refV ? `<line x1="0" x2="${w}" y1="${h - 4 - (refV / mx) * (h - 10)}" y2="${h - 4 - (refV / mx) * (h - 10)}" stroke="#ff4d6d" stroke-dasharray="4 4" stroke-width="1" opacity=".7"/>` : '';
-  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><path d="${d} L${w} ${h} L0 ${h} Z" fill="${color}" opacity=".12"/>${ref}<path d="${d}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+/* ================= กู้ FPS ================= */
+let lastGM = {}, recWaitAt = 0, recTimer = null;
+function recPaint() {
+  const s = lastGM, c = gmCfg();
+  $('#hkOn').classList.toggle('on', c.hotkey !== false);
+  const hk = $('#hkBox');
+  hk.className = 'hk' + (c.hotkey === false ? ' off' : s.hk === 'busy' ? ' busy' : '');
+  if (s.hk === 'busy' && c.hotkey !== false) hk.innerHTML = 'ปุ่มลัด <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>F</kbd> ถูกโปรแกรมอื่นจองไว้ ใช้ปุ่มในหน้านี้แทนได้';
+  else hk.innerHTML = 'ระหว่างเล่น กด <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>F</kbd> ได้เลย ไม่ต้องสลับออกจากเกม จะมีเสียง "ติ๊ง" ตอนเริ่มกู้';
+  const r = s.rec;
+  if (r) {
+    $('#recAt').textContent = new Date(r.at * 1000).toTimeString().slice(0, 8);
+    const done = [r.prio && 'Priority', r.aff && 'แกนตัวแรง', r.power && 'แผนพลังงาน'].filter(Boolean).join(', ');
+    $('#recRes').innerHTML = `<div class="rr"><div><b>${Math.round(r.freedMB).toLocaleString()} MB</b><small>แรมที่คืนมา</small></div><div><b>${(r.freeMB / 1024).toFixed(1)} GB</b><small>แรมว่างตอนนี้</small></div><div><b>${r.game && r.vramPct ? Math.round(r.vramPct) + '%' : '-'}</b><small>VRAM การ์ดจอ</small></div></div>
+      ${r.game ? `<div class="hardto" style="margin:0 0 8px">ตั้งให้เกมใหม่: ${done || '-'} · เกมใช้แรม ${(r.gameMB / 1024).toFixed(1)} GB</div>` : ''}<div class="radv ${r.lv}">${esc(r.advice)}</div>`;
+  }
+  const v = lastServer();
+  $('#hardTo').textContent = v ? 'จะเข้า: ' + v.name : 'ยังไม่เคยเข้าเซิร์ฟผ่าน Zan Booster';
+  $('#bHardRec').disabled = !v;
 }
-const fmtMin = m => m >= 60 ? `${Math.floor(m / 60)} ชม. ${Math.round(m % 60)} นาที` : `${Math.round(m)} นาที`;
-async function repList() {
-  if (!window.sessionList) return;
-  repFiles = await window.sessionList() || [];
-  const sel = $('#repSel');
-  sel.innerHTML = repFiles.map(f => { const d = new Date(f.start * 1000); return `<option value="${f.file}">${d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })} ${d.toTimeString().slice(0, 5)} · ${fmtMin(f.min)}</option>`; }).join('');
-  sel.style.display = repFiles.length ? '' : 'none';
-  if (repFiles.length) repLoad(repFiles[0].file);
-}
-$('#repSel').onchange = e => repLoad(e.target.value);
-async function repLoad(file) {
-  const r = await window.sessionLoad(file);
-  if (!r?.ok) { $('#repCharts').innerHTML = `<div class="empty">${esc(r?.m || 'เปิดบันทึกไม่ได้')}</div>`; return; }
-  const ss = r.s.samples, cap = r.s.vramCap, g = mb => (mb / 1024).toFixed(1);
-  const se = (f) => { const v = ss.map(f).filter(x => x > 0); return v.length ? [v[0], v[v.length - 1]] : [0, 0]; };
-  const total = ss.length ? ss[ss.length - 1].t : 0;
-  const bad = new Set(r.findings.filter(f => f.lv === 'bad' || f.lv === 'warn').map(f => f.title));
-  const has = k => [...bad].some(t => t.includes(k));
-  const cards = [];
-  { const [a, b] = se(x => x.va); cards.push(`<div class="mc ${has('VRAM') ? 'bad' : ''}"><div class="mh"><span>VRAM การ์ดจอ (ทั้งเครื่อง)</span><span>${cap ? g(cap) + ' GB' : ''}</span></div><div class="mv">${g(a)} → ${g(b)} <small>GB</small></div>${spark(ss.map(x => x.va), '#00e5ff', cap || 0, cap ? cap * 0.92 : 0)}<div class="mx"><span>เริ่ม</span><span>${fmtMin(total)}</span></div></div>`); }
-  { const [a, b] = se(x => x.m); cards.push(`<div class="mc ${has('แรมที่เกม') ? 'bad' : ''}"><div class="mh"><span>แรมที่เกมใช้</span><span></span></div><div class="mv">${g(a)} → ${g(b)} <small>GB</small></div>${spark(ss.map(x => x.m), '#8b5cff')}<div class="mx"><span>เริ่ม</span><span>${fmtMin(total)}</span></div></div>`); }
-  { const p = ss.map(x => x.p).filter(x => x > 0); const base = p.length ? Math.max(...p.slice(0, Math.max(3, Math.floor(p.length / 4)))) : 0; const [a, b] = se(x => x.p); cards.push(`<div class="mc ${has('ซีพียูลด') ? 'bad' : ''}"><div class="mh"><span>ความเร็วซีพียู</span><span>เทียบช่วงต้น</span></div><div class="mv">${base ? Math.round(a / base * 100) : '-'} → ${base ? Math.round(b / base * 100) : '-'} <small>%</small></div>${spark(ss.map(x => x.p), '#39ff9c', base * 1.15)}<div class="mx"><span>เริ่ม</span><span>${fmtMin(total)}</span></div></div>`); }
-  if (r.hasTemp) { const [a, b] = se(x => x.tp); cards.push(`<div class="mc ${has('ร้อน') || has('การ์ดจอลด') ? 'bad' : ''}"><div class="mh"><span>อุณหภูมิการ์ดจอ</span><span></span></div><div class="mv">${Math.round(a)} → ${Math.round(b)} <small>°C</small></div>${spark(ss.map(x => x.tp), '#ffb547', 100, 83)}<div class="mx"><span>เริ่ม</span><span>${fmtMin(total)}</span></div></div>`); }
-  else { const [a, b] = se(x => x.g); cards.push(`<div class="mc"><div class="mh"><span>การ์ดจอทำงาน</span><span></span></div><div class="mv">${Math.round(a)} → ${Math.round(b)} <small>%</small></div>${spark(ss.map(x => x.g), '#ffb547', 100)}<div class="mx"><span>เริ่ม</span><span>${fmtMin(total)}</span></div></div>`); }
-  $('#repCharts').innerHTML = cards.join('');
-  $('#repFind').innerHTML = r.findings.map(f => `<div class="fd ${f.lv}"><b>${esc(f.title)}</b><p>${esc(f.detail)}</p><div class="fx">${esc(f.fix)}</div></div>`).join('');
+function lastServer() { const lj = settings.lastJoin; return (lj && servers.find(x => x.connect === lj)) || servers[0] || null; }
+$('#hkOn').onclick = () => { const c = gmCfg(); c.hotkey = c.hotkey === false; settings.gm = c; gmSave(); recPaint(); };
+$('#bRecover').onclick = async () => {
+  const b = $('#bRecover'); b.disabled = true; b.classList.add('run');
+  recWaitAt = Math.floor(Date.now() / 1000) - 1;
+  const ok = await window.triggerRecover();
+  if (!ok) { b.disabled = false; b.classList.remove('run'); toast('สั่งกู้ไม่ได้ ลองเปิดโปรแกรมใหม่', 'er'); return; }
+  clearTimeout(recTimer); recTimer = setTimeout(() => { b.disabled = false; b.classList.remove('run'); }, 15000);
+};
+$('#bHardRec').onclick = async () => {
+  const v = lastServer(); if (!v) return;
+  if (!await confirmBox('รีเกมแล้วเข้าเซิร์ฟเดิม', `ปิด FiveM แล้วเปิดใหม่ เข้า "${v.name}" ให้เอง`, 'รีเกม')) return;
+  go('dash'); joinServer(servers.indexOf(v), $(`#slist [data-join="${servers.indexOf(v)}"]`), true);
+};
+function onRecoverStatus(s) {
+  lastGM = s;
+  if (s.rec && recWaitAt && s.rec.at >= recWaitAt) {
+    recWaitAt = 0; clearTimeout(recTimer); $('#bRecover').disabled = false; $('#bRecover').classList.remove('run');
+    toast(`กู้แล้ว คืนแรม ${Math.round(s.rec.freedMB).toLocaleString()} MB`, s.rec.lv === 'warn' ? '' : 'ok');
+    log(`✓ กู้ FPS: คืนแรม ${Math.round(s.rec.freedMB)} MB · ${s.rec.advice}`, 'ok');
+  }
+  if ($('#t4').style.display !== 'none') recPaint();
 }
 /* ================= update / about ================= */
 let updInfo = null, promptedVer = null;

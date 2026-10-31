@@ -494,7 +494,9 @@ func explorerOpen(target string) error {
 //  2. เปิด FiveM เปล่า ๆ ผ่าน Explorer (ยังไม่ส่ง IP)
 //  3. รอจนหน้าเมนูโหลดเสร็จจริง + รอเพิ่มอีกนิด
 //  4. ค่อยส่ง fivem://connect/IP เข้าไปในเกมที่เปิดอยู่ (ไม่เปิดเกมใหม่) แล้วเช็ก log ว่ากำลังเชื่อมต่อจริง
-func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int, pool string, step func(string)) launchResult {
+//
+// force = ปิดเกมแล้วเปิดใหม่เสมอ (ใช้กับ "รีเกมแล้วเข้าเซิร์ฟเดิม")
+func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int, pool string, force bool, step func(string)) launchResult {
 	exe := filepath.Join(fivemDir, "FiveM.exe")
 	if _, err := os.Stat(exe); err != nil {
 		return launchResult{Message: "ไม่เจอ FiveM.exe ใน " + fivemDir}
@@ -503,7 +505,7 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 
 	// เกมเปิดอยู่ที่หน้าเมนูแล้ว: ส่ง IP เข้าไปเลย ไม่ต้องปิดเกม
 	// (ถ้า build/pure/pool ไม่ตรง FiveM จะสลับเองแล้วต่อเซิร์ฟให้อัตโนมัติ)
-	if pid, _ := gtaProcess(); pid != 0 && (menuReady() || gameWindowVisible(pid)) {
+	if pid, _ := gtaProcess(); !force && pid != 0 && (menuReady() || gameWindowVisible(pid)) {
 		step("เกมเปิดอยู่ ส่ง IP เข้าไปเลย")
 		if r, done := sendConnect(fivemDir, link, time.Now().Add(-2*time.Second), 1, step); done {
 			r.Mode = "ไม่รีเกม"
@@ -514,7 +516,7 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 
 	// FiveM กำลังเปิดอยู่แต่ยังไม่ถึงหน้าเมนู: รอมันโหลดต่อ ไม่ต้องปิดทิ้ง
 	reuse := false
-	if pid, _ := gtaProcess(); fivemRunningAny() && !(pid != 0 && menuReady()) {
+	if pid, _ := gtaProcess(); !force && fivemRunningAny() && !(pid != 0 && menuReady()) {
 		reuse = true
 	}
 	mode := "ปกติ"
@@ -717,9 +719,9 @@ func totalMB(files []buildFile) float64 {
 }
 
 // launchServerAsync เรียก launchServer ในเบื้องหลัง (ไม่ให้หน้าต่างค้าง) ผลส่งไป window.onLaunch
-func (a *app) launchServerAsync(fivemDir, connect string, build, pure, effDefault int, pool string, fast bool, reqID int) bool {
+func (a *app) launchServerAsync(fivemDir, connect string, build, pure, effDefault int, pool string, force bool, reqID int) bool {
 	go func() {
-		r := a.launchServer(fivemDir, connect, build, pure, effDefault, pool, func(t string) {
+		r := a.launchServer(fivemDir, connect, build, pure, effDefault, pool, force, func(t string) {
 			b, _ := json.Marshal(map[string]any{"reqId": reqID, "t": t})
 			a.emit("onLaunchStep", string(b))
 		})

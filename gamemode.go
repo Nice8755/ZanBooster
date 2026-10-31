@@ -43,33 +43,36 @@ var (
 )
 
 type gmSettings struct {
-	On    bool `json:"on"`
-	Aff   bool `json:"aff"`
-	Timer bool `json:"timer"`
-	Ram   bool `json:"ram"`
-	Power bool `json:"power"`
+	On     bool  `json:"on"`
+	Aff    bool  `json:"aff"`
+	Timer  bool  `json:"timer"`
+	Ram    bool  `json:"ram"`
+	Power  bool  `json:"power"`
+	Hotkey *bool `json:"hotkey,omitempty"`
 }
 
 type gmStatus struct {
-	Active    bool    `json:"active"`
-	Game      string  `json:"game,omitempty"`
-	Since     int64   `json:"since,omitempty"`
-	Aff       string  `json:"aff"`
-	AffOK     bool    `json:"affOk"`
-	Timer     string  `json:"timer"`
-	TimerOK   bool    `json:"timerOk"`
-	Ram       string  `json:"ram"`
-	RamOK     bool    `json:"ramOk"`
-	Purges    int     `json:"purges"`
-	FreedMB   float64 `json:"freedMB"`
-	Power     string  `json:"power"`
-	PowerOK   bool    `json:"powerOk"`
-	GPU       float64 `json:"gpu"`
-	CPU       float64 `json:"cpu"`
-	CPUMax    float64 `json:"cpuMax"`
-	Verdict   string  `json:"verdict"`
-	VerdictID string  `json:"vid"`
-	Samples   int     `json:"samples"`
+	Active    bool           `json:"active"`
+	Game      string         `json:"game,omitempty"`
+	Since     int64          `json:"since,omitempty"`
+	Aff       string         `json:"aff"`
+	AffOK     bool           `json:"affOk"`
+	Timer     string         `json:"timer"`
+	TimerOK   bool           `json:"timerOk"`
+	Ram       string         `json:"ram"`
+	RamOK     bool           `json:"ramOk"`
+	Purges    int            `json:"purges"`
+	FreedMB   float64        `json:"freedMB"`
+	Power     string         `json:"power"`
+	PowerOK   bool           `json:"powerOk"`
+	GPU       float64        `json:"gpu"`
+	CPU       float64        `json:"cpu"`
+	CPUMax    float64        `json:"cpuMax"`
+	Verdict   string         `json:"verdict"`
+	VerdictID string         `json:"vid"`
+	Samples   int            `json:"samples"`
+	Recover   *recoverResult `json:"rec,omitempty"`
+	Hotkey    string         `json:"hk,omitempty"`
 }
 
 func (a *app) gmConfig() gmSettings {
@@ -345,7 +348,7 @@ func verdict(gpu, cpuMax float64) (string, string) {
 // ---- ตัวคุมหลัก ----
 
 // gameWatcher ทำงานใน process เบื้องหลัง (--gamemode) ไม่มีหน้าต่าง เขียนสถานะลงไฟล์ให้หน้าโปรแกรมอ่าน
-func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(idle time.Duration) bool) {
+func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(idle time.Duration) bool, wait func() bool) {
 	var (
 		st            gmStatus
 		pid           uint32
@@ -357,7 +360,7 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 		pqAge         int
 		gpuS, cpuS    []float64
 		lastEmit      string
-		rec           *recorder
+		lastRec       *recoverResult
 		pMask, pc, th = perfCoreMask()
 	)
 	stop := func() {
@@ -375,12 +378,12 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 			pq.close()
 			pq = nil
 		}
-		pid, gpuS, cpuS, rec = 0, nil, nil, nil
+		pid, gpuS, cpuS = 0, nil, nil
 		st = gmStatus{}
 	}
 	lastGame := time.Now()
 	for {
-		time.Sleep(3 * time.Second)
+		doRecover := wait() // รอ 3 วินาที หรือจนมีคนกดกู้ FPS (ปุ่มในโปรแกรม / ปุ่มลัด)
 		if quit() {
 			stop()
 			publish(`{"active":false}`)
@@ -397,6 +400,10 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 			gameModeStateLock.Unlock()
 			publish(`{"active":false}`)
 			return
+		}
+		if doRecover {
+			r := a.softRecover(gp, pMask, cfg, pq)
+			lastRec = &r
 		}
 		if gp == 0 || !cfg.On {
 			if pid != 0 {
@@ -428,7 +435,6 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 						st.Timer = "ปิดอยู่"
 					}
 					pq, pqAge = openPdh(), 0
-					rec = newRecorder(a.dataDir, name)
 				}
 				pid = gp
 				st.Game = name
@@ -470,9 +476,6 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 			// ตัวถ่วง: เฉลี่ย 30 วินาทีล่าสุด
 			if pq != nil {
 				if g, c, cm, ok := pq.sample(); ok {
-					if rec != nil && (rec.ticks+1)%10 == 0 {
-						rec.perf, rec.vg, rec.va = pq.extra(gp) // อ่านก่อนเปิด query ใหม่
-					}
 					gpuS, cpuS = append(gpuS, g), append(cpuS, cm)
 					if len(gpuS) > 10 {
 						gpuS, cpuS = gpuS[1:], cpuS[1:]
@@ -482,15 +485,11 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 				if pqAge++; pqAge >= 20 { // เปิดใหม่เป็นระยะ ให้เห็นงานการ์ดจอของตัวเกมที่เพิ่งเริ่ม
 					pq.close()
 					pq, pqAge = openPdh(), 0
-					rec = newRecorder(a.dataDir, name)
 				}
 			}
 			st.Samples = len(gpuS)
 			if len(gpuS) > 0 {
 				st.GPU, st.CPUMax = median(gpuS), median(cpuS)
-			}
-			if rec != nil && pq != nil && len(gpuS) > 0 {
-				rec.tick(gp, st.GPU, st.CPUMax, st.CPU)
 			}
 			if len(gpuS) >= 4 {
 				st.VerdictID, st.Verdict = verdict(st.GPU, st.CPUMax)
@@ -498,6 +497,8 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 				st.VerdictID, st.Verdict = "wait", "กำลังเก็บข้อมูล..."
 			}
 		}
+		st.Recover = lastRec
+		st.Hotkey, _ = hotkeyState.Load().(string)
 		b, _ := json.Marshal(st)
 		gameModeStateLock.Unlock()
 		if s := string(b); s != lastEmit {
@@ -522,9 +523,10 @@ func (a *app) gameModeInfo() map[string]any {
 // ---- process เบื้องหลัง ----
 
 const (
-	gmMutexName = `Local\ZanBoosterGM`
-	gmQuitName  = `Local\ZanBoosterGMQuit`
-	uiMutexName = `Local\ZanBoosterUI`
+	gmMutexName   = `Local\ZanBoosterGM`
+	gmQuitName    = `Local\ZanBoosterGMQuit`
+	uiMutexName   = `Local\ZanBoosterUI`
+	gmRecoverName = `Local\ZanBoosterRecover`
 )
 
 func mutexExists(name string) bool {
@@ -566,10 +568,15 @@ func runGameModeHelper() {
 			os.Rename(tmp, a.statusPath())
 		}
 	}
+	rn, _ := windows.UTF16PtrFromString(gmRecoverName)
+	rv, _ := windows.CreateEvent(nil, 0, 0, rn) // auto-reset
+	defer windows.CloseHandle(rv)
+	go a.hotkeyLoop(rv)
 	publish(`{"active":false}`)
 	a.gameWatcher(publish,
 		func() bool { r, _ := windows.WaitForSingleObject(q, 0); return r == windows.WAIT_OBJECT_0 },
-		func(idle time.Duration) bool { return idle > 15*time.Minute && !mutexExists(uiMutexName) })
+		func(idle time.Duration) bool { return idle > 15*time.Minute && !mutexExists(uiMutexName) },
+		func() bool { r, _ := windows.WaitForSingleObject(rv, 3000); return r == windows.WAIT_OBJECT_0 })
 }
 
 // ensureGameModeHelper เปิดตัวเบื้องหลังถ้ายังไม่มี / เปลี่ยนตัวใหม่ถ้าเป็นเวอร์ชันเก่า

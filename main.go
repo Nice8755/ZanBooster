@@ -31,7 +31,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "1.9.4"
+const appVersion = "1.9.5"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -156,8 +156,7 @@ func main() {
 	must(w.Bind("winMin", a.winMin))
 	must(w.Bind("winClose", a.winClose))
 	must(w.Bind("gameModeInfo", a.gameModeInfo))
-	must(w.Bind("sessionList", a.sessionList))
-	must(w.Bind("sessionLoad", a.sessionLoad))
+	must(w.Bind("triggerRecover", a.triggerRecover))
 	must(w.Bind("cacheScan", a.cacheScanAsync))
 	must(w.Bind("cacheClean", a.cacheCleanAsync))
 	must(w.Bind("winDrag", a.winDrag))
