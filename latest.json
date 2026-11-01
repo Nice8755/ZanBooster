@@ -1,6 +1,6 @@
 {
-  "version": "2.3.7",
-  "sha256": "57ddc0e672ca9dd7b32f1310e27f0598c0add2c3d2fbc499dfd03c75aa39098c",
+  "version": "2.4.0",
+  "sha256": "357117104d746ee359c7c6ae14fddb2b3194b0be3c62f61eba5e0df1332a8aa4",
   "file": "release/ZanBooster.exe",
-  "notes": "หน้าปรับแต่ง: แท็บทั้งหมดโชว์คำอธิบายเต็ม + ปุ่มเลือกทั้งหมด | Full descriptions + Select all button"
+  "notes": "ใหม่: หน้า \"วัดผล FPS\" วัด FPS เฉลี่ย/1% low เทียบก่อน-หลังปรับ | สวิตช์ในหน้าปรับแต่งตรงกับเครื่องจริง ปิดสวิตช์ = คืนค่ารายการนั้น | แจ้งเตือนเมื่อ Windows Update คืนค่าที่ตั้งไว้ || New FPS Test page, per-tweak revert, Windows Update reset detection"
 }

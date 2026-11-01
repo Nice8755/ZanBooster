@@ -28,6 +28,7 @@ New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
 $Script:Capture = $null
 function Emit($obj) { if ($Script:Capture -ne $null) { $Script:Capture.Add($obj); return }; [Console]::Out.WriteLine(($obj | ConvertTo-Json -Compress -Depth 6)); [Console]::Out.Flush() }
 function Write-Log([string]$m) {
+    if ($Script:DryRun) { return }
     Emit @{ t = 'log'; m = $m }
     try { Add-Content -Path $LogFile -Value ("[{0}] {1}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $m) -Encoding UTF8 } catch { }
 }
@@ -122,7 +123,10 @@ function Get-FiveMData {
 }
 
 # ------------------------------------------------------------- backup ----
-function New-EmptyBackup { @{ Registry = @{}; CreatedKeys = @(); PrevScheme = $null; Powercfg = @{}; Adapters = @{}; Defender = @() } }
+function New-EmptyBackup { @{ Registry = @{}; CreatedKeys = @(); PrevScheme = $null; Powercfg = @{}; Adapters = @{}; Defender = @(); Applied = @() } }
+$Script:AppliedKnown = $false
+$Script:DryRun = $false
+$Script:DryKeys = New-Object System.Collections.Generic.List[string]
 function Load-Backup {
     $b = New-EmptyBackup
     if (Test-Path $BackupFile) {
@@ -134,6 +138,7 @@ function Load-Backup {
             if ($j.Powercfg)    { foreach ($p in $j.Powercfg.PSObject.Properties) { $b.Powercfg[$p.Name] = $p.Value } }
             if ($j.Adapters)    { foreach ($p in $j.Adapters.PSObject.Properties) { $b.Adapters[$p.Name] = $p.Value } }
             if ($j.Defender)    { $b.Defender = @($j.Defender) }
+            if ($j.PSObject.Properties.Name -contains 'Applied') { $b.Applied = @($j.Applied | Where-Object { $_ }); $Script:AppliedKnown = $true }
         } catch { }
     }
     $b
@@ -154,6 +159,7 @@ function Get-Reg([string]$Path, [string]$Name) {
 }
 
 function Set-RegValue([string]$Path, [string]$Name, $Value, [string]$Type = 'DWord') {
+    if ($Script:DryRun) { $Script:DryKeys.Add("$Path|$Name"); return }
     $id = "$Path|$Name"
     if (-not $Script:Backup.Registry.ContainsKey($id)) {
         $existed = $false; $old = $null; $oldType = $null
@@ -178,6 +184,7 @@ function Set-RegValue([string]$Path, [string]$Name, $Value, [string]$Type = 'DWo
 
 function Remove-RegValue([string]$Path, [string]$Name) {
     # ลบค่า (สำรองค่าเดิมไว้ก่อน เพื่อคืนค่าได้)
+    if ($Script:DryRun) { $Script:DryKeys.Add("$Path|$Name"); return }
     if (-not (Test-Path -LiteralPath $Path)) { return }
     $key = Get-Item -LiteralPath $Path
     if ($key.GetValueNames() -notcontains $Name) { return }
@@ -206,6 +213,7 @@ function Get-PowercfgIndex([string]$Sub, [string]$Setting) {
     $null
 }
 function Set-PowercfgIndex([string]$Sub, [string]$Setting, [int]$Value) {
+    if ($Script:DryRun) { $Script:DryKeys.Add("PC|$Sub|$Setting|$Value"); return }
     $scheme = Get-ActiveScheme
     $id = "$scheme|$Sub|$Setting"
     if ($scheme -ne $SchemeGuid -and -not $Script:Backup.Powercfg.ContainsKey($id)) {
@@ -454,7 +462,7 @@ $Tweaks = [ordered]@{
                 $key = "HKLM:\SYSTEM\CurrentControlSet\Services\$name"
                 if (-not (Test-Path $key)) { continue }
                 Set-RegValue $key 'Start' $list[$name]
-                if ($list[$name] -eq 4) { try { Stop-Service -Name $name -Force -ErrorAction SilentlyContinue } catch { } }
+                if ($list[$name] -eq 4 -and -not $Script:DryRun) { try { Stop-Service -Name $name -Force -ErrorAction SilentlyContinue } catch { } }
                 $n++
             }
             Write-Log "ปรับ service $n ตัว"
@@ -464,12 +472,102 @@ $Tweaks = [ordered]@{
 }
 
 # ------------------------------------------------------------ actions ----
+function Get-TweakKeys([string]$id) {
+    $Script:DryKeys.Clear(); $Script:DryRun = $true
+    try { & $Tweaks[$id].Apply } catch { } finally { $Script:DryRun = $false }
+    @($Script:DryKeys)
+}
+function Test-TweakOwned([string]$id) {
+    if ($id -eq 'PowerPlan') { return [bool]$Script:Backup.PrevScheme }
+    if ($id -eq 'Adapter') { return $Script:Backup.Adapters.Count -gt 0 }
+    foreach ($k in Get-TweakKeys $id) { if ($Script:Backup.Registry.ContainsKey($k)) { return $true } }
+    $false
+}
+function Restore-RegEntry($e) {
+    try {
+        if ($e.Existed) {
+            if (-not (Test-Path -LiteralPath $e.Path)) { New-Item -Path $e.Path -Force | Out-Null }
+            $val = $e.Value
+            if ($e.Type -eq 'Binary')      { $val = [byte[]]@($e.Value) }
+            if ($e.Type -eq 'MultiString') { $val = [string[]]@($e.Value) }
+            New-ItemProperty -LiteralPath $e.Path -Name $e.Name -Value $val -PropertyType $e.Type -Force | Out-Null
+        } else {
+            Remove-ItemProperty -LiteralPath $e.Path -Name $e.Name -ErrorAction SilentlyContinue
+        }
+    } catch { Write-Log "คืนค่า $($e.Path)\$($e.Name) ไม่ได้: $($_.Exception.Message)" }
+}
+function Revert-Tweak([string]$id) {
+    $b = $Script:Backup
+    if ($id -eq 'PowerPlan') {
+        $prev = $b.PrevScheme; if (-not $prev) { $prev = $BalancedGuid }
+        powercfg /setactive $prev | Out-Null
+        if ($LASTEXITCODE -ne 0) { powercfg /setactive $BalancedGuid | Out-Null }
+        if (((powercfg /list) -join ' ') -match $SchemeGuid) { powercfg /delete $SchemeGuid | Out-Null }
+        $b.PrevScheme = $null
+        return
+    }
+    if ($id -eq 'Adapter') {
+        if ($b.Adapters.Count -eq 0) { throw 'ไม่มีค่าเดิมเก็บไว้' }
+        $restart = @()
+        foreach ($kv in @($b.Adapters.GetEnumerator())) {
+            $parts = $kv.Key -split '\|'
+            try { Set-NetAdapterAdvancedProperty -Name $parts[0] -RegistryKeyword $parts[1] -RegistryValue $kv.Value -NoRestart -ErrorAction Stop; if ($restart -notcontains $parts[0]) { $restart += $parts[0] } } catch { }
+        }
+        $b.Adapters = @{}
+        foreach ($n in $restart) { Restart-NetAdapter -Name $n -Confirm:$false -ErrorAction SilentlyContinue }
+        return
+    }
+    $n = 0
+    foreach ($k in Get-TweakKeys $id) {
+        if ($k.StartsWith('PC|')) {
+            $p = $k -split '\|'
+            $scheme = Get-ActiveScheme
+            $bk = "$scheme|$($p[1])|$($p[2])"
+            $v = $(if ($b.Powercfg.ContainsKey($bk)) { @($b.Powercfg[$bk]) } else { @(1, 1) })
+            powercfg /setacvalueindex SCHEME_CURRENT $p[1] $p[2] $v[0] | Out-Null
+            powercfg /setdcvalueindex SCHEME_CURRENT $p[1] $p[2] $v[1] | Out-Null
+            powercfg /setactive SCHEME_CURRENT | Out-Null
+            $b.Powercfg.Remove($bk); $n++
+            continue
+        }
+        if ($b.Registry.ContainsKey($k)) { Restore-RegEntry $b.Registry[$k]; $b.Registry.Remove($k); $n++ }
+    }
+    if ($n -eq 0) { throw 'ไม่มีค่าเดิมเก็บไว้ ค่านี้ Windows หรือโปรแกรมอื่นตั้งไว้เอง' }
+}
+function Do-Revert {
+    $list = @($Ids -split ',' | Where-Object { $_ -and $Tweaks.Contains($_) })
+    $ok = 0; $fail = 0; $i = 0
+    foreach ($id in $list) {
+        $i++
+        Emit @{ t = 'step'; id = $id; state = 'run'; i = $i; n = $list.Count; revert = $true }
+        try {
+            Revert-Tweak $id
+            $Script:Backup.Applied = @($Script:Backup.Applied | Where-Object { $_ -ne $id })
+            Save-Backup
+            Emit @{ t = 'step'; id = $id; state = 'ok'; i = $i; n = $list.Count; revert = $true }
+            $ok++
+        } catch {
+            Save-Backup
+            Emit @{ t = 'step'; id = $id; state = 'fail'; i = $i; n = $list.Count; m = $_.Exception.Message; revert = $true }
+            Write-Log "[คืนค่า $id] $($_.Exception.Message)"
+            $fail++
+        }
+    }
+    Emit @{ t = 'result'; action = 'Revert'; ok = $ok; fail = $fail }
+}
+
 function Do-Status {
     $st = @{}
     foreach ($k in $Tweaks.Keys) {
         try { $st[$k] = [bool](& $Tweaks[$k].Check) } catch { $st[$k] = $false }
     }
-    Emit @{ t = 'result'; action = 'Status'; status = $st; hasBackup = (Test-HasBackup) }
+    if (-not $Script:AppliedKnown) {
+        # backup จากเวอร์ชันเก่ายังไม่มีรายการที่ตั้งไว้: เดาจากค่าที่โปรแกรมเคยแก้จริง
+        $Script:Backup.Applied = @($Tweaks.Keys | Where-Object { $st[$_] -and (Test-TweakOwned $_) })
+        $Script:AppliedKnown = $true
+        if (Test-HasBackup) { Save-Backup }
+    }
+    Emit @{ t = 'result'; action = 'Status'; status = $st; hasBackup = (Test-HasBackup); applied = @($Script:Backup.Applied) }
 }
 
 function Do-SysInfo {
@@ -508,6 +606,7 @@ function Do-Apply {
         Emit @{ t = 'step'; id = $id; state = 'run'; i = $i; n = $list.Count }
         try {
             & $Tweaks[$id].Apply
+            if ($Script:Backup.Applied -notcontains $id) { $Script:Backup.Applied = @($Script:Backup.Applied) + $id }
             Save-Backup
             Emit @{ t = 'step'; id = $id; state = 'ok'; i = $i; n = $list.Count }
             $ok++
@@ -1003,6 +1102,7 @@ try {
         'SysInfo'    { Do-SysInfo }
         'Apply'      { Do-Apply }
         'Restore'    { Do-Restore }
+        'Revert'     { Do-Revert }
         'CleanCache' { Do-CleanCache }
         'CleanTemp'  { Do-CleanTemp }
         'BoostNow'   { Do-BoostNow }
