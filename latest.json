@@ -1,6 +1,6 @@
 {
-  "version": "2.3.5",
-  "sha256": "a5f5d747092c2035e98bbebd5536802a984b561f09df7adde5631cbad855db27",
+  "version": "2.3.6",
+  "sha256": "b35718a349daa9ca3e3302ca389b1d0a5a22ff69b7d194fd36a369e8365d782d",
   "file": "release/ZanBooster.exe",
-  "notes": "ปรับแต่ง > Input Lag: เพิ่ม \"การ์ดจอใช้ MSI mode\" (ต้องรีสตาร์ท) | Added GPU MSI mode tweak"
+  "notes": "หน้าปรับแต่ง: แท็บ \"ทั้งหมด\" อยู่หน้าสุดและเปิดเป็นอันดับแรก เห็นครบทุกรายการไม่ต้องเลื่อน | All tab first"
 }

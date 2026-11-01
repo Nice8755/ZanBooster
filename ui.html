@@ -634,6 +634,15 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan)!im
 
 .drvlist li.lat em{font-style:normal;font-size:10px;padding:0 5px;border-radius:5px;margin-left:6px;color:var(--lime);border:1px solid rgba(57,255,156,.35)}
 .drvlist li.dim{opacity:.35}
+
+.tgrid.compact{gap:8px!important;grid-template-columns:repeat(4,1fr)!important}
+.tgrid.compact .tw{padding:10px 12px!important}
+.tgrid.compact .tw p{display:none}
+.tgrid.compact .tw h4{font-size:13px;margin-bottom:6px}
+.tgrid.compact .tags{margin-top:0;gap:4px}
+.tgrid.compact .tags .tag:first-child{display:none}
+.tgrid.compact .tag{font-size:10px!important;padding:1px 6px!important;white-space:nowrap}
+.tgrid.compact .tw h4{line-height:1.3}
 </style>
 </head>
 <body>
@@ -761,11 +770,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan)!im
     <section class="page" id="p-opt">
       <div class="ph"><div><h2>ปรับ<span>แต่ง</span></h2><p>เปิดรายการที่ต้องการแล้วกด "ใช้การตั้งค่า" ค่าเดิมถูกเก็บไว้ คืนค่าได้ทุกเมื่อ</p></div></div>
       <div class="tabs" id="tabs">
-        <button class="tab active" data-cat="fps">FPS</button>
+        <button class="tab active" data-cat="all">ทั้งหมด</button>
+        <button class="tab" data-cat="fps">FPS</button>
         <button class="tab" data-cat="input">Input Lag</button>
         <button class="tab" data-cat="net">เน็ต / ปิง</button>
         <button class="tab" data-cat="sys">ระบบ</button>
-        <button class="tab" data-cat="all">ทั้งหมด</button>
       </div>
       <div class="tgrid" id="tgrid"></div>
       <div class="actionbar">
@@ -1152,7 +1161,7 @@ const TWEAKS = [
 const CAT = { fps: ['FPS', 'fps'], input: ['Input Lag', 'input'], net: ['เน็ต', 'net'], sys: ['ระบบ', 'sys'] };
 const byId = Object.fromEntries(TWEAKS.map(t => [t.id, t]));
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-let status = {}, hasBackup = false, sel = new Set(TWEAKS.filter(t => t.rec).map(t => t.id)), curCat = 'fps';
+let status = {}, hasBackup = false, sel = new Set(TWEAKS.filter(t => t.rec).map(t => t.id)), curCat = 'all';
 let job = null;
 
 /* ================= window chrome ================= */
@@ -1171,6 +1180,7 @@ function go(p) {
   if (p === 'health' && !healthDone) runHealth();
   if (p === 'gfx') { gfxStatus(); if (!gfxPlanned) { gfxPlanned = true; gfxPlan(); } }
   if (p === 'tools') loadApps();
+  if (p === 'opt') { curCat = 'all'; $$('.tab[data-cat]').forEach(x => x.classList.toggle('active', x.dataset.cat === 'all')); renderTweaks(); }
   if (p === 'dash' && typeof liveTick === 'function') liveTick();
 }
 $$('.navbtn').forEach(b => b.onclick = () => go(b.dataset.page));
@@ -1280,8 +1290,9 @@ function animNum(el, to, fmt) {
 /* ================= tweaks grid ================= */
 function renderTweaks() {
   const list = TWEAKS.filter(t => curCat === 'all' || t.cat === curCat);
-    $('#tgrid').innerHTML = list.map(t => `
-    <div class="tw ${sel.has(t.id) ? 'sel' : ''}" data-id="${t.id}">
+  $('#tgrid').classList.toggle('compact', curCat === 'all');
+  $('#tgrid').innerHTML = list.map(t => `
+    <div class="tw ${sel.has(t.id) ? 'sel' : ''}" data-id="${t.id}" title="${esc(t.desc)}">
       <div class="tx"><h4>${esc(t.title)}</h4><p>${esc(t.desc)}</p>
         <div class="tags"><span class="tag ${CAT[t.cat][1]}">${CAT[t.cat][0]}</span>${t.rec ? '<span class="tag rec">แนะนำ</span>' : ''}${t.warn ? `<span class="tag warn">${esc(t.warn)}</span>` : ''}${status[t.id] ? '<span class="tag active">เปิดอยู่</span>' : ''}</div></div>
       <div class="sw"></div>
