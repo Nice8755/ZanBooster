@@ -31,7 +31,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "2.3.1"
+const appVersion = "2.3.2"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -529,7 +529,7 @@ func (a *app) purgeMemory() memResult {
 	}
 	before := standbyMB()
 	const systemMemoryListInformation = 80
-	for _, cmd := range []uint32{3, 4} { // 3 = flush modified list, 4 = purge standby list
+	for _, cmd := range []uint32{4} { // 4 = purge standby list (ไม่ flush modified list: ต้องเขียนลงดิสก์ ทำให้เครื่องหน่วง)
 		c := cmd
 		r, _, _ := pNtSetSysInfo.Call(systemMemoryListInformation, uintptr(unsafe.Pointer(&c)), 4)
 		if r != 0 && cmd == 4 {

@@ -134,7 +134,7 @@ func (a *app) softRecover(gp uint32, pMask uintptr, cfg gmSettings, pq *pdhQuery
 	r.Trimmed = trimOthers()
 	r.StandbyMB = standbyMB()
 	if enablePrivilege("SeProfileSingleProcessPrivilege") == nil {
-		for _, cmd := range []uint32{3, 4} { // 3 = flush modified list, 4 = purge standby list
+		for _, cmd := range []uint32{4} { // 4 = purge standby list (ไม่ flush ลงดิสก์ เครื่องจะไม่หน่วง)
 			c := cmd
 			pNtSetSysInfo.Call(80, uintptr(unsafe.Pointer(&c)), 4)
 		}

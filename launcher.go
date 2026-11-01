@@ -552,10 +552,28 @@ func gameWindowVisible(pid uint32) bool {
 	return enumVisible
 }
 
-// logSince อ่าน log ล่าสุดของ FiveM ที่เขียนหลังเวลา t (ไฟล์เปิดอยู่ก็อ่านได้)
-func logSince(fivemDir string, t time.Time) string {
-	dir := filepath.Join(fivemDir, "FiveM.app", "logs")
-	es, err := os.ReadDir(dir)
+// logTail อ่าน log ของ FiveM เฉพาะส่วนที่เพิ่มมาใหม่ (ไม่อ่านทั้งไฟล์ซ้ำ ๆ ซึ่งทำให้เครื่องหน่วงตอนเกมโหลด)
+type logTail struct {
+	dir   string
+	off   map[string]int64
+	found bool
+}
+
+func newLogTail(fivemDir string) *logTail {
+	t := &logTail{dir: filepath.Join(fivemDir, "FiveM.app", "logs"), off: map[string]int64{}}
+	if es, err := os.ReadDir(t.dir); err == nil {
+		for _, e := range es {
+			if info, err := e.Info(); err == nil && strings.HasPrefix(e.Name(), "CitizenFX_log_") {
+				t.off[e.Name()] = info.Size() // ของเก่าข้ามไป อ่านเฉพาะที่เขียนหลังจากนี้
+				t.found = true
+			}
+		}
+	}
+	return t
+}
+
+func (t *logTail) read() string {
+	es, err := os.ReadDir(t.dir)
 	if err != nil {
 		return ""
 	}
@@ -564,15 +582,30 @@ func logSince(fivemDir string, t time.Time) string {
 		if !strings.HasPrefix(e.Name(), "CitizenFX_log_") {
 			continue
 		}
-		if info, err := e.Info(); err == nil && info.ModTime().After(t) {
-			if f, err := os.Open(filepath.Join(dir, e.Name())); err == nil {
-				if info.Size() > 4<<20 {
-					f.Seek(info.Size()-(4<<20), 0)
-				}
-				b, _ := io.ReadAll(f)
-				f.Close()
-				out.Write(b)
-			}
+		info, err := e.Info()
+		if err != nil {
+			continue
+		}
+		t.found = true
+		off := t.off[e.Name()]
+		size := info.Size()
+		if size < off {
+			off = 0
+		}
+		if size == off {
+			continue
+		}
+		n := size - off
+		if n > 1<<20 {
+			off, n = size-(1<<20), 1<<20
+		}
+		if f, err := os.Open(filepath.Join(t.dir, e.Name())); err == nil {
+			f.Seek(off, 0)
+			buf := make([]byte, n)
+			m, _ := io.ReadFull(f, buf)
+			f.Close()
+			out.Write(buf[:m])
+			t.off[e.Name()] = off + int64(m)
 		}
 	}
 	return out.String()
@@ -624,7 +657,7 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 	if pid, _ := gtaProcess(); !force && pid != 0 && (menuReady() || gameWindowVisible(pid)) {
 		step("เกมเปิดอยู่ ส่ง IP เข้าไปเลย")
 		a.markBuildSeen(build) // ค่าเกมตรงกับเซิร์ฟ = build นี้อยู่ในเครื่องแล้ว
-		if r, done := sendConnect(fivemDir, link, time.Now().Add(-2*time.Second), 1, step); done {
+		if r, done := sendConnect(newLogTail(fivemDir), link, 1, step); done {
 			r.Mode = "ไม่รีเกม"
 			return r
 		}
@@ -681,7 +714,8 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 	deadline := time.Now().Add(6 * time.Minute)
 	var pid uint32
 	readySince := time.Time{}
-	sawAny := false
+	sawAny, menuLog := false, false
+	tail := newLogTail(fivemDir)
 	for {
 		if time.Now().After(deadline) {
 			return launchResult{Message: "รอหน้าเมนู FiveM นานเกินไป ถ้าเกมขึ้นแล้วให้กดเข้าอีกครั้ง", Cmd: link, Mode: mode}
@@ -698,7 +732,10 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 			return launchResult{Message: "FiveM ไม่เปิดขึ้นมา ลองเปิด FiveM เองหนึ่งครั้ง แล้วกดเข้าใหม่", Cmd: link, Mode: mode}
 		}
 		p, _ := gtaProcess()
-		ready := p != 0 && (menuReady() || gameWindowVisible(p) || strings.Contains(logSince(fivemDir, start), "Settings loaded!"))
+		if !menuLog && strings.Contains(tail.read(), "Settings loaded!") {
+			menuLog = true
+		}
+		ready := p != 0 && (menuReady() || gameWindowVisible(p) || menuLog)
 		if p != pid {
 			pid, readySince = p, time.Time{} // ตัวเกมเปลี่ยน (FiveM รีเกมเพื่อสลับ build) เริ่มนับใหม่
 		}
@@ -712,12 +749,12 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 		} else {
 			readySince = time.Time{}
 		}
-		time.Sleep(700 * time.Millisecond)
+		time.Sleep(time.Second)
 	}
 
 	// เกมขึ้นหน้าเมนูได้ = FiveM โหลดไฟล์ของ build นี้ครบแล้ว
 	a.markBuildSeen(build)
-	if r, done := sendConnect(fivemDir, link, start, 3, step); done {
+	if r, done := sendConnect(tail, link, 3, step); done {
 		r.Mode = mode
 		return r
 	}
@@ -726,36 +763,35 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 
 // sendConnect ส่ง fivem://connect เข้าเกมที่เปิดอยู่ (FiveM.exe ตัวใหม่จะส่งต่อทาง IPC แล้วปิดตัวเอง ไม่เปิดเกมซ้อน)
 // แล้วอ่าน log ว่าเกมเริ่มเชื่อมต่อจริง  done=false แปลว่าเกมไม่ตอบเลย
-func sendConnect(fivemDir, link string, since time.Time, tries int, step func(string)) (launchResult, bool) {
+func sendConnect(tail *logTail, link string, tries int, step func(string)) (launchResult, bool) {
 	for try := 1; try <= tries; try++ {
 		sent := time.Now()
 		step(fmt.Sprintf("ส่ง IP เข้าเกม (ครั้งที่ %d)", try))
-		before := len(logSince(fivemDir, since))
+		tail.read() // ข้ามของเก่า
 		explorerOpen(link)
+		var got strings.Builder
 		for i := 0; i < 24; i++ { // ~12 วินาที
 			time.Sleep(500 * time.Millisecond)
-			lg := logSince(fivemDir, since)
-			if len(lg) > before {
-				tail := lg[before:]
-				if k := strings.LastIndex(tail, "OnConnectionError"); k >= 0 {
-					msg := tail[k:]
-					if n := strings.IndexByte(msg, '\n'); n > 0 {
-						msg = msg[:n]
-					}
-					msg = strings.TrimSpace(strings.TrimPrefix(msg, "OnConnectionError:"))
-					return launchResult{Message: "เซิร์ฟตอบกลับ: " + msg, Cmd: link}, true
+			got.WriteString(tail.read())
+			lg := got.String()
+			if k := strings.LastIndex(lg, "OnConnectionError"); k >= 0 {
+				msg := lg[k:]
+				if n := strings.IndexByte(msg, '\n'); n > 0 {
+					msg = msg[:n]
 				}
-				for _, k := range []string{"OnConnectionProgress", "Connecting to server", "Switching from build", "already connecting"} {
-					if strings.Contains(tail, k) {
-						return launchResult{OK: true, Cmd: link}, true
-					}
+				msg = strings.TrimSpace(strings.TrimPrefix(msg, "OnConnectionError:"))
+				return launchResult{Message: "เซิร์ฟตอบกลับ: " + msg, Cmd: link}, true
+			}
+			for _, k := range []string{"OnConnectionProgress", "Connecting to server", "Switching from build", "already connecting"} {
+				if strings.Contains(lg, k) {
+					return launchResult{OK: true, Cmd: link}, true
 				}
 			}
 			if pid, _ := gtaProcess(); pid == 0 && time.Since(sent) > 5*time.Second {
 				return launchResult{Message: "เกมปิดตัวหลังส่ง IP ดู log ใน FiveM.app\\logs", Cmd: link}, true
 			}
 		}
-		if logSince(fivemDir, since) == "" {
+		if !tail.found {
 			return launchResult{OK: true, Cmd: link}, true // อ่าน log ไม่ได้ ถือว่าส่งแล้ว
 		}
 	}

@@ -1,6 +1,6 @@
 {
-  "version": "2.3.1",
-  "sha256": "323a92c8d4b0bf7195ed5945d3a08df3cc392d9e42c3e99f5246ebea74a99b1b",
+  "version": "2.3.2",
+  "sha256": "30e6b2dcd30c4570dc432aa313378df0b1e9079f84071dcf5609c8958af27b88",
   "file": "release/ZanBooster.exe",
-  "notes": "Power Plan ZAN ตั้งปิดหน้าจอ (พักจอ) เป็น Never ให้ด้วย | ZAN Power Plan now sets 'Turn off the display' to Never"
+  "notes": "แก้เครื่องหน่วงตอนกดรีเกม/เข้าเซิร์ฟ: อ่าน log ของ FiveM เฉพาะส่วนใหม่ และล้างแรมแบบไม่เขียนลงดิสก์ | Fixed PC lag when restarting/joining"
 }
