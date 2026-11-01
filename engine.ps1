@@ -19,6 +19,7 @@ $HighPerfGuid = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
 $BalancedGuid = '381b4222-f694-41f0-9685-ff5bb260df2e'
 $ConfigFile = Join-Path $env:ProgramData 'ZanBooster\config.json'
 $HKMM       = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile'
+$VIDEO_SUB = '7516b95f-f776-4464-8c53-06167f40cc99'; $VIDEO_IDLE = '3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e'
 $USB_SUB    = '2a737441-1930-4402-8d77-b2bebba308a3'
 $USB_SET    = '48e6b7a6-50f5-4782-a5d4-53bb8f07e226'
 New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
@@ -244,11 +245,16 @@ $Tweaks = [ordered]@{
                 if ($LASTEXITCODE -ne 0) { throw 'เครื่องนี้สร้าง Power Plan เพิ่มไม่ได้ (พบบ่อยในโน้ตบุ๊กบางรุ่น)' }
                 powercfg /changename $SchemeGuid 'Zan Booster' 'Created by Zan Booster' | Out-Null
             }
+            # ปิดหน้าจอ (พักจอ) = Never ทั้งตอนเสียบปลั๊กและใช้แบต
+            powercfg /setacvalueindex $SchemeGuid $VIDEO_SUB $VIDEO_IDLE 0 | Out-Null
+            powercfg /setdcvalueindex $SchemeGuid $VIDEO_SUB $VIDEO_IDLE 0 | Out-Null
             powercfg /setactive $SchemeGuid | Out-Null
             if ((Get-ActiveScheme) -ne $SchemeGuid) { throw 'เปิดใช้ Power Plan ไม่ได้' }
         }
         Check = {
             if ((Get-ActiveScheme) -ne $SchemeGuid) { return $false }
+            $v = Get-PowercfgIndex $VIDEO_SUB $VIDEO_IDLE
+            if ($v -and $v[0] -ne 0) { return $false }
             # ต้องเป็น ZAN_Project_Optimizer (ถ้า import ไม่ได้ ยอมรับตัวสำรองชื่อ Zan Booster)
             $line = (powercfg /list) | Where-Object { $_ -match $SchemeGuid } | Select-Object -First 1
             $hasPow = Test-Path (Join-Path $DataDir 'ZAN_Project_Optimizer.pow')

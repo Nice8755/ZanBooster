@@ -1,6 +1,6 @@
 {
-  "version": "2.3.0",
-  "sha256": "b9852c3b773884379eba7690e628823b799b01ed0fce667d967c75ab62e646b2",
+  "version": "2.3.1",
+  "sha256": "323a92c8d4b0bf7195ed5945d3a08df3cc392d9e42c3e99f5246ebea74a99b1b",
   "file": "release/ZanBooster.exe",
-  "notes": "รอเซิร์ฟว่างแล้วเข้าให้อัตโนมัติ · สำรอง/คืนการตั้งค่าเกม · ภาษาอังกฤษ (ปุ่ม EN/TH มุมขวาบน) | Auto-join when a full server has a slot · Game settings backup/restore · English language"
+  "notes": "Power Plan ZAN ตั้งปิดหน้าจอ (พักจอ) เป็น Never ให้ด้วย | ZAN Power Plan now sets 'Turn off the display' to Never"
 }

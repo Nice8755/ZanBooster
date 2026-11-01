@@ -224,14 +224,34 @@ func setScheme(g windows.GUID) bool {
 	return r == 0
 }
 
+var (
+	pPowerWriteAC    = powrprof.NewProc("PowerWriteACValueIndex")
+	pPowerWriteDC    = powrprof.NewProc("PowerWriteDCValueIndex")
+	guidVideoSub, _  = windows.GUIDFromString("{7516b95f-f776-4464-8c53-06167f40cc99}")
+	guidVideoIdle, _ = windows.GUIDFromString("{3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e}")
+)
+
+// displayNever ตั้งปิดหน้าจอ = Never ในแผน ZAN (ทั้งเสียบปลั๊กและแบต)
+func displayNever() {
+	g := zanSchemeGUID
+	pPowerWriteAC.Call(0, uintptr(unsafe.Pointer(&g)), uintptr(unsafe.Pointer(&guidVideoSub)), uintptr(unsafe.Pointer(&guidVideoIdle)), 0)
+	pPowerWriteDC.Call(0, uintptr(unsafe.Pointer(&g)), uintptr(unsafe.Pointer(&guidVideoSub)), uintptr(unsafe.Pointer(&guidVideoIdle)), 0)
+}
+
 func (a *app) ensureZanScheme() bool {
 	if setScheme(zanSchemeGUID) {
+		displayNever()
+		setScheme(zanSchemeGUID) // ให้ค่าที่เพิ่งเขียนมีผลทันที
 		return true
 	}
 	pow := filepath.Join(a.dataDir, "ZAN_Project_Optimizer.pow")
 	c := exec.Command("powercfg", "/import", pow, strings.Trim(zanSchemeGUID.String(), "{}"))
 	c.SysProcAttr = &syscall.SysProcAttr{HideWindow: true, CreationFlags: 0x08000000}
 	c.Run()
+	if !setScheme(zanSchemeGUID) {
+		return false
+	}
+	displayNever()
 	return setScheme(zanSchemeGUID)
 }
 
