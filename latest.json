@@ -1,6 +1,6 @@
 {
-  "version": "2.3.2",
-  "sha256": "30e6b2dcd30c4570dc432aa313378df0b1e9079f84071dcf5609c8958af27b88",
+  "version": "2.3.3",
+  "sha256": "4f9ddd353d4e4d46a766c55687ea04bbe2ac74c11a3c1e18555e3d9aad16972d",
   "file": "release/ZanBooster.exe",
-  "notes": "แก้เครื่องหน่วงตอนกดรีเกม/เข้าเซิร์ฟ: อ่าน log ของ FiveM เฉพาะส่วนใหม่ และล้างแรมแบบไม่เขียนลงดิสก์ | Fixed PC lag when restarting/joining"
+  "notes": "กราฟิกแบบลื่นสุด: ปิดทุกอย่างที่ปิดได้ (รวมเงา) ที่เหลือต่ำสุด | Smoothest preset turns off everything possible, including shadows"
 }

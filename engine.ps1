@@ -566,7 +566,8 @@ function Get-GfxPlan {
 
     # ลื่นสุด: ต่ำสุดทุกอย่าง
     $perf = [ordered]@{
-        TextureQuality = 0; ShaderQuality = 0; ShadowQuality = 1; Shadow_SoftShadows = 0; UltraShadows_Enabled = 'false'; Shadow_LongShadows = 'false'
+        # ลื่นสุด = ปิดทุกอย่างที่ปิดได้ (เงา 0 = ปิด), ที่ปิดไม่ได้ตั้งต่ำสุด
+        TextureQuality = 0; ShaderQuality = 0; ShadowQuality = 0; Shadow_SoftShadows = 0; UltraShadows_Enabled = 'false'; Shadow_LongShadows = 'false'
         Shadow_ParticleShadows = 'false'; Shadow_Distance = 1.0; ReflectionQuality = 0; ReflectionMSAA = 0; Reflection_MipBlur = 'false'
         MSAA = 0; TXAA_Enabled = 'false'; FXAA_Enabled = 'false'; AnisotropicFiltering = 0; SSAO = 0; Tessellation = 0
         GrassQuality = 0; WaterQuality = 0; ParticleQuality = 0; PostFX = 0; DoF = 'false'; MotionBlurStrength = 0.0
