@@ -1,6 +1,6 @@
 {
-  "version": "2.2.3",
-  "sha256": "af160e15277a8ff7b464c97b8d2ea95ee75c8ab4d16ae964a4d9e22fbc96d6b1",
+  "version": "2.3.0",
+  "sha256": "b9852c3b773884379eba7690e628823b799b01ed0fce667d967c75ab62e646b2",
   "file": "release/ZanBooster.exe",
-  "notes": "ติ๊กถูก build ที่โหลดแล้ว: จดไว้ตั้งแต่เกมขึ้นหน้าเมนู/ส่ง IP สำเร็จ และหน้าเซิร์ฟเช็กใหม่ทุก 15 วินาที"
+  "notes": "รอเซิร์ฟว่างแล้วเข้าให้อัตโนมัติ · สำรอง/คืนการตั้งค่าเกม · ภาษาอังกฤษ (ปุ่ม EN/TH มุมขวาบน) | Auto-join when a full server has a slot · Game settings backup/restore · English language"
 }
