@@ -1,6 +1,6 @@
 {
-  "version": "2.3.4",
-  "sha256": "15e4920441922c2d52dc58b093e97549dba5c1f00355b38c2ac7bcf4fe3808ad",
+  "version": "2.3.5",
+  "sha256": "a5f5d747092c2035e98bbebd5536802a984b561f09df7adde5631cbad855db27",
   "file": "release/ZanBooster.exe",
-  "notes": "ไดรเวอร์การ์ดจอ: เพิ่มปุ่มลด input lag (Low Latency / Flip Queue 1) + ปิด AO, MFAA, Transparency AA | Driver: low input lag toggle + more FPS settings"
+  "notes": "ปรับแต่ง > Input Lag: เพิ่ม \"การ์ดจอใช้ MSI mode\" (ต้องรีสตาร์ท) | Added GPU MSI mode tweak"
 }

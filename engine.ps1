@@ -414,6 +414,22 @@ $Tweaks = [ordered]@{
         Apply = { Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Enabled' 0 }
         Check = { (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Enabled') -ne 1 }
     }
+    GpuMsi = @{
+        # ให้การ์ดจอใช้ MSI interrupt แทน line-based: ลด DPC latency เฟรมสม่ำเสมอขึ้น (การ์ดรุ่นใหม่ส่วนใหญ่เปิดอยู่แล้ว) ต้องรีสตาร์ท
+        Apply = {
+            $n = 0
+            foreach ($d in @(Get-PnpDevice -Class Display -PresentOnly -ErrorAction SilentlyContinue | Where-Object { $_.InstanceId -like 'PCI\*' })) {
+                $k = "HKLM:\SYSTEM\CurrentControlSet\Enum\$($d.InstanceId)\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
+                try { Set-RegValue $k 'MSISupported' 1; $n++ } catch { Write-Log "ตั้ง MSI ให้ $($d.FriendlyName) ไม่ได้" }
+            }
+            if ($n -eq 0) { throw 'ไม่พบการ์ดจอที่ตั้งได้' }
+            Write-Log "ตั้ง MSI mode ให้การ์ดจอ $n ตัว (มีผลหลังรีสตาร์ท)"
+        }
+        Check = {
+            $ds = @(Get-PnpDevice -Class Display -PresentOnly -ErrorAction SilentlyContinue | Where-Object { $_.InstanceId -like 'PCI\*' })
+            $ds.Count -gt 0 -and @($ds | Where-Object { (Get-Reg "HKLM:\SYSTEM\CurrentControlSet\Enum\$($_.InstanceId)\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties" 'MSISupported') -ne 1 }).Count -eq 0
+        }
+    }
     GpuPref = @{
         # ให้ FiveM / GTA ใช้การ์ดจอแยกเสมอ (โน้ตบุ๊กที่มีการ์ดจอ 2 ตัว) เครื่องตั้งโต๊ะไม่มีผลอะไร
         Apply = {
