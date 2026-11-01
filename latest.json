@@ -1,6 +1,6 @@
 {
-  "version": "2.3.3",
-  "sha256": "4f9ddd353d4e4d46a766c55687ea04bbe2ac74c11a3c1e18555e3d9aad16972d",
+  "version": "2.3.4",
+  "sha256": "15e4920441922c2d52dc58b093e97549dba5c1f00355b38c2ac7bcf4fe3808ad",
   "file": "release/ZanBooster.exe",
-  "notes": "กราฟิกแบบลื่นสุด: ปิดทุกอย่างที่ปิดได้ (รวมเงา) ที่เหลือต่ำสุด | Smoothest preset turns off everything possible, including shadows"
+  "notes": "ไดรเวอร์การ์ดจอ: เพิ่มปุ่มลด input lag (Low Latency / Flip Queue 1) + ปิด AO, MFAA, Transparency AA | Driver: low input lag toggle + more FPS settings"
 }

@@ -65,6 +65,15 @@ var nvSettings = []gpuSetting{
 	{0x0064B541, "Preferred refresh rate", 1, "Highest available"},
 	{0x1074C972, "FXAA", 0, "Off"},
 	{0x1075D972, "Ansel", 0, "Off"},
+	{0x00667329, "Ambient Occlusion (บังคับจากไดรเวอร์)", 0, "Off"},
+	{0x0098C1AC, "MFAA", 0, "Off"},
+	{0x10D48A85, "Transparency anti-aliasing", 0, "Off"},
+}
+
+// ลด input lag: เฟรมรอคิวน้อยลง (Low Latency Mode = On) ใช้ได้กับเกม DX11 อย่าง FiveM
+var nvLowLat = []gpuSetting{
+	{0x007BA09E, "Max pre-rendered frames", 1, "1"},
+	{0x0005F543, "Low Latency Mode", 1, "On"},
 }
 
 const nvFrameLimitID = 0x10835002 // Max Frame Rate (0 = ปิด)
@@ -181,6 +190,10 @@ var amdSettings = []amdValue{
 	{"", "EnableUlps", "", u32(0), "ULPS (ประหยัดไฟการ์ดจอตัวรอง): Off"},
 }
 
+var amdLowLat = []amdValue{
+	{"UMD", "FlipQueueSize", "1", nil, "Flip Queue Size: 1"},
+}
+
 func amdKeys() []string {
 	k, err := registry.OpenKey(registry.LOCAL_MACHINE, displayClass, registry.ENUMERATE_SUB_KEYS)
 	if err != nil {
@@ -231,6 +244,8 @@ type gpuInfo struct {
 	Applied  bool         `json:"applied"`
 	Backup   bool         `json:"backup"`
 	Cap      uint32       `json:"cap"`
+	LowLat   bool         `json:"lowLat"`
+	LatSet   []gpuSetting `json:"latSettings"`
 	Refresh  int          `json:"refresh"`
 	Settings []gpuSetting `json:"settings"`
 	Message  string       `json:"m,omitempty"`
@@ -302,15 +317,23 @@ func (a *app) gpuDriverInfo() gpuInfo {
 		v2, _, _ := s.get(0x00CE2691)
 		info.Applied = v1 == 1 && v2 == 0x14
 		info.Cap, _, _ = s.get(nvFrameLimitID)
+		pr, _, _ := s.get(0x007BA09E)
+		info.LowLat = pr == 1
+		info.LatSet = nvLowLat
 	case "amd":
 		for _, x := range amdSettings {
 			info.Settings = append(info.Settings, gpuSetting{Name: x.Name, Label: x.Label})
 		}
+		for _, x := range amdLowLat {
+			info.LatSet = append(info.LatSet, gpuSetting{Name: x.Name, Label: x.Label})
+		}
 		for _, k := range amdKeys() {
 			if uk, err := registry.OpenKey(registry.LOCAL_MACHINE, k+`\UMD`, registry.QUERY_VALUE); err == nil {
 				b, _, _ := uk.GetBinaryValue("TFQ")
+				fq, _, _ := uk.GetBinaryValue("FlipQueueSize")
 				uk.Close()
 				info.Applied = string(b) == string(utf16Bytes("2"))
+				info.LowLat = string(fq) == string(utf16Bytes("1"))
 			}
 			if dk, err := registry.OpenKey(registry.LOCAL_MACHINE, k, registry.QUERY_VALUE); err == nil {
 				if on, _, err := dk.GetIntegerValue("KMD_FRTEnabled"); err == nil && on == 1 {
@@ -326,7 +349,7 @@ func (a *app) gpuDriverInfo() gpuInfo {
 }
 
 // gpuDriverApply ตั้งค่าทั้งหมด cap = ล็อก FPS (0 = ไม่ล็อก)
-func (a *app) gpuDriverApply(capFps int) gpuResult {
+func (a *app) gpuDriverApply(capFps int, lowLat bool) gpuResult {
 	backup := a.loadGpuBackup()
 	res := gpuResult{}
 	switch gpuVendor() {
@@ -342,6 +365,22 @@ func (a *app) gpuDriverApply(capFps int) gpuResult {
 		defer s.close()
 		all := append([]gpuSetting{}, nvSettings...)
 		all = append(all, gpuSetting{nvFrameLimitID, "Max Frame Rate", uint32(max(capFps, 0)), ""})
+		if lowLat {
+			all = append(all, nvLowLat...)
+		} else {
+			// ปิดลด input lag: คืนค่าเดิมของสองข้อนี้ถ้าเคยตั้งไว้
+			for _, x := range nvLowLat {
+				for _, b := range backup {
+					if b.Vendor == "nvidia" && b.ID == x.ID {
+						if b.Existed {
+							s.set(x.ID, b.U32)
+						} else {
+							s.restoreDefault(x.ID)
+						}
+					}
+				}
+			}
+		}
 		for _, x := range all {
 			if !hasBackup(backup, func(b gpuBackupItem) bool { return b.Vendor == "nvidia" && b.ID == x.ID }) {
 				v, set, err := s.get(x.ID)
@@ -361,7 +400,11 @@ func (a *app) gpuDriverApply(capFps int) gpuResult {
 	case "amd":
 		keys := amdKeys()
 		for _, k := range keys {
-			for _, x := range append(append([]amdValue{}, amdSettings...),
+			vals := append([]amdValue{}, amdSettings...)
+			if lowLat {
+				vals = append(vals, amdLowLat...)
+			}
+			for _, x := range append(vals,
 				amdValue{"", "KMD_FRTEnabled", "", u32(boolU32(capFps > 0)), ""},
 				amdValue{"", "KMD_MaxFrameRateRequested", "", u32(uint32(max(capFps, 0))), ""}) {
 				path := k
@@ -501,8 +544,8 @@ func (a *app) gpuInfoAsync(reqID int) bool {
 	go func() { runtime.LockOSThread(); a.emitGpu(reqID, a.gpuDriverInfo()) }()
 	return true
 }
-func (a *app) gpuApplyAsync(capFps, reqID int) bool {
-	go func() { runtime.LockOSThread(); a.emitGpu(reqID, a.gpuDriverApply(capFps)) }()
+func (a *app) gpuApplyAsync(capFps int, lowLat bool, reqID int) bool {
+	go func() { runtime.LockOSThread(); a.emitGpu(reqID, a.gpuDriverApply(capFps, lowLat)) }()
 	return true
 }
 func (a *app) gpuRestoreAsync(reqID int) bool {
