@@ -1,6 +1,6 @@
 {
-  "version": "2.4.0",
-  "sha256": "357117104d746ee359c7c6ae14fddb2b3194b0be3c62f61eba5e0df1332a8aa4",
+  "version": "2.4.1",
+  "sha256": "82b2855ec9a942682ef8c8f0ee261296fdc9ef79a45f2f5e3bd1dd6f727283cb",
   "file": "release/ZanBooster.exe",
-  "notes": "ใหม่: หน้า \"วัดผล FPS\" วัด FPS เฉลี่ย/1% low เทียบก่อน-หลังปรับ | สวิตช์ในหน้าปรับแต่งตรงกับเครื่องจริง ปิดสวิตช์ = คืนค่ารายการนั้น | แจ้งเตือนเมื่อ Windows Update คืนค่าที่ตั้งไว้ || New FPS Test page, per-tweak revert, Windows Update reset detection"
+  "notes": "จัดเมนูใหม่ให้ดูง่ายขึ้น: ไดรเวอร์การ์ดจอย้ายไปหน้าปรับแต่ง, วัดผล FPS + ปิง รวมเป็นเมนูเดียว, บันทึกย้ายไปอยู่ในเกี่ยวกับ | Cleaner menu"
 }
