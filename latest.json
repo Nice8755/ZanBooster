@@ -1,6 +1,6 @@
 {
-  "version": "2.4.1",
-  "sha256": "82b2855ec9a942682ef8c8f0ee261296fdc9ef79a45f2f5e3bd1dd6f727283cb",
+  "version": "2.4.2",
+  "sha256": "8ab07bc4ffe2e73f304ccbaee5e73b8aba6aacfc5481402014f0bebb54728380",
   "file": "release/ZanBooster.exe",
-  "notes": "จัดเมนูใหม่ให้ดูง่ายขึ้น: ไดรเวอร์การ์ดจอย้ายไปหน้าปรับแต่ง, วัดผล FPS + ปิง รวมเป็นเมนูเดียว, บันทึกย้ายไปอยู่ในเกี่ยวกับ | Cleaner menu"
+  "notes": "วัดผล FPS: เพิ่ม % การใช้งานการ์ดจอ/ซีพียู และบอกว่าตันที่ CPU หรือการ์ดจอ | FPS test now shows GPU/CPU load and bottleneck"
 }

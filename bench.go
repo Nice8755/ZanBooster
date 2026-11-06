@@ -35,6 +35,8 @@ type benchRun struct {
 	Low01   float64 `json:"low01"`
 	GpuPct  float64 `json:"gpuPct"`
 	Latency float64 `json:"latency"`
+	CpuPct  float64 `json:"cpuPct"`
+	CoreMax float64 `json:"coreMax"`
 	Game    string  `json:"game"`
 	Base    bool    `json:"base"`
 }
@@ -179,6 +181,31 @@ func (a *app) benchRun(secs, delay int, label string) {
 	defer func() { benchMu.Lock(); benchCmd = nil; benchMu.Unlock() }()
 	pMessageBeep.Call(0)
 
+	// ใช้งานการ์ดจอ/ซีพียูจาก Performance Counter (สำรองกรณี PresentMon ไม่ให้ค่า GPU)
+	stopPdh := make(chan struct{})
+	var pg, pc, pm2 []float64
+	pdhDone := make(chan struct{})
+	go func() {
+		defer close(pdhDone)
+		q := openPdh()
+		if q == nil {
+			return
+		}
+		defer q.close()
+		t := time.NewTicker(time.Second)
+		defer t.Stop()
+		for {
+			select {
+			case <-stopPdh:
+				return
+			case <-t.C:
+				if g, c, m, ok := q.sample(); ok {
+					pg, pc, pm2 = append(pg, g), append(pc, c), append(pm2, m)
+				}
+			}
+		}
+	}()
+
 	var ft, gb, lat []float64
 	col := map[string]int{}
 	start := time.Now()
@@ -236,6 +263,8 @@ func (a *app) benchRun(secs, delay int, label string) {
 		}
 	}
 	_ = cmd.Wait()
+	close(stopPdh)
+	<-pdhDone
 	benchMu.Lock()
 	c := benchCancel
 	benchMu.Unlock()
@@ -254,6 +283,20 @@ func (a *app) benchRun(secs, delay int, label string) {
 	}
 	el := time.Since(start).Seconds()
 	r := summarize(ft, gb, lat)
+	avg := func(v []float64) float64 {
+		if len(v) == 0 {
+			return 0
+		}
+		t := 0.0
+		for _, x := range v {
+			t += x
+		}
+		return math.Round(t / float64(len(v)))
+	}
+	if r.GpuPct == 0 {
+		r.GpuPct = avg(pg)
+	}
+	r.CpuPct, r.CoreMax = avg(pc), avg(pm2)
 	r.At, r.Label, r.Game, r.Secs = time.Now().Unix(), label, game, int(math.Round(el))
 	l := a.benchLoad()
 	hasBase := false
