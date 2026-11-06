@@ -1,6 +1,6 @@
 {
-  "version": "2.4.4",
-  "sha256": "7ec3abd469a8633c4b7a9751769d062bf9c09e43a951f2274de90f111963d14d",
+  "version": "2.4.5",
+  "sha256": "51ddd110ae5e92ff35117fa552fd420e027ea9db39dd1e97a8063ce3d76d752f",
   "file": "release/ZanBooster.exe",
-  "notes": "ใหม่: เครื่องมือ > ล้างขยะ ล้างขยะทั้งเครื่อง (Temp, อัปเดต Windows, แคชเบราว์เซอร์/Discord/Steam, crash dump ฯลฯ) สแกนดูขนาดก่อนล้าง | System cleanup"
+  "notes": "ใหม่: หน้า \"มีอะไรใหม่\" (เมนูเกี่ยวกับ) สรุปการอัปเดตทุกเวอร์ชัน และหลังอัปเดตจะเด้งบอกว่าเพิ่มอะไรบ้าง | What's new page + post-update summary"
 }
