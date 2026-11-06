@@ -1,6 +1,6 @@
 {
-  "version": "2.4.2",
-  "sha256": "8ab07bc4ffe2e73f304ccbaee5e73b8aba6aacfc5481402014f0bebb54728380",
+  "version": "2.4.3",
+  "sha256": "ddef6cb61e62b33b5171d0e446c24a03e29e77b4a1b0516ad66e0dd20905b501",
   "file": "release/ZanBooster.exe",
-  "notes": "วัดผล FPS: เพิ่ม % การใช้งานการ์ดจอ/ซีพียู และบอกว่าตันที่ CPU หรือการ์ดจอ | FPS test now shows GPU/CPU load and bottleneck"
+  "notes": "แก้เข้าเซิร์ฟ: เปิดเกมพร้อมลิงก์เซิร์ฟ (วิธีเดียวกับ FiveM) เกมเชื่อมต่อเองเมื่อหน้าเมนูพร้อม ไม่ค้างที่หน้าเมนูอีก | Fix: auto-connect via launch link"
 }

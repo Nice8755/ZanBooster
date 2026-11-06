@@ -657,7 +657,7 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 	if pid, _ := gtaProcess(); !force && pid != 0 && (menuReady() || gameWindowVisible(pid)) {
 		step("เกมเปิดอยู่ ส่ง IP เข้าไปเลย")
 		a.markBuildSeen(build) // ค่าเกมตรงกับเซิร์ฟ = build นี้อยู่ในเครื่องแล้ว
-		if r, done := sendConnect(newLogTail(fivemDir), link, 1, step); done {
+		if r, done := sendConnect(newLogTail(fivemDir), link, 2, step); done {
 			r.Mode = "ไม่รีเกม"
 			return r
 		}
@@ -700,6 +700,9 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 			args += fmt.Sprintf(" -pure_%d", pure)
 		}
 		step("กำลังเปิด FiveM (" + args + ")")
+		// ใส่ลิงก์เซิร์ฟไปตอนเปิดด้วย: FiveM จะเชื่อมต่อเองเมื่อหน้าเมนูโหลดเสร็จ
+		// (วิธีเดียวกับที่ FiveM ใช้ตอนรีเกมสลับ build: RestartGameToOtherBuild ส่ง "fivem://connect/..." ต่อท้าย)
+		args += ` "` + link + `"`
 		target := exe
 		if lnk, err := a.makeShortcut(exe, args, fivemDir); err == nil {
 			target = lnk
@@ -716,6 +719,23 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 	readySince := time.Time{}
 	sawAny, menuLog := false, false
 	tail := newLogTail(fivemDir)
+	var seen strings.Builder
+	connState := func() (launchResult, bool) {
+		lg := seen.String()
+		if k := strings.LastIndex(lg, "OnConnectionError"); k >= 0 {
+			msg := lg[k:]
+			if n := strings.IndexByte(msg, '\n'); n > 0 {
+				msg = msg[:n]
+			}
+			return launchResult{Message: "เซิร์ฟตอบกลับ: " + strings.TrimSpace(strings.TrimPrefix(msg, "OnConnectionError:")), Cmd: link, Mode: mode}, true
+		}
+		for _, k := range []string{"OnConnectionProgress", "Connecting to server", "Switching from build"} {
+			if strings.Contains(lg, k) {
+				return launchResult{OK: true, Cmd: link, Mode: mode}, true
+			}
+		}
+		return launchResult{}, false
+	}
 	for {
 		if time.Now().After(deadline) {
 			return launchResult{Message: "รอหน้าเมนู FiveM นานเกินไป ถ้าเกมขึ้นแล้วให้กดเข้าอีกครั้ง", Cmd: link, Mode: mode}
@@ -732,7 +752,12 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 			return launchResult{Message: "FiveM ไม่เปิดขึ้นมา ลองเปิด FiveM เองหนึ่งครั้ง แล้วกดเข้าใหม่", Cmd: link, Mode: mode}
 		}
 		p, _ := gtaProcess()
-		if !menuLog && strings.Contains(tail.read(), "Settings loaded!") {
+		seen.WriteString(tail.read())
+		if r, done := connState(); done {
+			a.markBuildSeen(build)
+			return r // เกมเชื่อมต่อเองจากลิงก์ที่ใส่ตอนเปิด
+		}
+		if !menuLog && strings.Contains(seen.String(), "Settings loaded!") {
 			menuLog = true
 		}
 		ready := p != 0 && (menuReady() || gameWindowVisible(p) || menuLog)
@@ -754,7 +779,21 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 
 	// เกมขึ้นหน้าเมนูได้ = FiveM โหลดไฟล์ของ build นี้ครบแล้ว
 	a.markBuildSeen(build)
-	if r, done := sendConnect(tail, link, 3, step); done {
+	// เปิดใหม่พร้อมลิงก์แล้ว: รอให้หน้าเมนูโหลดเสร็จและเชื่อมต่อเองก่อน (หน้าต่างเกมขึ้นก่อนเมนูพร้อมจริงหลายสิบวินาที)
+	if !reuse {
+		step("รอเกมเชื่อมต่อเซิร์ฟเอง")
+		for i := 0; i < 90; i++ {
+			time.Sleep(time.Second)
+			seen.WriteString(tail.read())
+			if r, done := connState(); done {
+				return r
+			}
+			if p, _ := gtaProcess(); p == 0 {
+				return launchResult{Message: "เกมปิดตัวระหว่างโหลด ดู log ใน FiveM.app\\logs", Cmd: link, Mode: mode}
+			}
+		}
+	}
+	if r, done := sendConnect(tail, link, 4, step); done {
 		r.Mode = mode
 		return r
 	}
