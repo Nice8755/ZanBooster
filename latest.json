@@ -1,6 +1,6 @@
 {
-  "version": "2.4.5",
-  "sha256": "51ddd110ae5e92ff35117fa552fd420e027ea9db39dd1e97a8063ce3d76d752f",
+  "version": "2.4.6",
+  "sha256": "09f12b89d5010e32651e839b847ad199b5f5af765047c4ca80c4f7d524746bc0",
   "file": "release/ZanBooster.exe",
-  "notes": "ใหม่: หน้า \"มีอะไรใหม่\" (เมนูเกี่ยวกับ) สรุปการอัปเดตทุกเวอร์ชัน และหลังอัปเดตจะเด้งบอกว่าเพิ่มอะไรบ้าง | What's new page + post-update summary"
+  "notes": "หน้าต่างที่เด้งตอนเปิดโปรแกรมเด้งครั้งเดียว รีสตาร์ทแล้วไม่เด้งซ้ำ | Startup popups show only once"
 }
