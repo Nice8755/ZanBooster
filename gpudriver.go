@@ -188,10 +188,16 @@ var amdSettings = []amdValue{
 	{"UMD", "Tessellation", "1", nil, "Maximum Tessellation Level: Off (x1)"},
 	{"UMD", "VSyncControl", "0", nil, "Wait for Vertical Refresh: Always off"},
 	{"", "EnableUlps", "", u32(0), "ULPS (ประหยัดไฟการ์ดจอตัวรอง): Off"},
+	{"UMD", "TurboSync", "0", nil, "Enhanced Sync: Off"},
+	{"UMD", "MLF", "0", nil, "Morphological Anti-Aliasing: Off"},
+	{"UMD", "SurfaceFormatReplacements", "1", nil, "Surface Format Optimization: On"},
+	{"", "KMD_ChillEnabled", "", u32(0), "Radeon Chill: Off"},
+	{"", "KMD_RadeonBoostEnabled", "", u32(0), "Radeon Boost: Off"},
 }
 
 var amdLowLat = []amdValue{
 	{"UMD", "FlipQueueSize", "1", nil, "Flip Queue Size: 1"},
+	{"", "KMD_DeLagEnabled", "", u32(1), "Radeon Anti-Lag: On"},
 }
 
 func amdKeys() []string {
@@ -439,6 +445,28 @@ func (a *app) gpuDriverApply(capFps int, lowLat bool) gpuResult {
 		}
 		if len(keys) == 0 {
 			return gpuResult{Message: "ไม่เจอไดรเวอร์ AMD"}
+		}
+		if !lowLat { // ปิดลด input lag: คืนค่าเดิมเฉพาะส่วนนี้
+			keep := backup[:0]
+			for _, b := range backup {
+				isLat := false
+				for _, x := range amdLowLat {
+					isLat = isLat || (b.Vendor == "amd" && b.Name == x.Name)
+				}
+				if !isLat {
+					keep = append(keep, b)
+					continue
+				}
+				if k, err := registry.OpenKey(registry.LOCAL_MACHINE, b.Key, registry.SET_VALUE); err == nil {
+					if b.Existed {
+						setRawValue(k, b.Name, b.Type, b.Data)
+					} else {
+						k.DeleteValue(b.Name)
+					}
+					k.Close()
+				}
+			}
+			backup = keep
 		}
 	default:
 		return gpuResult{Message: "ไม่เจอการ์ดจอ NVIDIA หรือ AMD"}

@@ -1,6 +1,6 @@
 {
-  "version": "2.4.6",
-  "sha256": "09f12b89d5010e32651e839b847ad199b5f5af765047c4ca80c4f7d524746bc0",
+  "version": "2.4.7",
+  "sha256": "b6c90a00d17c6a6b71e07a81e5a61f2de9ac4c58f47e0254f1a67dbea0e255ce",
   "file": "release/ZanBooster.exe",
-  "notes": "หน้าต่างที่เด้งตอนเปิดโปรแกรมเด้งครั้งเดียว รีสตาร์ทแล้วไม่เด้งซ้ำ | Startup popups show only once"
+  "notes": "AMD: เพิ่ม Radeon Anti-Lag + ปิด Enhanced Sync / Chill / Boost / MLAA | AMD: Anti-Lag and more FPS settings"
 }
