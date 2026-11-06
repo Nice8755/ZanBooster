@@ -1089,6 +1089,115 @@ function Do-CleanTemp {
     Emit @{ t = 'result'; action = 'CleanTemp'; ok = $true; mb = [math]::Round($total / 1MB) }
 }
 
+# ---------------------------------------------------------------- junk ----
+# ล้างขยะทั้งเครื่อง: แต่ละหมวดคืนรายการ "โฟลเดอร์ที่ลบไฟล์ข้างใน" กับ "ไฟล์เดี่ยว"
+function Get-JunkTargets([string]$id) {
+    $L = $env:LOCALAPPDATA; $R = $env:APPDATA; $W = $env:SystemRoot
+    $dirs = @(); $files = @()
+    switch ($id) {
+        'temp'    { $dirs = @($env:TEMP, "$W\Temp") }
+        'wu'      { $dirs = @("$W\SoftwareDistribution\Download") }
+        'do'      { $dirs = @("$W\ServiceProfiles\NetworkService\AppData\Local\Microsoft\Windows\DeliveryOptimization\Cache") }
+        'dumps'   {
+            $dirs = @("$W\Minidump", "$L\CrashDumps", "$env:ProgramData\Microsoft\Windows\WER\ReportArchive", "$env:ProgramData\Microsoft\Windows\WER\ReportQueue", "$L\Microsoft\Windows\WER\ReportArchive", "$L\Microsoft\Windows\WER\ReportQueue")
+            $files = @("$W\MEMORY.DMP")
+        }
+        'thumbs'  { $files = @(Get-ChildItem "$L\Microsoft\Windows\Explorer" -Filter '*cache_*.db' -Force -ErrorAction SilentlyContinue | ForEach-Object FullName) }
+        'browser' {
+            foreach ($root in "$L\Google\Chrome\User Data", "$L\Microsoft\Edge\User Data", "$L\BraveSoftware\Brave-Browser\User Data", "$R\Opera Software\Opera Stable", "$L\Opera Software\Opera Stable", "$R\Opera Software\Opera GX Stable", "$L\Opera Software\Opera GX Stable") {
+                if (-not (Test-Path -LiteralPath $root)) { continue }
+                $profiles = @($root) + @(Get-ChildItem -LiteralPath $root -Directory -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'Default' -or $_.Name -like 'Profile *' } | ForEach-Object FullName)
+                foreach ($pr in $profiles) { foreach ($c in 'Cache', 'Code Cache', 'GPUCache', 'Service Worker\CacheStorage') { $dirs += (Join-Path $pr $c) } }
+                $dirs += (Join-Path $root 'ShaderCache'); $dirs += (Join-Path $root 'GrShaderCache')
+            }
+            $dirs += @(Get-ChildItem "$L\Mozilla\Firefox\Profiles" -Directory -Force -ErrorAction SilentlyContinue | ForEach-Object { Join-Path $_.FullName 'cache2' })
+        }
+        'apps'    {
+            foreach ($d in 'discord', 'discordptb', 'discordcanary') { foreach ($c in 'Cache', 'Code Cache', 'GPUCache') { $dirs += "$R\$d\$c" } }
+            $dirs += @("$L\Steam\htmlcache", "$L\Spotify\Data", "$R\Spotify\Data", "$L\Microsoft\Teams\Cache", "$R\Microsoft\Teams\Cache")
+        }
+        'shader'  { $dirs = @("$L\NVIDIA\DXCache", "$L\NVIDIA\GLCache", "$L\AMD\DxCache", "$L\AMD\DxcCache", "$L\AMD\VkCache", "$L\D3DSCache") }
+        'recycle' { }
+    }
+    @{ Dirs = @($dirs | Where-Object { $_ -and (Test-Path -LiteralPath $_) }); Files = @($files | Where-Object { $_ -and (Test-Path -LiteralPath $_) }) }
+}
+$JunkIds = @('temp', 'wu', 'do', 'dumps', 'thumbs', 'browser', 'apps', 'shader', 'recycle')
+
+function Get-RecycleSize {
+    $t = [int64]0
+    foreach ($d in [System.IO.DriveInfo]::GetDrives()) {
+        if ($d.DriveType -ne 'Fixed' -or -not $d.IsReady) { continue }
+        $t += Get-FolderSize (Join-Path $d.RootDirectory.FullName '$Recycle.Bin')
+    }
+    $t
+}
+
+function Do-JunkScan {
+    $out = @{}
+    foreach ($id in $JunkIds) {
+        if ($id -eq 'recycle') { $out[$id] = Get-RecycleSize; continue }
+        $tg = Get-JunkTargets $id
+        $n = [int64]0
+        foreach ($d in $tg.Dirs) { $n += Get-FolderSize $d }
+        foreach ($f in $tg.Files) { try { $n += (Get-Item -LiteralPath $f -Force).Length } catch { } }
+        $out[$id] = $n
+        Emit @{ t = 'junk'; id = $id; bytes = $n }
+    }
+    Emit @{ t = 'result'; action = 'JunkScan'; ok = $true; cats = $out }
+}
+
+function Remove-DirContents([string]$d) {
+    $freed = [int64]0
+    foreach ($it in @(Get-ChildItem -LiteralPath $d -Force -ErrorAction SilentlyContinue)) {
+        if ($it.PSIsContainer) {
+            $sz = Get-FolderSize $it.FullName
+            try { Remove-Item -LiteralPath $it.FullName -Recurse -Force -ErrorAction Stop; $freed += $sz }
+            catch { $freed += [math]::Max(0, $sz - (Get-FolderSize $it.FullName)) } # ไฟล์ที่เปิดใช้อยู่ข้ามไป
+        } else {
+            try { $sz = $it.Length; Remove-Item -LiteralPath $it.FullName -Force -ErrorAction Stop; $freed += $sz } catch { }
+        }
+    }
+    $freed
+}
+
+function Do-JunkClean {
+    $list = @($Ids -split ',' | Where-Object { $JunkIds -contains $_ })
+    $per = @{}; $total = [int64]0
+    foreach ($id in $list) {
+        Emit @{ t = 'junk'; id = $id; state = 'run' }
+        $freed = [int64]0
+        try {
+            switch ($id) {
+                'recycle' { $b = Get-RecycleSize; Clear-RecycleBin -Force -ErrorAction SilentlyContinue; $freed = [math]::Max(0, $b - (Get-RecycleSize)) }
+                'wu' {
+                    $tg = Get-JunkTargets $id
+                    $svc = @('wuauserv', 'bits') | Where-Object { (Get-Service $_ -ErrorAction SilentlyContinue).Status -eq 'Running' }
+                    foreach ($x in $svc) { Stop-Service $x -Force -ErrorAction SilentlyContinue }
+                    foreach ($d in $tg.Dirs) { $freed += Remove-DirContents $d }
+                    foreach ($x in $svc) { Start-Service $x -ErrorAction SilentlyContinue }
+                }
+                'do' {
+                    $tg = Get-JunkTargets $id
+                    $b = [int64]0; foreach ($d in $tg.Dirs) { $b += Get-FolderSize $d }
+                    try { Delete-DeliveryOptimizationCache -Force -ErrorAction Stop } catch { foreach ($d in $tg.Dirs) { Remove-DirContents $d | Out-Null } }
+                    $a = [int64]0; foreach ($d in $tg.Dirs) { $a += Get-FolderSize $d }
+                    $freed = [math]::Max(0, $b - $a)
+                }
+                default {
+                    $tg = Get-JunkTargets $id
+                    foreach ($d in $tg.Dirs) { $freed += Remove-DirContents $d }
+                    foreach ($f in $tg.Files) { try { $sz = (Get-Item -LiteralPath $f -Force).Length; Remove-Item -LiteralPath $f -Force -ErrorAction Stop; $freed += $sz } catch { } }
+                }
+            }
+            if ($id -eq 'temp') { ipconfig /flushdns | Out-Null }
+        } catch { Write-Log "ล้าง $id ไม่ครบ: $($_.Exception.Message)" }
+        $per[$id] = $freed; $total += $freed
+        Emit @{ t = 'junk'; id = $id; state = 'ok'; freed = $freed }
+    }
+    Write-Log ("ล้างขยะทั้งเครื่อง ได้พื้นที่คืน {0:N0} MB" -f ($total / 1MB))
+    Emit @{ t = 'result'; action = 'JunkClean'; ok = $true; mb = [math]::Round($total / 1MB); per = $per }
+}
+
 function Do-BoostNow {
     $procs = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*GTAProcess' })
     if ($procs.Count -eq 0) { Emit @{ t = 'result'; action = 'BoostNow'; ok = $false; m = 'ยังไม่ได้เปิดเกม FiveM' }; return }
@@ -1105,6 +1214,8 @@ try {
         'Revert'     { Do-Revert }
         'CleanCache' { Do-CleanCache }
         'CleanTemp'  { Do-CleanTemp }
+        'JunkScan'   { Do-JunkScan }
+        'JunkClean'  { Do-JunkClean }
         'BoostNow'   { Do-BoostNow }
         'PickFiveM'  { Do-PickFiveM }
         'Health'     { Do-Health }

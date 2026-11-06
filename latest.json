@@ -1,6 +1,6 @@
 {
-  "version": "2.4.3",
-  "sha256": "ddef6cb61e62b33b5171d0e446c24a03e29e77b4a1b0516ad66e0dd20905b501",
+  "version": "2.4.4",
+  "sha256": "7ec3abd469a8633c4b7a9751769d062bf9c09e43a951f2274de90f111963d14d",
   "file": "release/ZanBooster.exe",
-  "notes": "แก้เข้าเซิร์ฟ: เปิดเกมพร้อมลิงก์เซิร์ฟ (วิธีเดียวกับ FiveM) เกมเชื่อมต่อเองเมื่อหน้าเมนูพร้อม ไม่ค้างที่หน้าเมนูอีก | Fix: auto-connect via launch link"
+  "notes": "ใหม่: เครื่องมือ > ล้างขยะ ล้างขยะทั้งเครื่อง (Temp, อัปเดต Windows, แคชเบราว์เซอร์/Discord/Steam, crash dump ฯลฯ) สแกนดูขนาดก่อนล้าง | System cleanup"
 }
