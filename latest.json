@@ -1,6 +1,6 @@
 {
-  "version": "2.5.0",
-  "sha256": "481aa7d32b2f3acfa6dd206dfa41a4895fe83cf48dc50e9d18c565fa05f4b5a0",
+  "version": "2.5.1",
+  "sha256": "6833ad2fb029c6f4b1e2e5042c2c791e94c0f208c49d81ce393085abaa9ba172",
   "file": "release/ZanBooster.exe",
-  "notes": "สรุปการอัปเดตแสดงครบทุกเวอร์ชันที่ข้ามมา | Update summary lists every skipped version"
+  "notes": "แก้หน้าวิธีใช้เด้งซ้ำทุกครั้งที่เปิดโปรแกรม | Guide shows only on first launch"
 }
