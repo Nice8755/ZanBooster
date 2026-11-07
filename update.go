@@ -3,10 +3,13 @@
 package main
 
 import (
+	"unsafe"
+
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/sys/windows"
 	"io"
 	"net/http"
 	"os"
@@ -280,3 +283,25 @@ func (a *app) saveSettings(s string) bool {
 	}
 	return os.WriteFile(filepath.Join(a.dataDir, "settings.json"), []byte(s), 0o644) == nil
 }
+
+// exeVersion อ่านเวอร์ชันจาก resource ของไฟล์ exe (เช่น ไฟล์ .old ที่เหลือจากการอัปเดต)
+func exeVersion(path string) string {
+	n, err := windows.GetFileVersionInfoSize(path, nil)
+	if err != nil || n == 0 {
+		return ""
+	}
+	buf := make([]byte, n)
+	if windows.GetFileVersionInfo(path, 0, n, unsafe.Pointer(&buf[0])) != nil {
+		return ""
+	}
+	var p unsafe.Pointer
+	var l uint32
+	if windows.VerQueryValue(unsafe.Pointer(&buf[0]), `\`, unsafe.Pointer(&p), &l) != nil || l < 52 {
+		return ""
+	}
+	fi := (*windows.VS_FIXEDFILEINFO)(p)
+	return fmt.Sprintf("%d.%d.%d", fi.FileVersionMS>>16, fi.FileVersionMS&0xffff, fi.FileVersionLS>>16)
+}
+
+// prevVersion = เวอร์ชันก่อนอัปเดต (อ่านจากไฟล์ .old ก่อนลบ) ใช้สรุปว่ามีอะไรใหม่
+func (a *app) prevVersion() string { return a.prevVer }

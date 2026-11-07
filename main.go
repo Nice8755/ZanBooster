@@ -32,7 +32,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "2.4.9"
+const appVersion = "2.5.0"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -63,6 +63,7 @@ var (
 )
 
 type app struct {
+	prevVer string
 	w          webview2.WebView
 	hwnd       uintptr
 	enginePath string
@@ -185,11 +186,15 @@ func main() {
 	must(w.Bind("about", a.about))
 	must(w.Bind("loadSettings", a.loadSettings))
 	must(w.Bind("saveSettings", a.saveSettings))
+	must(w.Bind("prevVersion", a.prevVersion))
 	must(w.Bind("openPath", openURL))
 	must(w.Bind("launchServer", a.launchServerAsync))
 	must(w.Bind("loadRecent", a.loadRecent))
 	must(w.Bind("saveRecent", a.saveRecent))
 
+	if self, err := os.Executable(); err == nil {
+		a.prevVer = exeVersion(self + ".old")
+	}
 	cleanupOldExe()
 	go a.ensureGameModeHelper()
 	go a.gameModeRelay()

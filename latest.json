@@ -1,6 +1,6 @@
 {
-  "version": "2.4.9",
-  "sha256": "671818e590c5934a467ba1c5062487cd20fa3f46ad98a7e431559573a2a52126",
+  "version": "2.5.0",
+  "sha256": "481aa7d32b2f3acfa6dd206dfa41a4895fe83cf48dc50e9d18c565fa05f4b5a0",
   "file": "release/ZanBooster.exe",
-  "notes": "% CPU ตรงกับ Task Manager | CPU % matches Task Manager"
+  "notes": "สรุปการอัปเดตแสดงครบทุกเวอร์ชันที่ข้ามมา | Update summary lists every skipped version"
 }
