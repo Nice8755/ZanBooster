@@ -32,7 +32,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "2.4.8"
+const appVersion = "2.4.9"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -396,6 +396,9 @@ func (a *app) stats() stats {
 	if statsPdh != nil {
 		if g, _, _, ok := statsPdh.sample(); ok {
 			s.GPU = math.Min(100, g)
+			if u := statsPdh.utility(); u > 0 {
+				s.CPU = u // ตรงกับ Task Manager
+			}
 		}
 	}
 	statsPdhMu.Unlock()

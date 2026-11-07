@@ -1,6 +1,6 @@
 {
-  "version": "2.4.8",
-  "sha256": "c47169179feb347ef95338c468ccefa1b0201ffbfbc599d5c7bce14957e76228",
+  "version": "2.4.9",
+  "sha256": "671818e590c5934a467ba1c5062487cd20fa3f46ad98a7e431559573a2a52126",
   "file": "release/ZanBooster.exe",
-  "notes": "หน้าหลัก: แสดง % การใช้งานและอุณหภูมิการ์ดจอ | GPU usage and temperature on Home"
+  "notes": "% CPU ตรงกับ Task Manager | CPU % matches Task Manager"
 }

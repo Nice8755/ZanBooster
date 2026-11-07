@@ -10,6 +10,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -258,7 +259,7 @@ func (a *app) ensureZanScheme() bool {
 // ---- ตัวถ่วง (PDH) ----
 
 type pdhQuery struct {
-	q, gpu, cpu, perf, gmem, amem uintptr
+	q, gpu, cpu, perf, gmem, amem, util uintptr
 }
 
 func openPdh() *pdhQuery {
@@ -275,6 +276,8 @@ func openPdh() *pdhQuery {
 	add(`\Processor Information(_Total)\% Processor Performance`, &p.perf)
 	add(`\GPU Process Memory(*)\Dedicated Usage`, &p.gmem)
 	add(`\GPU Adapter Memory(*)\Dedicated Usage`, &p.amem)
+	// แบบเดียวกับ Task Manager (Win8+): คิดความเร็ว turbo ด้วย
+	add(`\Processor Information(_Total)\% Processor Utility`, &p.util)
 	pPdhCollect.Call(p.q)
 	return p
 }
@@ -334,6 +337,16 @@ func (p *pdhQuery) sample() (gpu, cpu, cpuMax float64, ok bool) {
 		cpuMax = 100
 	}
 	return gpu, cpu, cpuMax, true
+}
+
+// utility = % CPU แบบที่ Task Manager แสดง (อ่านจากรอบ collect ล่าสุด)
+func (p *pdhQuery) utility() float64 {
+	for k, v := range pdhArray(p.util) {
+		if k == "_Total" {
+			return math.Min(100, v)
+		}
+	}
+	return 0
 }
 
 // extra อ่านค่าจากรอบ collect ล่าสุด: % ความเร็วซีพียู, VRAM ของเกม (MB), VRAM ทั้งเครื่อง (MB)

@@ -345,4 +345,3 @@ func summarize(ft, gb, lat []float64) benchRun {
 	r.Avg, r.Low1, r.Low01, r.GpuPct, r.Latency = round(r.Avg), round(r.Low1), round(r.Low01), math.Round(r.GpuPct), round(r.Latency)
 	return r
 }
-
