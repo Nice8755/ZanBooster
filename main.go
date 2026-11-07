@@ -8,6 +8,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net"
 	"os"
 	"os/exec"
@@ -31,7 +32,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "2.4.7"
+const appVersion = "2.4.8"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -323,6 +324,8 @@ type stats struct {
 	RAMUsed  float64 `json:"ramUsed"`
 	RAMTotal float64 `json:"ramTotal"`
 	FiveM    bool    `json:"fivem"`
+	GPU      float64 `json:"gpu"`
+	GPUTemp  float64 `json:"gpuTemp"`
 }
 
 func ft(f windows.Filetime) uint64 { return uint64(f.HighDateTime)<<32 | uint64(f.LowDateTime) }
@@ -379,8 +382,23 @@ func fivemRunning() bool {
 	}
 }
 
+var (
+	statsPdh   *pdhQuery
+	statsPdhMu sync.Mutex
+)
+
 func (a *app) stats() stats {
-	s := stats{CPU: a.cpuUsage(), FiveM: fivemRunning()}
+	s := stats{CPU: a.cpuUsage(), FiveM: fivemRunning(), GPUTemp: gpuTempC()}
+	statsPdhMu.Lock()
+	if statsPdh == nil {
+		statsPdh = openPdh()
+	}
+	if statsPdh != nil {
+		if g, _, _, ok := statsPdh.sample(); ok {
+			s.GPU = math.Min(100, g)
+		}
+	}
+	statsPdhMu.Unlock()
 	var m memStatusEx
 	m.Length = uint32(unsafe.Sizeof(m))
 	if r, _, _ := pGlobalMemoryStatus.Call(uintptr(unsafe.Pointer(&m))); r != 0 {
