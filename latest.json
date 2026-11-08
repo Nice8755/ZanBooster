@@ -1,6 +1,6 @@
 {
-  "version": "2.5.1",
-  "sha256": "6833ad2fb029c6f4b1e2e5042c2c791e94c0f208c49d81ce393085abaa9ba172",
+  "version": "2.5.2",
+  "sha256": "71142188d38c52104109ffd832d990da4031bc8e4bf69216a7f4eaa24636a85c",
   "file": "release/ZanBooster.exe",
-  "notes": "แก้หน้าวิธีใช้เด้งซ้ำทุกครั้งที่เปิดโปรแกรม | Guide shows only on first launch"
+  "notes": "แก้กราฟิกแบบสวย: Particles ตั้งได้ถูกต้อง | Fixed Particles in presets"
 }

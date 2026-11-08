@@ -703,7 +703,7 @@ function Get-GfxPlan {
             Shadow_ParticleShadows = $(if ($lg -ge 0.5) { 'true' } else { 'false' })
             ReflectionQuality = (& $r 3); ReflectionMSAA = $rmsaa; MSAA = $msaa; TXAA_Enabled = 'false'; FXAA_Enabled = 'true'
             AnisotropicFiltering = $(if ($GT -ge 2) { 16 } else { 4 }); SSAO = (& $r 2); Tessellation = (& $r 3)
-            GrassQuality = $grass; WaterQuality = (& $r 2); ParticleQuality = (& $r 3); PostFX = (& $r 3)
+            GrassQuality = $grass; WaterQuality = (& $r 2); ParticleQuality = (& $r 2); PostFX = (& $r 3)
             DoF = 'false'; MotionBlurStrength = 0.0; Lighting_FogVolumes = $(if ($lg -ge 0.5) { 'true' } else { 'false' })
             LodScale = [math]::Round($lc, 2); MaxLodScale = $(if ($top) { [math]::Round([math]::Max(0.0, $lc - 0.6), 2) } else { 0.0 })
             PedLodBias = [math]::Round($lc * 0.2, 2); VehicleLodBias = [math]::Round($lc * 0.2, 2)

@@ -32,7 +32,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "2.5.1"
+const appVersion = "2.5.2"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
