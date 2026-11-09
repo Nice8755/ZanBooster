@@ -433,9 +433,10 @@ $Tweaks = [ordered]@{
         Check = { (Get-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization' 'DODownloadMode') -eq 0 }
     }
     DefenderFiveM = @{
+        # ทำแค่ "เพิ่มข้อยกเว้น" ไม่เปิด Defender ถ้า Defender ปิดอยู่แล้วจะไม่ทำอะไรเลย
         # ให้ Defender ข้ามการสแกนโฟลเดอร์ FiveM: ตอนเกมโหลดแมพ/ไฟล์เซิร์ฟ Defender สแกนทุกไฟล์ทำให้กระตุก
         Apply = {
-            if (-not (Get-Command Add-MpPreference -ErrorAction SilentlyContinue)) { throw 'เครื่องนี้ไม่ได้ใช้ Windows Defender' }
+            if (-not (Test-DefenderOn)) { Write-Log 'Defender ปิดอยู่แล้ว ไม่ต้องตั้ง (ไม่ได้เปิด Defender กลับมา)'; return }
             $fd = Get-FiveMData
             if (-not $fd) { throw 'ยังไม่เจอโฟลเดอร์ FiveM' }
             $p = Split-Path $fd -Parent
@@ -446,8 +447,9 @@ $Tweaks = [ordered]@{
             Write-Log "Defender ข้ามโฟลเดอร์ $p"
         }
         Check = {
+            if (-not (Test-DefenderOn)) { return $true } # Defender ปิดอยู่ = ไม่มีการสแกนอยู่แล้ว
             $fd = Get-FiveMData
-            [bool]($fd -and (Get-Command Get-MpPreference -ErrorAction SilentlyContinue) -and (@((Get-MpPreference).ExclusionPath) -contains (Split-Path $fd -Parent)))
+            [bool]($fd -and (@((Get-MpPreference -ErrorAction SilentlyContinue).ExclusionPath) -contains (Split-Path $fd -Parent)))
         }
     }
     GpuMsi = @{
@@ -500,6 +502,13 @@ $Tweaks = [ordered]@{
 }
 
 # ------------------------------------------------------------ actions ----
+function Test-DefenderOn {
+    # Defender ทำงานอยู่จริงไหม (เครื่องที่ปิด/ลบ Defender หรือใช้แอนตี้ไวรัสตัวอื่น = false)
+    if (-not (Get-Command Get-MpComputerStatus -ErrorAction SilentlyContinue)) { return $false }
+    $svc = Get-Service WinDefend -ErrorAction SilentlyContinue
+    if (-not $svc -or $svc.Status -ne 'Running') { return $false }
+    try { return [bool](Get-MpComputerStatus -ErrorAction Stop).RealTimeProtectionEnabled } catch { return $false }
+}
 function Get-TweakKeys([string]$id) {
     $Script:DryKeys.Clear(); $Script:DryRun = $true
     try { & $Tweaks[$id].Apply } catch { } finally { $Script:DryRun = $false }

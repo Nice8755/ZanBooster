@@ -1,6 +1,6 @@
 {
-  "version": "2.5.5",
-  "sha256": "03fee082469b7761820411ba4be31fad57be5b3b6d2a6abaabe67d0ca28ea1d9",
+  "version": "2.5.6",
+  "sha256": "b72d7f81661e1d0a7d160eecfe421435f242631f5213cf4d3ada15b55e25ff52",
   "file": "release/ZanBooster.exe",
-  "notes": "ปรับแต่งใหม่: Timer ละเอียดสำหรับเกม, Defender ข้ามโฟลเดอร์ FiveM, ไม่ให้ Windows แชร์อัปเดตแย่งเน็ต, การ์ดแลนปิดประหยัดไฟเพิ่ม | เอาสายตีออก"
+  "notes": "Defender ข้ามโฟลเดอร์ FiveM: เครื่องที่ปิด Defender ไว้จะไม่ทำอะไร ไม่เปิด Defender กลับมา | Never re-enables Defender"
 }
