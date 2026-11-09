@@ -1,6 +1,6 @@
 {
-  "version": "2.5.4",
-  "sha256": "48ec9f5793448d94d6e933eb81133b303f2e4d240f73fa570c155968535491aa",
+  "version": "2.5.5",
+  "sha256": "03fee082469b7761820411ba4be31fad57be5b3b6d2a6abaabe67d0ca28ea1d9",
   "file": "release/ZanBooster.exe",
-  "notes": "กราฟิกแบบใหม่ \"สายตี\" สำหรับ PvP | New PvP graphics preset"
+  "notes": "ปรับแต่งใหม่: Timer ละเอียดสำหรับเกม, Defender ข้ามโฟลเดอร์ FiveM, ไม่ให้ Windows แชร์อัปเดตแย่งเน็ต, การ์ดแลนปิดประหยัดไฟเพิ่ม | เอาสายตีออก"
 }

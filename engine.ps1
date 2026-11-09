@@ -401,7 +401,7 @@ $Tweaks = [ordered]@{
         Apply = {
             $changed = @()
             foreach ($a in Get-UpAdapters) {
-                foreach ($kw in '*InterruptModeration', '*EEE') {
+                foreach ($kw in '*InterruptModeration', '*EEE', 'EEE', 'AdvancedEEE', 'EnableGreenEthernet', 'GigaLite', 'PowerSavingMode', '*FlowControl') {
                     $prop = Get-NetAdapterAdvancedProperty -Name $a.Name -RegistryKeyword $kw -ErrorAction SilentlyContinue
                     if (-not $prop) { continue }
                     $id = "$($a.Name)|$kw"
@@ -421,6 +421,34 @@ $Tweaks = [ordered]@{
         # Memory Integrity (Core Isolation) บางเครื่องกิน FPS 5-15% ต้องรีสตาร์ทถึงมีผล
         Apply = { Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Enabled' 0 }
         Check = { (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Enabled') -ne 1 }
+    }
+    TimerRes = @{
+        # Windows 11 ให้เกมขอ timer ละเอียด (0.5 ms) แล้วมีผลทั้งระบบเหมือน Windows 10: เฟรมออกสม่ำเสมอ input ตอบไวขึ้น ต้องรีสตาร์ท
+        Apply = { Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' 'GlobalTimerResolutionRequests' 1 }
+        Check = { [Environment]::OSVersion.Version.Build -lt 22000 -or (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' 'GlobalTimerResolutionRequests') -eq 1 }
+    }
+    NoP2PUpdate = @{
+        # ไม่ให้ Windows Update อัปโหลดไฟล์ให้เครื่องอื่นในเน็ต (Delivery Optimization) แย่งเน็ตตอนเล่น ปิงกระโดด
+        Apply = { Set-RegValue 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization' 'DODownloadMode' 0 }
+        Check = { (Get-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization' 'DODownloadMode') -eq 0 }
+    }
+    DefenderFiveM = @{
+        # ให้ Defender ข้ามการสแกนโฟลเดอร์ FiveM: ตอนเกมโหลดแมพ/ไฟล์เซิร์ฟ Defender สแกนทุกไฟล์ทำให้กระตุก
+        Apply = {
+            if (-not (Get-Command Add-MpPreference -ErrorAction SilentlyContinue)) { throw 'เครื่องนี้ไม่ได้ใช้ Windows Defender' }
+            $fd = Get-FiveMData
+            if (-not $fd) { throw 'ยังไม่เจอโฟลเดอร์ FiveM' }
+            $p = Split-Path $fd -Parent
+            if ($Script:DryRun) { $Script:DryKeys.Add("MP|$p"); return }
+            if (@((Get-MpPreference).ExclusionPath) -contains $p) { return }
+            Add-MpPreference -ExclusionPath $p -ErrorAction Stop
+            if ($Script:Backup.Defender -notcontains $p) { $Script:Backup.Defender = @($Script:Backup.Defender) + $p }
+            Write-Log "Defender ข้ามโฟลเดอร์ $p"
+        }
+        Check = {
+            $fd = Get-FiveMData
+            [bool]($fd -and (Get-Command Get-MpPreference -ErrorAction SilentlyContinue) -and (@((Get-MpPreference).ExclusionPath) -contains (Split-Path $fd -Parent)))
+        }
     }
     GpuMsi = @{
         # ให้การ์ดจอใช้ MSI interrupt แทน line-based: ลด DPC latency เฟรมสม่ำเสมอขึ้น (การ์ดรุ่นใหม่ส่วนใหญ่เปิดอยู่แล้ว) ต้องรีสตาร์ท
@@ -480,6 +508,7 @@ function Get-TweakKeys([string]$id) {
 function Test-TweakOwned([string]$id) {
     if ($id -eq 'PowerPlan') { return [bool]$Script:Backup.PrevScheme }
     if ($id -eq 'Adapter') { return $Script:Backup.Adapters.Count -gt 0 }
+    if ($id -eq 'DefenderFiveM') { return @($Script:Backup.Defender).Count -gt 0 }
     foreach ($k in Get-TweakKeys $id) { if ($Script:Backup.Registry.ContainsKey($k)) { return $true } }
     $false
 }
@@ -504,6 +533,12 @@ function Revert-Tweak([string]$id) {
         if ($LASTEXITCODE -ne 0) { powercfg /setactive $BalancedGuid | Out-Null }
         if (((powercfg /list) -join ' ') -match $SchemeGuid) { powercfg /delete $SchemeGuid | Out-Null }
         $b.PrevScheme = $null
+        return
+    }
+    if ($id -eq 'DefenderFiveM') {
+        if (@($b.Defender).Count -eq 0) { throw 'ไม่มีค่าเดิมเก็บไว้ (โฟลเดอร์นี้ถูกยกเว้นไว้ก่อนแล้ว)' }
+        foreach ($p in @($b.Defender)) { Remove-MpPreference -ExclusionPath $p -ErrorAction SilentlyContinue }
+        $b.Defender = @()
         return
     }
     if ($id -eq 'Adapter') {
@@ -711,23 +746,12 @@ function Get-GfxPlan {
             VSync = 0
         }
     }
-    # สายตี (PvP): เห็นศัตรูชัด + เฟรมสูงนิ่ง  หญ้า/เงา/Post FX ต่ำ (ไม่มีอะไรบังหรือเบลอ), Texture ตาม VRAM, คนไกลยังชัด
-    $pvpTex = $(if ($VR -ge 6) { 1 } else { 0 })
-    $pvpLc = @(0.3, 0.4, 0.5, 0.6, 0.6)[$CT - 1]
-    $pvp = [ordered]@{
-        TextureQuality = $pvpTex; ShaderQuality = 0; ShadowQuality = 1; Shadow_SoftShadows = 0; UltraShadows_Enabled = 'false'; Shadow_LongShadows = 'false'
-        Shadow_ParticleShadows = 'false'; Shadow_Distance = 1.0; ReflectionQuality = 0; ReflectionMSAA = 0; Reflection_MipBlur = 'false'
-        MSAA = 0; TXAA_Enabled = 'false'; FXAA_Enabled = 'false'; AnisotropicFiltering = $(if ($GT -ge 2) { 16 } else { 4 }); SSAO = 0; Tessellation = 0
-        GrassQuality = 0; WaterQuality = 0; ParticleQuality = 0; PostFX = 0; DoF = 'false'; MotionBlurStrength = 0.0
-        Lighting_FogVolumes = 'false'; Shader_SSA = 'false'; LodScale = $pvpLc; MaxLodScale = 0.0; PedLodBias = 0.2; VehicleLodBias = 0.0
-        CityDensity = 0.0; PedVarietyMultiplier = 0.0; VehicleVarietyMultiplier = 0.0; HdStreamingInFlight = 'false'; VSync = 0
-    }
     $balLg = @(0.2, 0.35, 0.5, 0.65, 0.8)[$GT - 1]; $balLc = @(0.4, 0.55, 0.7, 0.8, 0.9)[$CT - 1]
     $qLg   = @(0.4, 0.6, 0.8, 0.95, 1.0)[$GT - 1];  $qLc   = @(0.6, 0.75, 0.9, 1.0, 1.0)[$CT - 1]
     [pscustomobject]@{
         gpu = $gi.name; vram = $VR; cpu = ((Get-CimInstance Win32_Processor | Select-Object -First 1).Name).Trim(); ram = $ram
         gpuTier = $GT; cpuTier = $CT
-        presets = @{ performance = $perf; pvp = $pvp; balanced = (Build $balLg $balLc $false); quality = (Build $qLg $qLc $true) }
+        presets = @{ performance = $perf; balanced = (Build $balLg $balLc $false); quality = (Build $qLg $qLc $true) }
     }
 }
 
@@ -1033,6 +1057,7 @@ function Do-Restore {
         } catch { Write-Log "คืนค่าการ์ดแลน $($parts[0]) ไม่ได้" }
     }
     foreach ($n in $restart) { Restart-NetAdapter -Name $n -Confirm:$false -ErrorAction SilentlyContinue }
+    foreach ($p in @($b.Defender)) { Remove-MpPreference -ExclusionPath $p -ErrorAction SilentlyContinue; Write-Log "Defender กลับมาสแกน $p" }
 
     if ((Test-Path $GfxBackup) -and -not (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' })) {
         Copy-Item $GfxBackup $GfxFile -Force; Remove-Item $GfxBackup -Force; Write-Log 'คืนไฟล์กราฟิก FiveM เดิมแล้ว'
