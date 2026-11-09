@@ -1,0 +1,29 @@
+name: Cleanup old releases
+
+# กดรันเองที่แท็บ Actions: ลบ release เก่า (และ tag ของมัน) เก็บไว้แค่เวอร์ชันล่าสุดตามจำนวนที่ใส่
+# ไม่กระทบตัวอัปเดตในโปรแกรม (อ่านแค่ latest.json)
+on:
+  workflow_dispatch:
+    inputs:
+      keep:
+        description: "จำนวน release ล่าสุดที่จะเก็บไว้"
+        required: true
+        default: "10"
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          KEEP: ${{ inputs.keep }}
+        run: |
+          gh api "repos/${{ github.repository }}/releases" --paginate --jq '.[] | "\(.created_at) \(.tag_name)"' \
+            | sort -r | tail -n +$((KEEP + 1)) | while read -r _ tag; do
+              echo "delete $tag"
+              gh release delete "$tag" --repo "${{ github.repository }}" --yes --cleanup-tag
+            done
