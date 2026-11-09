@@ -1,6 +1,6 @@
 {
-  "version": "2.5.6",
-  "sha256": "b72d7f81661e1d0a7d160eecfe421435f242631f5213cf4d3ada15b55e25ff52",
+  "version": "2.5.7",
+  "sha256": "be9e07e49ecad97f5b1cdc3909fdb9f33aa3f936daff9e5247a5d378526985a4",
   "file": "release/ZanBooster.exe",
-  "notes": "Defender ข้ามโฟลเดอร์ FiveM: เครื่องที่ปิด Defender ไว้จะไม่ทำอะไร ไม่เปิด Defender กลับมา | Never re-enables Defender"
+  "notes": "ปุ่มแจ้งปัญหาให้ผู้พัฒนา (เกี่ยวกับ) ส่งเข้า Discord ZAN Hub ได้ทันที | Report a problem button"
 }

@@ -32,7 +32,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "2.5.6"
+const appVersion = "2.5.7"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -187,6 +187,8 @@ func main() {
 	must(w.Bind("loadSettings", a.loadSettings))
 	must(w.Bind("saveSettings", a.saveSettings))
 	must(w.Bind("prevVersion", a.prevVersion))
+	must(w.Bind("sendReport", a.sendReport))
+	must(w.Bind("canSendReport", a.canSendReport))
 	must(w.Bind("openPath", openURL))
 	must(w.Bind("launchServer", a.launchServerAsync))
 	must(w.Bind("loadRecent", a.loadRecent))

@@ -1006,7 +1006,9 @@ function Do-Report {
     $os = Get-CimInstance Win32_OperatingSystem
     $report = [ordered]@{ created = (Get-Date).ToString('s'); app = $Opt; os = "$($os.Caption) $($os.Version)"; results = @($data) }
     $report | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $tmp 'report.json') -Encoding UTF8
-    foreach ($f in 'log.txt', 'backup.json', 'config.json', 'settings.json', 'remote.json') {
+    $send = ($Ids -eq 'send') # ส่งเข้า Discord: เก็บเฉพาะที่จำเป็น ไฟล์เล็ก
+    $files = $(if ($send) { 'log.txt', 'backup.json', 'config.json' } else { 'log.txt', 'backup.json', 'config.json', 'settings.json', 'remote.json' })
+    foreach ($f in $files) {
         $src = Join-Path $DataDir $f; if (Test-Path $src) { Copy-Item $src $tmp }
     }
     $fd = Get-FiveMData
@@ -1014,13 +1016,22 @@ function Do-Report {
         $app = Split-Path $fd -Parent
         $ini = Join-Path $app 'CitizenFX.ini'; if (Test-Path $ini) { Copy-Item $ini $tmp }
         $logs = Join-Path $app 'logs'
-        if (Test-Path $logs) { Get-ChildItem $logs -File | Sort-Object LastWriteTime -Descending | Select-Object -First 2 | Copy-Item -Destination $tmp }
+        if (Test-Path $logs) {
+            foreach ($lf in @(Get-ChildItem $logs -File | Sort-Object LastWriteTime -Descending | Select-Object -First 2)) {
+                if ($send -and $lf.Length -gt 400KB) {
+                    # เอาแค่ท้ายไฟล์ (ส่วนที่มีปัญหาล่าสุด) ไม่ให้ไฟล์ใหญ่เกิน Discord รับ
+                    $fs = [IO.File]::Open($lf.FullName, 'Open', 'Read', 'ReadWrite')
+                    try { $fs.Seek(-400KB, 'End') | Out-Null; $buf = New-Object byte[] (400KB); $n = $fs.Read($buf, 0, $buf.Length); [IO.File]::WriteAllBytes((Join-Path $tmp $lf.Name), $buf[0..($n - 1)]) } finally { $fs.Close() }
+                } else { Copy-Item -LiteralPath $lf.FullName -Destination $tmp }
+            }
+        }
     }
     if (Test-Path $GfxFile) { Copy-Item $GfxFile $tmp }
-    $zip = Join-Path ([Environment]::GetFolderPath('Desktop')) "ZanBooster-report-$stamp.zip"
+    $zipDir = $(if ($send) { $env:TEMP } else { [Environment]::GetFolderPath('Desktop') })
+    $zip = Join-Path $zipDir "ZanBooster-report-$stamp.zip"
     Compress-Archive -Path (Join-Path $tmp '*') -DestinationPath $zip -Force
     Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
-    Start-Process explorer.exe "/select,`"$zip`""
+    if (-not $send) { Start-Process explorer.exe "/select,`"$zip`"" }
     Emit @{ t = 'result'; action = 'Report'; ok = $true; path = $zip }
 }
 
