@@ -711,12 +711,23 @@ function Get-GfxPlan {
             VSync = 0
         }
     }
+    # สายตี (PvP): เห็นศัตรูชัด + เฟรมสูงนิ่ง  หญ้า/เงา/Post FX ต่ำ (ไม่มีอะไรบังหรือเบลอ), Texture ตาม VRAM, คนไกลยังชัด
+    $pvpTex = $(if ($VR -ge 6) { 1 } else { 0 })
+    $pvpLc = @(0.3, 0.4, 0.5, 0.6, 0.6)[$CT - 1]
+    $pvp = [ordered]@{
+        TextureQuality = $pvpTex; ShaderQuality = 0; ShadowQuality = 1; Shadow_SoftShadows = 0; UltraShadows_Enabled = 'false'; Shadow_LongShadows = 'false'
+        Shadow_ParticleShadows = 'false'; Shadow_Distance = 1.0; ReflectionQuality = 0; ReflectionMSAA = 0; Reflection_MipBlur = 'false'
+        MSAA = 0; TXAA_Enabled = 'false'; FXAA_Enabled = 'false'; AnisotropicFiltering = $(if ($GT -ge 2) { 16 } else { 4 }); SSAO = 0; Tessellation = 0
+        GrassQuality = 0; WaterQuality = 0; ParticleQuality = 0; PostFX = 0; DoF = 'false'; MotionBlurStrength = 0.0
+        Lighting_FogVolumes = 'false'; Shader_SSA = 'false'; LodScale = $pvpLc; MaxLodScale = 0.0; PedLodBias = 0.2; VehicleLodBias = 0.0
+        CityDensity = 0.0; PedVarietyMultiplier = 0.0; VehicleVarietyMultiplier = 0.0; HdStreamingInFlight = 'false'; VSync = 0
+    }
     $balLg = @(0.2, 0.35, 0.5, 0.65, 0.8)[$GT - 1]; $balLc = @(0.4, 0.55, 0.7, 0.8, 0.9)[$CT - 1]
     $qLg   = @(0.4, 0.6, 0.8, 0.95, 1.0)[$GT - 1];  $qLc   = @(0.6, 0.75, 0.9, 1.0, 1.0)[$CT - 1]
     [pscustomobject]@{
         gpu = $gi.name; vram = $VR; cpu = ((Get-CimInstance Win32_Processor | Select-Object -First 1).Name).Trim(); ram = $ram
         gpuTier = $GT; cpuTier = $CT
-        presets = @{ performance = $perf; balanced = (Build $balLg $balLc $false); quality = (Build $qLg $qLc $true) }
+        presets = @{ performance = $perf; pvp = $pvp; balanced = (Build $balLg $balLc $false); quality = (Build $qLg $qLc $true) }
     }
 }
 

@@ -1,6 +1,6 @@
 {
-  "version": "2.5.3",
-  "sha256": "f488bd913c787fe890e00db7c54bf33f8eac601ab26be0c812707c2a4857b1f8",
+  "version": "2.5.4",
+  "sha256": "48ec9f5793448d94d6e933eb81133b303f2e4d240f73fa570c155968535491aa",
   "file": "release/ZanBooster.exe",
-  "notes": "เข้าเซิร์ฟ: รอจนเกมพร้อมจริงแล้วส่ง IP ทันที ไม่จับเวลา ส่งซ้ำจนเข้าได้ | Join waits for real readiness, no fixed timers"
+  "notes": "กราฟิกแบบใหม่ \"สายตี\" สำหรับ PvP | New PvP graphics preset"
 }
