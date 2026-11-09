@@ -712,12 +712,10 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 		}
 	}
 
-	// รอหน้าเมนู: สูงสุด 6 นาที (ครั้งแรกของ build ใหม่ FiveM ต้องโหลดไฟล์ก่อน)
-	step("รอเกมโหลดหน้าเมนู")
-	deadline := time.Now().Add(6 * time.Minute)
-	var pid uint32
-	readySince := time.Time{}
-	sawAny, menuLog := false, false
+	// รอจนเกมพร้อมจริง ไม่จับเวลาตายตัว: FiveM อัปเดตหรือโหลดไฟล์นานแค่ไหนก็รอ ตราบใดที่ FiveM ยังเปิดอยู่
+	// พร้อม = หน้าต่างเกมขึ้นแล้ว (FiveM โชว์หน้าต่างเกมหลังหน้าเมนูโหลดเสร็จ: loadedUI → UiDone → ShowWindow)
+	// พร้อมแล้วส่ง IP ทันที ถ้าเกมยังไม่ตอบก็ส่งซ้ำจนเชื่อมต่อ
+	step("รอ FiveM โหลด / อัปเดต")
 	tail := newLogTail(fivemDir)
 	var seen strings.Builder
 	connState := func() (launchResult, bool) {
@@ -729,73 +727,56 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 			}
 			return launchResult{Message: "เซิร์ฟตอบกลับ: " + strings.TrimSpace(strings.TrimPrefix(msg, "OnConnectionError:")), Cmd: link, Mode: mode}, true
 		}
-		for _, k := range []string{"OnConnectionProgress", "Connecting to server", "Switching from build"} {
+		for _, k := range []string{"OnConnectionProgress", "Connecting to server", "Switching from build", "Ignoring ConnectTo because we're already connecting"} {
 			if strings.Contains(lg, k) {
 				return launchResult{OK: true, Cmd: link, Mode: mode}, true
 			}
 		}
 		return launchResult{}, false
 	}
-	for {
-		if time.Now().After(deadline) {
-			return launchResult{Message: "รอหน้าเมนู FiveM นานเกินไป ถ้าเกมขึ้นแล้วให้กดเข้าอีกครั้ง", Cmd: link, Mode: mode}
+	hardStop := time.Now().Add(45 * time.Minute) // กันค้างตลอดไปเท่านั้น
+	sawAny, menuLog, readyShown := false, false, false
+	var lastSend time.Time
+	sends := 0
+	for time.Now().Before(hardStop) {
+		seen.WriteString(tail.read())
+		if r, done := connState(); done {
+			a.markBuildSeen(build)
+			return r
 		}
 		if fivemRunningAny() {
 			sawAny = true
-		} else if sawAny && time.Since(start) > 20*time.Second {
-			// FiveM ปิดตัวไปเอง (อาจปิดหน้าต่างอัปเดต หรือเกมเด้ง)
+		} else if sawAny {
 			time.Sleep(3 * time.Second)
 			if !fivemRunningAny() {
 				return launchResult{Message: "FiveM ปิดตัวไประหว่างโหลด ลองเปิด FiveM เองหนึ่งครั้งให้ขึ้นหน้าเมนู แล้วกดเข้าใหม่", Cmd: link, Mode: mode}
 			}
-		} else if !sawAny && time.Since(start) > 40*time.Second {
+		} else if time.Since(start) > 90*time.Second {
 			return launchResult{Message: "FiveM ไม่เปิดขึ้นมา ลองเปิด FiveM เองหนึ่งครั้ง แล้วกดเข้าใหม่", Cmd: link, Mode: mode}
-		}
-		p, _ := gtaProcess()
-		seen.WriteString(tail.read())
-		if r, done := connState(); done {
-			a.markBuildSeen(build)
-			return r // เกมเชื่อมต่อเองจากลิงก์ที่ใส่ตอนเปิด
 		}
 		if !menuLog && strings.Contains(seen.String(), "Settings loaded!") {
 			menuLog = true
 		}
-		ready := p != 0 && (menuReady() || gameWindowVisible(p) || menuLog)
-		if p != pid {
-			pid, readySince = p, time.Time{} // ตัวเกมเปลี่ยน (FiveM รีเกมเพื่อสลับ build) เริ่มนับใหม่
-		}
+		p, _ := gtaProcess()
+		ready := p != 0 && (gameWindowVisible(p) || menuLog)
 		if ready {
-			if readySince.IsZero() {
-				readySince = time.Now()
-				step("หน้าเมนูขึ้นแล้ว รอให้นิ่ง")
-			} else if time.Since(readySince) >= 4*time.Second {
-				break
+			if !readyShown {
+				readyShown = true
+				a.markBuildSeen(build) // ขึ้นหน้าเมนูได้ = ไฟล์ของ build นี้ครบแล้ว
 			}
-		} else {
-			readySince = time.Time{}
-		}
-		time.Sleep(time.Second)
-	}
-
-	// เกมขึ้นหน้าเมนูได้ = FiveM โหลดไฟล์ของ build นี้ครบแล้ว
-	a.markBuildSeen(build)
-	// เปิดใหม่พร้อมลิงก์แล้ว: รอให้หน้าเมนูโหลดเสร็จและเชื่อมต่อเองก่อน (หน้าต่างเกมขึ้นก่อนเมนูพร้อมจริงหลายสิบวินาที)
-	if !reuse {
-		step("รอเกมเชื่อมต่อเซิร์ฟเอง")
-		for i := 0; i < 90; i++ {
-			time.Sleep(time.Second)
-			seen.WriteString(tail.read())
-			if r, done := connState(); done {
-				return r
-			}
-			if p, _ := gtaProcess(); p == 0 {
-				return launchResult{Message: "เกมปิดตัวระหว่างโหลด ดู log ใน FiveM.app\\logs", Cmd: link, Mode: mode}
+			// ส่ง IP ทันทีที่พร้อม ถ้ายังไม่เชื่อมต่อส่งซ้ำทุก 8 วินาที (เกมที่ยังโหลดหน้าเมนูไม่เสร็จจะไม่รับครั้งแรก)
+			if lastSend.IsZero() || time.Since(lastSend) >= 8*time.Second {
+				sends++
+				if sends == 1 {
+					step("เกมพร้อมแล้ว ส่ง IP เข้าเกม")
+				} else {
+					step("ส่ง IP อีกครั้ง (เกมยังไม่ตอบ)")
+				}
+				explorerOpen(link)
+				lastSend = time.Now()
 			}
 		}
-	}
-	if r, done := sendConnect(tail, link, 4, step); done {
-		r.Mode = mode
-		return r
+		time.Sleep(700 * time.Millisecond)
 	}
 	return launchResult{Message: "ส่ง IP แล้วแต่เกมยังไม่เชื่อมต่อ ลองกดเข้าในเกมเอง หรือกดเข้าอีกครั้ง", Cmd: link, Mode: mode}
 }

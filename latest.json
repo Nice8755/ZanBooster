@@ -1,6 +1,6 @@
 {
-  "version": "2.5.2",
-  "sha256": "71142188d38c52104109ffd832d990da4031bc8e4bf69216a7f4eaa24636a85c",
+  "version": "2.5.3",
+  "sha256": "f488bd913c787fe890e00db7c54bf33f8eac601ab26be0c812707c2a4857b1f8",
   "file": "release/ZanBooster.exe",
-  "notes": "แก้กราฟิกแบบสวย: Particles ตั้งได้ถูกต้อง | Fixed Particles in presets"
+  "notes": "เข้าเซิร์ฟ: รอจนเกมพร้อมจริงแล้วส่ง IP ทันที ไม่จับเวลา ส่งซ้ำจนเข้าได้ | Join waits for real readiness, no fixed timers"
 }
