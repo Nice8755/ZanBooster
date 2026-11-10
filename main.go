@@ -32,7 +32,7 @@ var uiHTML string
 //go:embed zan.pow
 var zanPow []byte
 
-const appVersion = "2.5.7"
+const appVersion = "2.5.8"
 
 var (
 	user32   = windows.NewLazySystemDLL("user32.dll")
@@ -333,6 +333,7 @@ type stats struct {
 	FiveM    bool    `json:"fivem"`
 	GPU      float64 `json:"gpu"`
 	GPUTemp  float64 `json:"gpuTemp"`
+	CPUTemp  float64 `json:"cpuTemp"` // °C (0 = เครื่องไม่รายงาน)
 }
 
 func ft(f windows.Filetime) uint64 { return uint64(f.HighDateTime)<<32 | uint64(f.LowDateTime) }
@@ -395,7 +396,7 @@ var (
 )
 
 func (a *app) stats() stats {
-	s := stats{CPU: a.cpuUsage(), FiveM: fivemRunning(), GPUTemp: gpuTempC()}
+	s := stats{CPU: a.cpuUsage(), FiveM: fivemRunning(), GPUTemp: gpuTempC(), CPUTemp: cpuTempC()}
 	statsPdhMu.Lock()
 	if statsPdh == nil {
 		statsPdh = openPdh()

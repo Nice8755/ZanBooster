@@ -1,6 +1,6 @@
 {
-  "version": "2.5.7",
-  "sha256": "be9e07e49ecad97f5b1cdc3909fdb9f33aa3f936daff9e5247a5d378526985a4",
+  "version": "2.5.8",
+  "sha256": "3d5f0ca4e3a5c3bbaa8de4a6b1c73638e2159f490a035ee9f91c6a1d64e5f2df",
   "file": "release/ZanBooster.exe",
-  "notes": "ปุ่มแจ้งปัญหาให้ผู้พัฒนา (เกี่ยวกับ) ส่งเข้า Discord ZAN Hub ได้ทันที | Report a problem button"
+  "notes": "แสดงอุณหภูมิ CPU ใต้เกจ CPU ในหน้าหลัก | CPU temperature under the CPU gauge on Home"
 }
