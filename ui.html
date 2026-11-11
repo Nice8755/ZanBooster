@@ -151,6 +151,7 @@ canvas.spark{width:100%;height:70px;display:block;margin-top:12px}
 .tag.sys{color:var(--amber);border-color:rgba(255,181,71,.35)}
 .tag.rec{color:var(--cyan);border-color:rgba(0,229,255,.4);background:rgba(0,229,255,.07)}
 .tag.warn{color:var(--amber);border-color:rgba(255,181,71,.3)}
+.tag.zan{color:#ff6b81;border-color:rgba(255,51,85,.4);background:rgba(255,51,85,.08)}
 .tag.active{color:#03140c;background:var(--lime);border-color:var(--lime);box-shadow:0 0 10px rgba(57,255,156,.5)}
 .sw{flex:none;width:44px;height:24px;border-radius:20px;background:#1a2340;border:1px solid #2a3760;position:relative;transition:.2s;margin-top:2px}
 .sw:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#56648a;transition:.2s}
@@ -1277,6 +1278,8 @@ const TWEAKS = [
 ];
 const CAT = { fps: ['FPS', 'fps'], input: ['Input Lag', 'input'], net: ['เน็ต', 'net'], sys: ['ระบบ', 'sys'] };
 const byId = Object.fromEntries(TWEAKS.map(t => [t.id, t]));
+const ZANOS_OWNED = ['PowerPlan', 'TimerRes', 'HVCI', 'HAGS', 'GpuMsi', 'Services', 'Adapter', 'VisualFX'];
+let onZanOS = false;
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 let status = {}, hasBackup = false, sel = new Set(TWEAKS.filter(t => t.rec).map(t => t.id)), curCat = 'all', applied = [], selTouched = false, lostChecked = false;
 let job = null;
@@ -1355,6 +1358,8 @@ async function refreshStatus() {
   const r = await run('Status');
   if (!r || !r.status) return;
   status = r.status; hasBackup = !!r.hasBackup; applied = r.applied || [];
+  // บน ZanOS: ข้อที่ ZanOS ตั้งไว้เองแล้ว ไม่นับเป็นข้อแนะนำ (ยังติ๊กเองได้) จะได้ไม่ทับค่าของ ZanOS
+  if (r.zanos && !onZanOS) { onZanOS = true; TWEAKS.forEach(t => { if (ZANOS_OWNED.includes(t.id)) { t.rec = false; t.zanos = true; } }); }
   // สวิตช์ = สถานะจริงของเครื่อง (ครั้งแรกที่ยังไม่เคยปรับ เติมค่าแนะนำไว้ให้)
   if (!selTouched) sel = new Set(TWEAKS.filter(t => status[t.id] || (!hasBackup && !applied.length && t.rec)).map(t => t.id));
   renderScore(); renderTweaks();
@@ -1415,7 +1420,7 @@ function renderTweaks() {
   $('#tgrid').innerHTML = list.map(t => `
     <div class="tw ${sel.has(t.id) ? 'sel' : ''}" data-id="${t.id}" title="${esc(t.desc)}">
       <div class="tx"><h4>${esc(t.title)}</h4><p>${esc(t.desc)}</p>
-        <div class="tags"><span class="tag ${CAT[t.cat][1]}">${CAT[t.cat][0]}</span>${t.rec ? '<span class="tag rec">แนะนำ</span>' : ''}${t.warn ? `<span class="tag warn">${esc(t.warn)}</span>` : ''}${status[t.id] ? (sel.has(t.id) ? '<span class="tag active">เปิดอยู่</span>' : '<span class="tag warn">จะคืนค่าเดิม</span>') : (sel.has(t.id) ? '<span class="tag new">จะเปิด</span>' : '')}</div></div>
+        <div class="tags"><span class="tag ${CAT[t.cat][1]}">${CAT[t.cat][0]}</span>${t.rec ? '<span class="tag rec">แนะนำ</span>' : ''}${t.zanos ? '<span class="tag zan" title="ZanOS ตั้งค่านี้ไว้แล้ว ถ้าเปิดข้อนี้ Zan Booster จะตั้งทับ เปลี่ยนกลับได้ที่ ZanOS Settings">ZanOS ดูแลแล้ว</span>' : ''}${t.warn ? `<span class="tag warn">${esc(t.warn)}</span>` : ''}${status[t.id] ? (sel.has(t.id) ? '<span class="tag active">เปิดอยู่</span>' : '<span class="tag warn">จะคืนค่าเดิม</span>') : (sel.has(t.id) ? '<span class="tag new">จะเปิด</span>' : '')}</div></div>
       <div class="sw"></div>
     </div>`).join('');
   $$('.tw').forEach(el => el.onclick = () => {

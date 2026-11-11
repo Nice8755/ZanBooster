@@ -1,6 +1,6 @@
 {
-  "version": "2.5.8",
-  "sha256": "3d5f0ca4e3a5c3bbaa8de4a6b1c73638e2159f490a035ee9f91c6a1d64e5f2df",
+  "version": "2.5.9",
+  "sha256": "701883b1751aa8424100806f7f4ba25a2d97a7b31ee002703a646151adb31913",
   "file": "release/ZanBooster.exe",
-  "notes": "แสดงอุณหภูมิ CPU ใต้เกจ CPU ในหน้าหลัก | CPU temperature under the CPU gauge on Home"
+  "notes": "บนเครื่องที่ลง ZanOS: ข้อที่ ZanOS ตั้งไว้แล้ว (Power Plan, Timer, Memory Integrity, HAGS, MSI, Service, การ์ดแลน, เอฟเฟกต์) จะไม่ถูกติ๊กให้เองและมีป้าย \"ZanOS ดูแลแล้ว\" เครื่องอื่นเหมือนเดิม | On ZanOS PCs, tweaks ZanOS already manages are no longer pre-selected"
 }

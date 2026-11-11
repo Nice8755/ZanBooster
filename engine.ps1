@@ -611,7 +611,10 @@ function Do-Status {
         $Script:AppliedKnown = $true
         if (Test-HasBackup) { Save-Backup }
     }
-    Emit @{ t = 'result'; action = 'Status'; status = $st; hasBackup = (Test-HasBackup); applied = @($Script:Backup.Applied) }
+    # ZanOS (Windows ที่ลง playbook ของเรา) ตั้งค่าบางข้อไว้เองแล้ว หน้าโปรแกรมจะไม่ติ๊กข้อพวกนั้นให้เอง
+    $zanos = $false
+    try { $zanos = (Test-Path -LiteralPath (Join-Path $env:windir 'ZanOSModules')) -or (Test-Path -LiteralPath 'HKLM:\SOFTWARE\ZanOS') } catch { }
+    Emit @{ t = 'result'; action = 'Status'; status = $st; hasBackup = (Test-HasBackup); applied = @($Script:Backup.Applied); zanos = [bool]$zanos }
 }
 
 function Do-SysInfo {
