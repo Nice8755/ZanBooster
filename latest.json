@@ -1,6 +1,6 @@
 {
-  "version": "2.8.3",
-  "sha256": "bd20f750bc834262a82cfd6525bc0f715a732141a16d0714ad1590bf8a14f137",
+  "version": "2.8.4",
+  "sha256": "b1c96f8cd3aadf31739999569991962497f95a5230c96da5b3228dadbd923b9e",
   "file": "release/ZanBooster.exe",
-  "notes": "คีย์พรีเมียมแบบสั้น ZAN-XXXXX-XXXXX-XXXXX-XXXXX | Short premium keys"
+  "notes": "คีย์พรีเมียมแบบสั้น ZAN-XXXXX-XXXXX-XXXXX-XXXXX (คีย์แบบเดิมยังใช้ได้) | Short premium keys"
 }
