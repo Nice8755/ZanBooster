@@ -1,6 +1,6 @@
 {
-  "version": "2.9.4",
-  "sha256": "2b84e0a634c95fecc010080103d4dca0da8485d98694784ba2109d606163e5bc",
+  "version": "2.9.5",
+  "sha256": "2b2fb1a04165072224b982fb8b61f408aa8578e175abd0b94099d7da9b4a2ed0",
   "file": "release/ZanBooster.exe",
-  "notes": "แอนิเมชันเลื่อนระดับพรีเมียม โลโก้ทองมีมงกุฎ เตือนก่อนหมดอายุ | Premium level-up animation, golden crowned logo, expiry reminders"
+  "notes": "แอนิเมชันเลื่อนระดับพรีเมียม: สายฟ้าสีทอง | Premium level-up: golden lightning"
 }
