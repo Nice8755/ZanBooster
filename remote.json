@@ -3,7 +3,28 @@
   "notice": "",
   "shop": {
     "discord": "https://discord.gg/qxxymX4Vmd",
-    "prices": [],
+    "prices": [
+      {
+        "name": "7 วัน",
+        "price": "25 บาท"
+      },
+      {
+        "name": "30 วัน",
+        "price": "59 บาท"
+      },
+      {
+        "name": "90 วัน",
+        "price": "149 บาท"
+      },
+      {
+        "name": "1 ปี",
+        "price": "399 บาท"
+      },
+      {
+        "name": "ถาวร",
+        "price": "590 บาท"
+      }
+    ],
     "note": ""
   }
 }
