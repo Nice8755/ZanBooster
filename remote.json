@@ -18,5 +18,6 @@
       }
     ],
     "note": ""
-  }
+  },
+  "licApi": "https://zan-license.zanhub.workers.dev"
 }

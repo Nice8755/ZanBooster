@@ -1,6 +1,6 @@
 {
-  "version": "2.9.8",
-  "sha256": "cc091175cc9f93a88771e6d6b5fd4250bbcf4322b0443d35755f58a6fb652526",
+  "version": "3.0.0",
+  "sha256": "cfa20d09e360fe12a3ac7ec2210e79df867d3f602cd0f043436d8ce314e3bcf2",
   "file": "release/ZanBooster.exe",
-  "notes": "เมนูใหม่ พรีเมียม: รวมฟีเจอร์พรีเมียมทั้งหมดไว้หน้าเดียว | New Premium menu with every premium feature on one page"
+  "notes": "ระบบคีย์ใหม่ ตรวจผ่านเซิร์ฟเวอร์ ซื้อคีย์ไม่ต้องส่งรหัสเครื่อง | New server-verified key system"
 }
