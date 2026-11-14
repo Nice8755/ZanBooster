@@ -1,4 +1,9 @@
 {
   "fivemDefaultBuild": 3258,
-  "notice": ""
+  "notice": "",
+  "shop": {
+    "discord": "",
+    "prices": [],
+    "note": ""
+  }
 }
