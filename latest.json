@@ -1,6 +1,6 @@
 {
-  "version": "2.9.0",
-  "sha256": "a0a744b82c9e25af587541f69e389b4c31af5c3cd62528b469594925d3b7c77a",
+  "version": "2.9.1",
+  "sha256": "ab29ed2c8bffbbfaf34c3953020cda3384941f8c92c1f92229162becbe2a077f",
   "file": "release/ZanBooster.exe",
-  "notes": "พรีเมียมใหม่: เป้าเล็งกลางจอ, กราฟิกแยกตามเซิร์ฟ, ล้างขยะอัตโนมัติ | New premium: crosshair overlay, per-server graphics, auto cleanup"
+  "notes": "เวอร์ชันฟรีบันทึกได้ 1 เซิร์ฟ พรีเมียมไม่จำกัด | Free saves 1 server, Premium unlimited"
 }
