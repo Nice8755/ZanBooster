@@ -1,6 +1,6 @@
 {
-  "version": "2.9.2",
-  "sha256": "ae6c10fe4f9af43fc8d5fed6df1476ba31484b21ddbd5686e13b7c396e134818",
+  "version": "2.9.3",
+  "sha256": "c8aef913974f17963d16f6c4af9360146de9d0de01310513bd6aa630af70b4b7",
   "file": "release/ZanBooster.exe",
-  "notes": "เวอร์ชันฟรีใช้ได้ทีละ 1 เซิร์ฟ มีหน้าต่างเลือกเซิร์ฟ + แอนิเมชันเพิ่มเซิร์ฟ | Free: 1 active server with picker, add-server animation"
+  "notes": "เวอร์ชันฟรีเก็บได้ 1 เซิร์ฟ มีหน้าต่างเลือกเซิร์ฟที่จะเก็บ + แอนิเมชันเพิ่มเซิร์ฟ | Free keeps 1 server (picker), add-server animation"
 }
