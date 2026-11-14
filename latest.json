@@ -1,6 +1,6 @@
 {
-  "version": "2.8.1",
-  "sha256": "12f9d5a55191b148bfbc99569c9fe7c0a6535bdcf5b5b9bb4493e428fb58deed",
+  "version": "2.8.2",
+  "sha256": "f40909aa707456b6d9002fcae1866f479f08347d1ac6db346142393443a061e1",
   "file": "release/ZanBooster.exe",
-  "notes": "ขีดมุมของการ์ดและหน้าต่างทุกใบเป็นนีออนเรืองแสง | Neon corner accents"
+  "notes": "ตัวเลขวิ่งนับ กราฟลื่นต่อเนื่อง แอนิเมชันความคืบหน้าตอนบูสต์ ไอคอนเมนูขยับ | Counting numbers, smooth graph, progress animations"
 }
