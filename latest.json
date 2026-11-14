@@ -1,6 +1,6 @@
 {
-  "version": "2.8.0",
-  "sha256": "b1a1cd16df729f2e9dfd80af6e87ce34cbd7d2a664f1fd08599726712f22ad64",
+  "version": "2.8.1",
+  "sha256": "12f9d5a55191b148bfbc99569c9fe7c0a6535bdcf5b5b9bb4493e428fb58deed",
   "file": "release/ZanBooster.exe",
-  "notes": "ยกระดับหน้าตาทั้งโปรแกรม: หน้าเปิดตัว พื้นหลังอนุภาค แถบเลื่อน เอฟเฟกต์ 3 มิติ | Next-gen UI and animations"
+  "notes": "ขีดมุมของการ์ดและหน้าต่างทุกใบเป็นนีออนเรืองแสง | Neon corner accents"
 }
