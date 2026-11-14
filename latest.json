@@ -1,6 +1,6 @@
 {
-  "version": "3.0.0",
-  "sha256": "cfa20d09e360fe12a3ac7ec2210e79df867d3f602cd0f043436d8ce314e3bcf2",
+  "version": "3.0.1",
+  "sha256": "6acc73cd1d4f46f72f8364d73f712a56fb9607d279c27d05eba49e9a9ec6ff24",
   "file": "release/ZanBooster.exe",
   "notes": "ระบบคีย์ใหม่ ตรวจผ่านเซิร์ฟเวอร์ ซื้อคีย์ไม่ต้องส่งรหัสเครื่อง | New server-verified key system"
 }
