@@ -1,6 +1,6 @@
 {
-  "version": "2.9.6",
-  "sha256": "2c473096dc13c67f9c560b2dc7628c8d9ef07a01df68385b3b3664366b2c2456",
+  "version": "2.9.7",
+  "sha256": "e44392088ab8264d066ab1f21417a9c4c702c074c6a22b774cbbe7a009c15bd4",
   "file": "release/ZanBooster.exe",
-  "notes": "ช่วงทดลองฟรีได้โลโก้ทองมีมงกุฎและแอนิเมชันเลื่อนระดับ | Trial gets the crowned logo and level-up animation"
+  "notes": "เอาแถบปุ่มลัดออกจากหน้าหลัก และถอดคีย์ลัดออกทุกฟีเจอร์ | Quick bar removed from home, keyboard shortcuts removed"
 }
