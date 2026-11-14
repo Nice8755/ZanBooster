@@ -1,6 +1,6 @@
 {
-  "version": "2.8.2",
-  "sha256": "f40909aa707456b6d9002fcae1866f479f08347d1ac6db346142393443a061e1",
+  "version": "2.8.3",
+  "sha256": "17a286aae39bc79ef75b1bf576ab950f4fdc9bb5e95cb57310f2179748b81c19",
   "file": "release/ZanBooster.exe",
-  "notes": "ตัวเลขวิ่งนับ กราฟลื่นต่อเนื่อง แอนิเมชันความคืบหน้าตอนบูสต์ ไอคอนเมนูขยับ | Counting numbers, smooth graph, progress animations"
+  "notes": "คีย์พรีเมียมรูปแบบใหม่ ZAN-XXXXX-XXXXX (คีย์เดิมยังใช้ได้) | New key format"
 }
