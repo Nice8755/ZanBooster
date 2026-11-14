@@ -1,6 +1,6 @@
 {
-  "version": "2.7.0",
-  "sha256": "b129437b2c496afb0223ea1732ea812983763eee1e7ad61c420a2b74ed0417cb",
+  "version": "2.8.0",
+  "sha256": "b1a1cd16df729f2e9dfd80af6e87ce34cbd7d2a664f1fd08599726712f22ad64",
   "file": "release/ZanBooster.exe",
-  "notes": "เปิดตัว Zan Booster PREMIUM: ทดลองฟรี 3 วัน (1 ครั้งต่อเครื่อง) ฟีเจอร์พื้นฐานยังใช้ฟรี | Premium launch with a free 3-day trial"
+  "notes": "ยกระดับหน้าตาทั้งโปรแกรม: หน้าเปิดตัว พื้นหลังอนุภาค แถบเลื่อน เอฟเฟกต์ 3 มิติ | Next-gen UI and animations"
 }
