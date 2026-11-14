@@ -1,6 +1,6 @@
 {
-  "version": "2.8.5",
-  "sha256": "d02e9e172229f31a9572597758a210d5c23bf3368d8c1fb7ddac8a07c98badd2",
+  "version": "2.9.0",
+  "sha256": "a0a744b82c9e25af587541f69e389b4c31af5c3cd62528b469594925d3b7c77a",
   "file": "release/ZanBooster.exe",
-  "notes": "พรีเมียม: ธีมสี 5 แบบ, ปุ่ม ZAN HUB ไป Discord | Premium colour themes, Discord button"
+  "notes": "พรีเมียมใหม่: เป้าเล็งกลางจอ, กราฟิกแยกตามเซิร์ฟ, ล้างขยะอัตโนมัติ | New premium: crosshair overlay, per-server graphics, auto cleanup"
 }
