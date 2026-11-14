@@ -1,6 +1,6 @@
 {
-  "version": "2.9.3",
-  "sha256": "c8aef913974f17963d16f6c4af9360146de9d0de01310513bd6aa630af70b4b7",
+  "version": "2.9.4",
+  "sha256": "2b84e0a634c95fecc010080103d4dca0da8485d98694784ba2109d606163e5bc",
   "file": "release/ZanBooster.exe",
-  "notes": "เวอร์ชันฟรีเก็บได้ 1 เซิร์ฟ มีหน้าต่างเลือกเซิร์ฟที่จะเก็บ + แอนิเมชันเพิ่มเซิร์ฟ | Free keeps 1 server (picker), add-server animation"
+  "notes": "แอนิเมชันเลื่อนระดับพรีเมียม โลโก้ทองมีมงกุฎ เตือนก่อนหมดอายุ | Premium level-up animation, golden crowned logo, expiry reminders"
 }
