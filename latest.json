@@ -1,6 +1,6 @@
 {
-  "version": "3.1.3",
-  "sha256": "ef6a8658001cdf982121072ef571e6f15579cfc6baa82d66027b49f2e88b16a0",
+  "version": "3.1.4",
+  "sha256": "1ba17daff386d74bccf2863aebd0aedf3a6895d25345e8aa51ed338a97231d9d",
   "file": "release/ZanBooster.exe",
-  "notes": "ระหว่างเปิด FiveM โปรแกรมหยุดเอฟเฟกต์เอง คืน CPU ให้เกม | Effects pause automatically while FiveM is running"
+  "notes": "แก้ด่วน: หน้าจอว่างเมื่อเปิดโปรแกรมตอน FiveM เปิดอยู่ | Hotfix: blank window while FiveM is running"
 }
