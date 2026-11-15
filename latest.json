@@ -1,6 +1,6 @@
 {
-  "version": "3.1.0",
-  "sha256": "d2e96f3699d124981c5043ad6c7cfca3ee62f4e3d9a7eefca44176475609e602",
+  "version": "3.1.1",
+  "sha256": "68f191fdae5fba68fd8d95391268aa3163eb53d4d014771d19da3ad26eb8aeb7",
   "file": "release/ZanBooster.exe",
-  "notes": "พรีเมียมใหม่: เฟรมเจนสำหรับ FiveM และโปรไฟล์ดวลปืน / เที่ยวเมือง | New premium: frame generation for FiveM and play profiles"
+  "notes": "แก้เฟรมเจนเปิดไม่ได้ และโปรไฟล์การเล่นไม่เปลี่ยนกราฟิกในเกม | Fixed frame generation; profiles no longer change in-game graphics"
 }
