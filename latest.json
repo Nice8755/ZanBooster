@@ -1,6 +1,6 @@
 {
-  "version": "3.1.1",
-  "sha256": "68f191fdae5fba68fd8d95391268aa3163eb53d4d014771d19da3ad26eb8aeb7",
+  "version": "3.1.2",
+  "sha256": "6be771adb45a7dd521f8dd7870272a6d8d744dfb5bc1a96c4a19a0095f916499",
   "file": "release/ZanBooster.exe",
-  "notes": "แก้เฟรมเจนเปิดไม่ได้ และโปรไฟล์การเล่นไม่เปลี่ยนกราฟิกในเกม | Fixed frame generation; profiles no longer change in-game graphics"
+  "notes": "แก้ขยับเมาส์แล้ว CPU พุ่ง | Fixed CPU spikes when moving the mouse"
 }
