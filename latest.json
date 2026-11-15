@@ -1,6 +1,6 @@
 {
-  "version": "3.0.3",
-  "sha256": "5e6fc1ff7a4342902fc96947231677481986957341650fde355d83934a2c7e7c",
+  "version": "3.1.0",
+  "sha256": "d2e96f3699d124981c5043ad6c7cfca3ee62f4e3d9a7eefca44176475609e602",
   "file": "release/ZanBooster.exe",
-  "notes": "โปรแกรมกินเครื่องน้อยลง หน้าตาเหมือนเดิม | Lower CPU and GPU use, same look"
+  "notes": "พรีเมียมใหม่: เฟรมเจนสำหรับ FiveM และโปรไฟล์ดวลปืน / เที่ยวเมือง | New premium: frame generation for FiveM and play profiles"
 }
