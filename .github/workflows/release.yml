@@ -47,3 +47,9 @@ jobs:
             --title "Zan Booster ${{ steps.v.outputs.ver }}" \
             --notes-file notes.md \
             --latest
+
+      - name: Post latest version to Discord download channel
+        if: always()
+        run: |
+          sleep 5
+          curl -s -X POST https://zan-license.zanhub.workers.dev/hook/release || true
