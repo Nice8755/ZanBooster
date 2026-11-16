@@ -1,6 +1,6 @@
 {
-  "version": "3.2.0",
-  "sha256": "dba7f97505cffc835e45963ae74f6af9793c9ab9b0e78b772c4176a03a6f3e54",
+  "version": "3.2.1",
+  "sha256": "df42e820895cde17549cfb7e8db9d448461641fccb3e931c069f3e503455c7df",
   "file": "beta/ZanBooster.exe",
-  "notes": "การ์ดรีวิว FPS + รับยศ Premium ใน Discord ด้วย /premium"
+  "notes": "ลดโปรเซสเบื้องหลังระหว่างเล่น (FPS สูงสุด) + การ์ดรีวิว FPS"
 }
