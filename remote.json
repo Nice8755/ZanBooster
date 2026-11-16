@@ -19,5 +19,9 @@
     ],
     "note": ""
   },
-  "licApi": "https://zan-license.zanhub.workers.dev"
+  "licApi": "https://zan-license.zanhub.workers.dev",
+  "betaMachines": [
+    "ZB-M6SWR-KZ37U"
+  ],
+  "fg": false
 }
