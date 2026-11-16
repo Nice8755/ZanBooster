@@ -1,6 +1,6 @@
 {
-  "version": "3.2.5",
-  "sha256": "9229a1106721a6d84f782f8c915f91f43aff85dee2b97a1d1a695a6b4b2465a1",
+  "version": "3.2.6",
+  "sha256": "699022f10bc4e80bbbfb485c0ad05e65725c1f50d1df8a027773939f431b8e89",
   "file": "beta/ZanBooster.exe",
-  "notes": "กราฟิก FPS สูงสุด + ปิด MPO + ปิด Game Bar"
+  "notes": "เอากราฟิก FPS สูงสุดออก, เฟรมเจนอยู่ในช่วงทดสอบ"
 }
