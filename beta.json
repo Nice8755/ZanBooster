@@ -1,6 +1,6 @@
 {
-  "version": "3.3.0",
-  "sha256": "655c02fb223833bc78e969936eae4ce7a1d4e6a836abf42610ecc17454866c29",
+  "version": "3.3.1",
+  "sha256": "38bec6b7775a4442ce5cfdd92d2d1dfd99a64086039dc30ee0c3d203a1bb413f",
   "file": "beta/ZanBooster.exe",
-  "notes": "เข้าเซิร์ฟคลิกเดียวเป็นพรีเมียม + หน้าขาย"
+  "notes": "เข้าเซิร์ฟแล้วปิดโปรแกรมได้"
 }
