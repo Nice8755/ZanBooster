@@ -1,6 +1,6 @@
 {
-  "version": "3.2.3",
-  "sha256": "8f55c17af19c2f8972012f8921c1350f6aa4a3abdfef6fe188c8a79add6a673c",
+  "version": "3.2.4",
+  "sha256": "a8abb26a58e9d71bb9437c52d4f8ade2cbe48faec3f48f35cf695c9d16716479",
   "file": "beta/ZanBooster.exe",
-  "notes": "ปุ่ม ลดโปรเซสตอนนี้ กดได้ทุกเมื่อ"
+  "notes": "เอาฟีเจอร์ลดโปรเซสออก"
 }
