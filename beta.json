@@ -1,6 +1,6 @@
 {
-  "version": "3.2.7",
-  "sha256": "ad194da630237bb21845fb0bb27191e442a3786d563e73e270367478ad16901e",
+  "version": "3.2.8",
+  "sha256": "f6959b6b7a3c9c0aa8fa5f554fa715123d00eaf8fa0706205ae943c23129d2b4",
   "file": "beta/ZanBooster.exe",
-  "notes": "เอากล่องสถานะมุมล่างซ้ายออก"
+  "notes": "ลดวัตถุที่อยู่ไกล (entity cap low)"
 }
