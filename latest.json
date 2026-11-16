@@ -1,6 +1,6 @@
 {
-  "version": "3.1.4",
-  "sha256": "1ba17daff386d74bccf2863aebd0aedf3a6895d25345e8aa51ed338a97231d9d",
+  "version": "3.1.5",
+  "sha256": "78a607582739cffac2504923e72e54f79af89200e8ab9ad78eabdb78b31b9875",
   "file": "release/ZanBooster.exe",
-  "notes": "แก้ด่วน: หน้าจอว่างเมื่อเปิดโปรแกรมตอน FiveM เปิดอยู่ | Hotfix: blank window while FiveM is running"
+  "notes": "ช่องทดสอบ (เบต้า) ให้อัปเดตเสถียรขึ้น และพักเฟรมเจนระหว่างทดสอบ | Beta channel; frame generation on hold"
 }
