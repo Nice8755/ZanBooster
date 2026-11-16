@@ -1,6 +1,6 @@
 {
-  "version": "3.2.2",
-  "sha256": "43e306eda6e217e7253aa35968200a9f54806e3e5cd39e6536df70bb648886e1",
+  "version": "3.2.3",
+  "sha256": "8f55c17af19c2f8972012f8921c1350f6aa4a3abdfef6fe188c8a79add6a673c",
   "file": "beta/ZanBooster.exe",
-  "notes": "ลดโปรเซสเริ่มตั้งแต่เปิด FiveM ไม่ต้องรอเข้าเกม"
+  "notes": "ปุ่ม ลดโปรเซสตอนนี้ กดได้ทุกเมื่อ"
 }
