@@ -1,6 +1,6 @@
 {
-  "version": "3.4.1",
-  "sha256": "4bd6653a86d486d16bbea1c8610e51f405ee14c6a3f4ec85f7d9e0bfb1022821",
+  "version": "3.4.2",
+  "sha256": "11ee92d9ff2a75a812d443b72753c508edf7f896d65ef49c135f30f7cd904f65",
   "file": "beta/ZanBooster.exe",
-  "notes": "แก้เข้าแล้วปิดโปรแกรมเอง"
+  "notes": "ตรวจเครื่องอัตโนมัติ + ป้ายบนหน้าหลัก"
 }
