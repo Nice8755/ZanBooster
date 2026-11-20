@@ -1,6 +1,6 @@
 {
-  "version": "3.4.6",
-  "sha256": "f6d3afd81be7a4f527c5dbad0604ba2b4b7488235ed1228d714718a6ef09392f",
+  "version": "3.4.7",
+  "sha256": "00b17cca4c7eac8db125d1d49aefe912a11563f26af38722d43c30f37c01809c",
   "file": "beta/ZanBooster.exe",
-  "notes": "ติดตั้ง ReShade ปุ่มเดียว"
+  "notes": "ReShade ปรับเอฟเฟกต์ได้"
 }
