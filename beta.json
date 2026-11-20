@@ -1,6 +1,6 @@
 {
-  "version": "3.5.2",
-  "sha256": "46d8964754735e1575fb5b8365d9f943b5e3e85f617053aafdbdacfba33b0a77",
+  "version": "3.5.3",
+  "sha256": "a3fdff1fce0751d9cbd7ab19d79b6080f8745041a7927e8d7288d89774b86d27",
   "file": "beta/ZanBooster.exe",
-  "notes": "ทางลัดฟีเจอร์ใหม่ 3 วัน ป้าย NEW คงอยู่"
+  "notes": "ReShade เปิด/ปิด นำเข้า/ตรวจพรีเซ็ต อัปเดต พรีเซ็ต Zan"
 }
