@@ -1,6 +1,6 @@
 {
-  "version": "3.4.5",
-  "sha256": "321379772d7492528d543d2ca153839660db5ae269b5b9f800219203299ef19f",
+  "version": "3.6.1",
+  "sha256": "d658b27d0ee776be09471711546d9e9b59a29a8ff36367bc35d3eacd59a0dc06",
   "file": "release/ZanBooster.exe",
-  "notes": "วัดเครื่องในโปรแกรม ก่อน/หลังปรับ"
+  "notes": "Zan Preset 1-10"
 }
