@@ -1,6 +1,6 @@
 {
-  "version": "3.6.0",
-  "sha256": "84b17cf9bceb01054f7ec66aecc7b7fbcc8a287b645a1bc688eac90f1780022d",
+  "version": "3.6.1",
+  "sha256": "d658b27d0ee776be09471711546d9e9b59a29a8ff36367bc35d3eacd59a0dc06",
   "file": "beta/ZanBooster.exe",
-  "notes": "พรีเซ็ต Zan กับโฟลเดอร์ชื่อไทย"
+  "notes": "Zan Preset 1-10"
 }
