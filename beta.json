@@ -1,6 +1,6 @@
 {
-  "version": "3.4.7",
-  "sha256": "00b17cca4c7eac8db125d1d49aefe912a11563f26af38722d43c30f37c01809c",
+  "version": "3.4.8",
+  "sha256": "d5399c6cbe1ac804c03f08efae8e3bde7e7022ad39a779ec1953f1aba74e6255",
   "file": "beta/ZanBooster.exe",
-  "notes": "ReShade ปรับเอฟเฟกต์ได้"
+  "notes": "แก้ ID ReShade"
 }
