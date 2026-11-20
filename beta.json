@@ -1,6 +1,6 @@
 {
-  "version": "3.4.9",
-  "sha256": "510ecd1d3d6987f2d3848fc8e6e20b8e094e1f2498cad2ca717de215749786de",
+  "version": "3.5.0",
+  "sha256": "a51dc1cafff78d559f8794a5a20779aad9ae2a29e32c943462fae4cfd17d4e12",
   "file": "beta/ZanBooster.exe",
-  "notes": "ReShade ลงเอฟเฟกต์ทุกชุด"
+  "notes": "แจ้งเตือนตรวจเครื่อง + ทางลัดฟีเจอร์ใหม่"
 }
