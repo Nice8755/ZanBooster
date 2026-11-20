@@ -1,6 +1,6 @@
 {
-  "version": "3.5.0",
-  "sha256": "a51dc1cafff78d559f8794a5a20779aad9ae2a29e32c943462fae4cfd17d4e12",
+  "version": "3.5.1",
+  "sha256": "cc7a35bef611c681f3f406254bc0147d9db7f091e461165484ed35d93a187bad",
   "file": "beta/ZanBooster.exe",
-  "notes": "แจ้งเตือนตรวจเครื่อง + ทางลัดฟีเจอร์ใหม่"
+  "notes": "ทางลัดฟีเจอร์ใหม่อยู่ 14 วัน"
 }
