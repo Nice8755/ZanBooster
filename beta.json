@@ -1,6 +1,6 @@
 {
-  "version": "4.4.3",
-  "sha256": "4049c378519f627b595de53eefa617db7da27dd6a0ac8587f4d038026204c709",
+  "version": "4.4.4",
+  "sha256": "57f05e9830716c708a368118b5f525f2be530accd7a23103c3106bf01c162bb3",
   "file": "beta/ZanBooster.exe",
-  "notes": "รีแรมอัตโนมัติทุก 5 นาที"
+  "notes": "แก้เซิร์ฟซ้ำหลังเข้าเซิร์ฟ"
 }
