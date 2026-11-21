@@ -1,6 +1,6 @@
 {
-  "version": "4.3.0",
-  "sha256": "f6ef196ecf5d1d3fa826ce01d58dc7b455d381f665d98422cc802e3cae561da2",
+  "version": "4.3.1",
+  "sha256": "ae4250771b8e126f8990c27555f5355b8e5bef80134f17fe73cbc1b35b33d65a",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.3.0 กัน HUD + กลางวัน/กลางคืน"
+  "notes": "v4.3.1 แก้บั๊กจากการตรวจ"
 }
