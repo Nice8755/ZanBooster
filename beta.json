@@ -1,6 +1,6 @@
 {
-  "version": "3.8.0",
-  "sha256": "e0dca187e6130089f0dc8788a39f537cfe9352a27833be4cf7cbd1e7ae4dad7d",
+  "version": "3.8.1",
+  "sha256": "e9b3d390e99acfa1e65db767ed5ba615898ca79b12eb561869c755bc000c58bb",
   "file": "beta/ZanBooster.exe",
-  "notes": "ZanGrade + Zan Preset ใหม่"
+  "notes": "Zan Preset ลด FPS"
 }
