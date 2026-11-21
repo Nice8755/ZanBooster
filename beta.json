@@ -1,6 +1,6 @@
 {
-  "version": "4.4.0",
-  "sha256": "a9da857c0e06a8b314abc9c8fc5184f65a573cefc224b5b2f8a3a9222b9e53e3",
+  "version": "4.4.1",
+  "sha256": "dd4fdecc9c1dfcc672f0cefc22d500380124559e823291efc1e00a8738198ac1",
   "file": "beta/ZanBooster.exe",
-  "notes": "สแกนหาตัวดึง FPS ในหน้าตรวจเครื่อง"
+  "notes": "ปุ่มรีแรมหน้าหลัก"
 }
