@@ -1,6 +1,6 @@
 {
-  "version": "3.9.1",
-  "sha256": "628e661e93ccecad71c195ca43f0a0fc6e7d2aec945f1b7db60adff396a5b9d1",
+  "version": "3.9.2",
+  "sha256": "e37478680a3775acc2c404fa1c45cca34feb537fa3dbf2c75bbe1ddff0c48c79",
   "file": "beta/ZanBooster.exe",
-  "notes": "ZanNVE.fx / ZanQV.fx"
+  "notes": "ปรับ Zan Preset เองได้ + จำค่า"
 }
