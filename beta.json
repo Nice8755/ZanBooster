@@ -1,6 +1,6 @@
 {
-  "version": "3.6.4",
-  "sha256": "eac1bb40a05078cb91d7078e683807a86906a30c6899efc94cd799abc4b80195",
+  "version": "3.6.5",
+  "sha256": "858321b60c1f538071604e7c21c78eabc71f47b27adab9684d291a865d9e64cc",
   "file": "beta/ZanBooster.exe",
-  "notes": "Zan Upscale คมขึ้น + DLDSR"
+  "notes": "Zan Upscale x1.5/x2 ไม่แตะพรีเซ็ต"
 }
