@@ -1,6 +1,6 @@
 {
-  "version": "3.9.3",
-  "sha256": "2f9e0b1cdbaa40c72402444b3fdd33aa4f7b4594a74f88df58d706a0b3e90173",
+  "version": "3.9.4",
+  "sha256": "3b07c252aba6dcad1c779f845b997661ef21bd3fdfba91e62f912a1b1fcab44c",
   "file": "beta/ZanBooster.exe",
-  "notes": "เอฟเฟกต์ Zan เฉพาะ ReShade ที่ลงผ่านโปรแกรม"
+  "notes": "แก้ ZanGrade compile error X3018"
 }
