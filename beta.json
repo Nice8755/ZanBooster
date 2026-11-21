@@ -1,6 +1,6 @@
 {
-  "version": "3.6.5",
-  "sha256": "08c56d595ea8a15e976493660f9080bcdda9020341e73c18092ab089975b2b6b",
+  "version": "3.6.6",
+  "sha256": "a84d13c1d002a4a20917fcd897f47bcfca94f7981f6ac36ad754857c4629f9bd",
   "file": "beta/ZanBooster.exe",
-  "notes": "Zan Upscale x1.5/x2 ไม่แตะพรีเซ็ต"
+  "notes": "Zan Preset 10 โทนใหม่ + เลือกอัตโนมัติ"
 }
