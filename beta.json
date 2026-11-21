@@ -1,6 +1,6 @@
 {
-  "version": "4.2.0",
-  "sha256": "5ece083bb90d0c556493c012e43b045a7c72fe3f3ea44033a2fd944c9bcef765",
+  "version": "4.3.0",
+  "sha256": "f6ef196ecf5d1d3fa826ce01d58dc7b455d381f665d98422cc802e3cae561da2",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.2.0 NVE/QV +8 ฟีเจอร์"
+  "notes": "v4.3.0 กัน HUD + กลางวัน/กลางคืน"
 }
