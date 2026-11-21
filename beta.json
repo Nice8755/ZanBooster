@@ -1,6 +1,6 @@
 {
-  "version": "4.3.1",
-  "sha256": "ae4250771b8e126f8990c27555f5355b8e5bef80134f17fe73cbc1b35b33d65a",
+  "version": "4.3.2",
+  "sha256": "6516f0bca1ce397d5c6e7584f6a166b17cf95e4cda667fdc26de6c5b6a1b45e3",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.3.1 แก้บั๊กจากการตรวจ"
+  "notes": "v4.3.2 แก้จากการตรวจรอบ 2"
 }
