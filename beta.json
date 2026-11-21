@@ -1,6 +1,6 @@
 {
-  "version": "4.4.1",
-  "sha256": "dd4fdecc9c1dfcc672f0cefc22d500380124559e823291efc1e00a8738198ac1",
+  "version": "4.4.2",
+  "sha256": "591675657ef5a9cbee7b3098b88a9063aed2e32e1795d3608cdddd12951384a3",
   "file": "beta/ZanBooster.exe",
-  "notes": "ปุ่มรีแรมหน้าหลัก"
+  "notes": "รีแรมอัตโนมัติ"
 }
