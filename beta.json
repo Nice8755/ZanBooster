@@ -1,6 +1,6 @@
 {
-  "version": "3.9.2",
-  "sha256": "e37478680a3775acc2c404fa1c45cca34feb537fa3dbf2c75bbe1ddff0c48c79",
+  "version": "3.9.3",
+  "sha256": "2f9e0b1cdbaa40c72402444b3fdd33aa4f7b4594a74f88df58d706a0b3e90173",
   "file": "beta/ZanBooster.exe",
-  "notes": "ปรับ Zan Preset เองได้ + จำค่า"
+  "notes": "เอฟเฟกต์ Zan เฉพาะ ReShade ที่ลงผ่านโปรแกรม"
 }
