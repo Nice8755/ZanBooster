@@ -1,6 +1,6 @@
 {
-  "version": "4.0.0",
-  "sha256": "2d0f851aea188b9a330b52f21158fa5e40274c2c549b60d75cfd6e0109d64f60",
+  "version": "4.3.2",
+  "sha256": "6516f0bca1ce397d5c6e7584f6a166b17cf95e4cda667fdc26de6c5b6a1b45e3",
   "file": "release/ZanBooster.exe",
-  "notes": "v4.0.0 NVE/QV ขั้นสุด"
+  "notes": "v4.3.2 แก้จากการตรวจรอบ 2"
 }
