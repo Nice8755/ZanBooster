@@ -1,6 +1,6 @@
 {
-  "version": "4.3.2",
-  "sha256": "6516f0bca1ce397d5c6e7584f6a166b17cf95e4cda667fdc26de6c5b6a1b45e3",
+  "version": "4.4.0",
+  "sha256": "a9da857c0e06a8b314abc9c8fc5184f65a573cefc224b5b2f8a3a9222b9e53e3",
   "file": "release/ZanBooster.exe",
-  "notes": "v4.3.2 แก้จากการตรวจรอบ 2"
+  "notes": "สแกนหาตัวดึง FPS ในหน้าตรวจเครื่อง"
 }
