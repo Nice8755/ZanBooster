@@ -1,6 +1,6 @@
 {
-  "version": "3.7.2",
-  "sha256": "ec672ff1535be0c6658cfc2ac4f6436bd809d2798b686d6ac20bcee762b0ce96",
+  "version": "3.7.3",
+  "sha256": "193d9cf71b35f0183c7d70d220ebc4514f198730f66d0ffa88f835bcd12e7710",
   "file": "beta/ZanBooster.exe",
-  "notes": "ปรับ Zan Preset จากภาพจริง"
+  "notes": "Zan Preset ปรับละเอียด"
 }
