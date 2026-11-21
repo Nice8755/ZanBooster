@@ -1,6 +1,6 @@
 {
-  "version": "3.6.3",
-  "sha256": "cc6cf9be6e087c105ce575474283f267538bf604dfe77ac099450314d4f85218",
+  "version": "3.6.4",
+  "sha256": "eac1bb40a05078cb91d7078e683807a86906a30c6899efc94cd799abc4b80195",
   "file": "beta/ZanBooster.exe",
-  "notes": "Zan Upscale ใช้ในเกมได้"
+  "notes": "Zan Upscale คมขึ้น + DLDSR"
 }
