@@ -1,6 +1,6 @@
 {
-  "version": "4.1.0",
-  "sha256": "9eb8a4b8ee81fdfbd1a6ac38318f4aa79d1e8e49a47c84caa2ada6ff2f70d5ea",
+  "version": "4.2.0",
+  "sha256": "5ece083bb90d0c556493c012e43b045a7c72fe3f3ea44033a2fd944c9bcef765",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.1.0 ReShade ครบชุด"
+  "notes": "v4.2.0 NVE/QV +8 ฟีเจอร์"
 }
