@@ -1,6 +1,6 @@
 {
-  "version": "3.8.1",
-  "sha256": "e9b3d390e99acfa1e65db767ed5ba615898ca79b12eb561869c755bc000c58bb",
+  "version": "4.0.0",
+  "sha256": "2d0f851aea188b9a330b52f21158fa5e40274c2c549b60d75cfd6e0109d64f60",
   "file": "release/ZanBooster.exe",
-  "notes": "Zan Preset ลด FPS"
+  "notes": "v4.0.0 NVE/QV ขั้นสุด"
 }
