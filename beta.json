@@ -1,6 +1,6 @@
 {
-  "version": "3.9.0",
-  "sha256": "e2cf4e0f2530f4510ba7835ae2497e50a7d9e2d1014e65e5a993e0881a6d45b0",
+  "version": "3.9.1",
+  "sha256": "628e661e93ccecad71c195ca43f0a0fc6e7d2aec945f1b7db60adff396a5b9d1",
   "file": "beta/ZanBooster.exe",
-  "notes": "Zan Preset 11/12 NVE/QV Style + สีไฟถนน"
+  "notes": "ZanNVE.fx / ZanQV.fx"
 }
