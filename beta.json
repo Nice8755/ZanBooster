@@ -1,6 +1,6 @@
 {
-  "version": "3.9.4",
-  "sha256": "3b07c252aba6dcad1c779f845b997661ef21bd3fdfba91e62f912a1b1fcab44c",
+  "version": "3.9.5",
+  "sha256": "6534fbee3a358a7ea19bd3b45f4fefa63a470ff0b53aa6a515774b89ea2c0a01",
   "file": "beta/ZanBooster.exe",
-  "notes": "แก้ ZanGrade compile error X3018"
+  "notes": "ZanNVE/ZanQV.fx ปรับเอง + แบ่งหมวด"
 }
