@@ -1,6 +1,6 @@
 {
-  "version": "3.7.1",
-  "sha256": "e459c3c256a880334a241b6725eee1ba26cae61398d13f16337074fc40b83665",
+  "version": "3.7.2",
+  "sha256": "ec672ff1535be0c6658cfc2ac4f6436bd809d2798b686d6ac20bcee762b0ce96",
   "file": "beta/ZanBooster.exe",
-  "notes": "Upscale โชว์ความละเอียด + แนะนำตามสเปค"
+  "notes": "ปรับ Zan Preset จากภาพจริง"
 }
