@@ -1,6 +1,6 @@
 {
-  "version": "3.6.6",
-  "sha256": "a84d13c1d002a4a20917fcd897f47bcfca94f7981f6ac36ad754857c4629f9bd",
+  "version": "3.6.7",
+  "sha256": "d6945c86a23c7a2b0427bda8694c95ddafedee693a38725dbff9df425e0765f6",
   "file": "beta/ZanBooster.exe",
-  "notes": "Zan Preset 10 โทนใหม่ + เลือกอัตโนมัติ"
+  "notes": "Zan Preset เลือกใน ReShade อัตโนมัติ"
 }
