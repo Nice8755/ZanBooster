@@ -1,6 +1,6 @@
 {
-  "version": "4.10.3",
-  "sha256": "97d192478bda527377ba30216e54851d08aecb72610e1a7e977fc0a64c775ab2",
+  "version": "4.11.0",
+  "sha256": "24ff31d7718b08e3b1a2220fc80295ec0b925c1d04939bd0b9a0965562d3916c",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.10.3 BETA: ZanQV ถนนเรียบแรง (Smooth road strong)"
+  "notes": "v4.11.0: Zan Preset 12 Silent Fog + ถนนยุโรปทุกโทน"
 }
