@@ -1,6 +1,6 @@
 {
-  "version": "4.6.2",
-  "sha256": "92837143100d16ac4864b04e0eeaace472f809e59e1f28f544ee95f991126f8e",
+  "version": "4.6.3",
+  "sha256": "83355b53cc3af11f1d9216b284b9d92b0f53a452dd48f6530b07fd2e7cce3357",
   "file": "beta/ZanBooster.exe",
-  "notes": "ReShade Addon"
+  "notes": "ภาพตัวอย่าง preset ใหม่"
 }
