@@ -1,6 +1,6 @@
 {
-  "version": "4.10.1",
-  "sha256": "1e6897ca115425f3b4958488a34d3cb9598a3976328a867e2b303c7a8bf7f047",
+  "version": "4.11.0",
+  "sha256": "24ff31d7718b08e3b1a2220fc80295ec0b925c1d04939bd0b9a0965562d3916c",
   "file": "release/ZanBooster.exe",
-  "notes": "beta tester จาก ZAN Hub"
+  "notes": "v4.11.0: Zan Preset 12 Silent Fog + ถนนยุโรปทุกโทน"
 }
