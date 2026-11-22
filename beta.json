@@ -1,6 +1,6 @@
 {
-  "version": "4.8.0",
-  "sha256": "20a2f569c358c9c00c74183b6bc8031bb4f43b94588824411428c78af5c9183e",
+  "version": "4.9.0",
+  "sha256": "9f7645b2364f3c270554153b413026fb7d1783e42e0ab38fd042a016e5d3c454",
   "file": "beta/ZanBooster.exe",
-  "notes": "แยก ZanGrade/ZanQV/ZanNVE"
+  "notes": "13 presets x 3 fx"
 }
