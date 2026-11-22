@@ -1,6 +1,6 @@
 {
-  "version": "4.11.9",
-  "sha256": "b66a54063f62b2c095df543c6e6f2020ac67369b149f366cb49ddb754261cf56",
+  "version": "4.11.10",
+  "sha256": "99fd3bb1fc72468b97ddcb8e557d3d7cc77773c8c1910ce1d56eef981e1f8cc8",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.11.9 BETA: รายงานปัญหาทนทาน ไม่ล้มทั้งรายงาน"
+  "notes": "v4.11.10 BETA: แสดงวันพรีเมียมตรงแพ็ก"
 }
