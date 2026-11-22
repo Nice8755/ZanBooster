@@ -1,6 +1,6 @@
 {
-  "version": "4.7.1",
-  "sha256": "9b8db702bfac882d29d8410bfb3a2c45d7ae293e111eec3b33c4ea4f4075479e",
+  "version": "4.7.2",
+  "sha256": "43102ed2032e7c6e348e8ca2838de02444d90c5f14c6e622ce346e75b8cc80da",
   "file": "beta/ZanBooster.exe",
-  "notes": "NVE extras"
+  "notes": "แยกตัวปรับ QV"
 }
