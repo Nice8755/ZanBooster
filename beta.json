@@ -1,6 +1,6 @@
 {
-  "version": "4.11.7",
-  "sha256": "463037e5700ad84ef9725012f48def56af62df46c53962ed858216c980e88aa0",
+  "version": "4.11.8",
+  "sha256": "46a4437e125dea0be5b806b213f2d8a51d648fd6d10eaa0c8383a823f655fc68",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.11.7 BETA: เปลี่ยนตัวอย่างชื่อ Discord ในช่องแจ้งปัญหา"
+  "notes": "v4.11.8 BETA: แจ้งปัญหาพิมพ์ขั้นต่ำ 3 ตัว"
 }
