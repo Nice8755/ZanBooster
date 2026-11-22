@@ -1,6 +1,6 @@
 {
-  "version": "4.11.0",
-  "sha256": "24ff31d7718b08e3b1a2220fc80295ec0b925c1d04939bd0b9a0965562d3916c",
+  "version": "4.11.2",
+  "sha256": "e4c0a06c06a8a8a8f87b35a59b0c32167fb587322b373848a6fe5b02d54a7dd2",
   "file": "release/ZanBooster.exe",
-  "notes": "v4.11.0: Zan Preset 12 Silent Fog + ถนนยุโรปทุกโทน"
+  "notes": "v4.11.2 BETA: รีเชดตรวจหาท้องฟ้าจริง ออโรร่า/เมฆไม่ติดจอ + เช็กฝนแม่นขึ้น"
 }
