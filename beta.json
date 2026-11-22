@@ -1,6 +1,6 @@
 {
-  "version": "4.9.4",
-  "sha256": "0df7d490d4eb18235817b5ca1fa288cc21aea920ee1bc6df4067d67c359d7fe3",
+  "version": "4.9.5",
+  "sha256": "882749af82a8883c73119431757b727b13e758ad5fa312dec16b179601a48083",
   "file": "beta/ZanBooster.exe",
-  "notes": "แจ้งเตือน VRAM/แรมเกมเต็ม"
+  "notes": "เคลียร์แรม + premium auto"
 }
