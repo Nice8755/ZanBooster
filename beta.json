@@ -1,6 +1,6 @@
 {
-  "version": "4.11.6",
-  "sha256": "fa2c5ae38e7cee3c78380ff03bc2dc62f17cf51e0dd9ba71427249231f2ab9cc",
+  "version": "4.11.7",
+  "sha256": "463037e5700ad84ef9725012f48def56af62df46c53962ed858216c980e88aa0",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.11.6 BETA: แก้ส่งรายงานปัญหา Argument types do not match"
+  "notes": "v4.11.7 BETA: เปลี่ยนตัวอย่างชื่อ Discord ในช่องแจ้งปัญหา"
 }
