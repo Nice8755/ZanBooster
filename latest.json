@@ -1,6 +1,6 @@
 {
-  "version": "4.11.5",
-  "sha256": "9939312fee0aa276280e235bbd6e70d0c9786f230a07ee11d66004382640f44d",
+  "version": "4.11.9",
+  "sha256": "b66a54063f62b2c095df543c6e6f2020ac67369b149f366cb49ddb754261cf56",
   "file": "release/ZanBooster.exe",
-  "notes": "v4.11.5 BETA: แจ้งปัญหาต้องใส่ชื่อ/ID Discord + ข้อมูลเครื่องในรายงาน"
+  "notes": "v4.11.9 BETA: รายงานปัญหาทนทาน ไม่ล้มทั้งรายงาน"
 }
