@@ -1,6 +1,6 @@
 {
-  "version": "4.11.3",
-  "sha256": "10d7df198fdd7e08f5dcbdda43a28b78d694e49563eb54858b0df66f76b2817a",
+  "version": "4.11.4",
+  "sha256": "0a48cc4924a4c44a5230b695971989ea86e85b3509e31144ba6f9f3ce87c839d",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.11.3 BETA: ทบวันทดลอง/คีย์เดิมเข้าคีย์ใหม่"
+  "notes": "v4.11.4 BETA: ข้อความความปลอดภัยเป็นติ๊กถูก"
 }
