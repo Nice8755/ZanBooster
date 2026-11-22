@@ -1,6 +1,6 @@
 {
-  "version": "4.10.2",
-  "sha256": "43abbf3ca03000a073cbfdc0245938a9f8b27d84400801765ea35c4c10e67888",
+  "version": "4.10.3",
+  "sha256": "97d192478bda527377ba30216e54851d08aecb72610e1a7e977fc0a64c775ab2",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.10.2 BETA: ZanQV ถนน - เส้นจราจรคม + ยางมะตอยเทาใหม่"
+  "notes": "v4.10.3 BETA: ZanQV ถนนเรียบแรง (Smooth road strong)"
 }
