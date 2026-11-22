@@ -1,6 +1,6 @@
 {
-  "version": "4.11.11",
-  "sha256": "b0f4de43da5dbf93017092b96843506c8aa8c891a0b3c949f3839367864fda45",
+  "version": "4.11.12",
+  "sha256": "a9f5ac6f0775c47e74c6e2768aa6bbc3876c57c6b3bae5d6da013541bfae7549",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.11.11 BETA: แสดงวันพรีเมียมตรงแพ็ก"
+  "notes": "แจ้งปัญหา: ใส่ชื่อ Discord แล้วหาตัวในดิสให้เอง"
 }
