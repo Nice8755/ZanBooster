@@ -1,6 +1,6 @@
 {
-  "version": "4.6.1",
-  "sha256": "36e96c7f7f3536c55ffc1d52e50cb774677d022268c02722c1083ee50a1fdca0",
+  "version": "4.6.2",
+  "sha256": "92837143100d16ac4864b04e0eeaace472f809e59e1f28f544ee95f991126f8e",
   "file": "beta/ZanBooster.exe",
-  "notes": "ไล่หมอกอัตโนมัติ"
+  "notes": "ReShade Addon"
 }
