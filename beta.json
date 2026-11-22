@@ -1,6 +1,6 @@
 {
-  "version": "4.11.8",
-  "sha256": "46a4437e125dea0be5b806b213f2d8a51d648fd6d10eaa0c8383a823f655fc68",
+  "version": "4.11.9",
+  "sha256": "b66a54063f62b2c095df543c6e6f2020ac67369b149f366cb49ddb754261cf56",
   "file": "beta/ZanBooster.exe",
-  "notes": "v4.11.8 BETA: แจ้งปัญหาพิมพ์ขั้นต่ำ 3 ตัว"
+  "notes": "v4.11.9 BETA: รายงานปัญหาทนทาน ไม่ล้มทั้งรายงาน"
 }
