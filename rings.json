@@ -1,4 +1,4 @@
 {
-  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.22", "sha256": "c59ec9df9ce01f9397a6b272f23d21e6b8c542dbdec10d6ac210b012dc41db60", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/beafc90298621ee017d22c697ab834a6e58f5090/ZanBooster.exe", "notes": "เช็กรอบอัปเดตให้เร็วขึ้น" },
+  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.23", "sha256": "cbdc21e2fe695c615bba1e35087109b824e03220040f625355e91043ad0bf07d", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/118b92eb3b7375cd166d27f91b02a461b203475b/ZanBooster.exe", "notes": "แก้ล้างขยะไม่หมด" },
   "vip": {}
 }
