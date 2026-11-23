@@ -1,4 +1,4 @@
 {
-  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.23", "sha256": "cbdc21e2fe695c615bba1e35087109b824e03220040f625355e91043ad0bf07d", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/118b92eb3b7375cd166d27f91b02a461b203475b/ZanBooster.exe", "notes": "แก้ล้างขยะไม่หมด" },
+  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.24", "sha256": "fd8e1275b2325249e03518b80532aae96a4aebc4693b10063e01d1dbde3628f5", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6666ad618e231d625177f001e47dae76e9f1a98b/ZanBooster.exe", "notes": "แก้ปุ่มบูสต์ขึ้นรายการที่เปิดแล้วซ้ำ" },
   "vip": {}
 }
