@@ -1,4 +1,4 @@
 {
-  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.24", "sha256": "fd8e1275b2325249e03518b80532aae96a4aebc4693b10063e01d1dbde3628f5", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6666ad618e231d625177f001e47dae76e9f1a98b/ZanBooster.exe", "notes": "แก้ปุ่มบูสต์ขึ้นรายการที่เปิดแล้วซ้ำ" },
+  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.25", "sha256": "3382824c62714dfca0ffb206e38f66cb25a00c67aa0928c150ee29b2d236bb23", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/1e879b0efc1e2c7e707f03afc0c2073fc6334080/ZanBooster.exe", "notes": "แก้อัปเดตสลับไฟล์ไม่ได้ (Access is denied)" },
   "vip": {}
 }
