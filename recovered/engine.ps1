@@ -1491,10 +1491,7 @@ function Do-PickFiveM {
 function Do-CleanTemp {
     $total = [int64]0
     foreach ($p in $env:TEMP, (Join-Path $env:SystemRoot 'Temp')) {
-        Get-ChildItem $p -Force -ErrorAction SilentlyContinue | ForEach-Object {
-            $size = $(if ($_.PSIsContainer) { Get-FolderSize $_.FullName } else { $_.Length })
-            try { Remove-Item $_.FullName -Recurse -Force -ErrorAction Stop; $total += $size } catch { }
-        }
+        $total += Remove-DirContents $p
     }
     ipconfig /flushdns | Out-Null
     Emit @{ t = 'result'; action = 'CleanTemp'; ok = $true; mb = [math]::Round($total / 1MB) }
@@ -1560,17 +1557,20 @@ function Do-JunkScan {
 function Remove-DirContents([string]$d) {
     $freed = [int64]0
     foreach ($it in @(Get-ChildItem -LiteralPath $d -Force -ErrorAction SilentlyContinue)) {
-        if ($it.PSIsContainer) {
-            $sz = Get-FolderSize $it.FullName
-            try { Remove-Item -LiteralPath $it.FullName -Recurse -Force -ErrorAction Stop; $freed += $sz }
-            catch { $freed += [math]::Max(0, $sz - (Get-FolderSize $it.FullName)) } # ไฟล์ที่เปิดใช้อยู่ข้ามไป
-        } else {
-            try { $sz = $it.Length; Remove-Item -LiteralPath $it.FullName -Force -ErrorAction Stop; $freed += $sz } catch { }
-        }
+        try {
+            if ($it.PSIsContainer) {
+                if ($it.Attributes -band [IO.FileAttributes]::ReparsePoint) { continue } # ลิงก์ไปที่อื่น ห้ามลบข้างใน
+                $freed += Remove-DirContents $it.FullName
+                $it.Delete()
+            } else {
+                $sz = $it.Length
+                if ($it.IsReadOnly) { $it.IsReadOnly = $false }
+                $it.Delete(); $freed += $sz
+            }
+        } catch { } # ไฟล์ที่เปิดใช้อยู่ข้ามไป
     }
     $freed
 }
-
 function Do-JunkClean {
     $list = @($Ids -split ',' | Where-Object { $JunkIds -contains $_ })
     $per = @{}; $total = [int64]0
