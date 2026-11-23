@@ -1,4 +1,4 @@
 {
-  "owner": { "machines": ["ZB-M6SWR-KZ37U"] },
+  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.21", "sha256": "cb6d8870da98503c0dd6c65c75b946111b3eb2590af4e28d449d9a0b641dd9d0", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/18c4213e443a4666e7c45f6f4a3c427ad77810b7/ZanBooster.exe", "notes": "พรีเมียมได้อัปเดตก่อน แล้วค่อยเป็นสมาชิกทั่วไป" },
   "vip": {}
 }
