@@ -26,7 +26,7 @@ New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
 
 # ------------------------------------------------------------- output ----
 $Script:Capture = $null
-function Emit($obj) { if ($Script:Capture -ne $null) { $Script:Capture.Add($obj); return }; [Console]::Out.WriteLine(($obj | ConvertTo-Json -Compress -Depth 6)); [Console]::Out.Flush() }
+function Emit($obj) { if ($null -ne $Script:Capture) { $Script:Capture.Add($obj); return }; [Console]::Out.WriteLine(($obj | ConvertTo-Json -Compress -Depth 6)); [Console]::Out.Flush() }
 function Write-Log([string]$m) {
     if ($Script:DryRun) { return }
     Emit @{ t = 'log'; m = $m }
@@ -974,7 +974,7 @@ function Do-Health {
     if ($act -eq $SchemeGuid -or $act -eq $UltimateGuid -or $act -eq $HighPerfGuid) { Add 'plan' 'Power Plan' 'ok' $(if ($act -eq $SchemeGuid) { 'ใช้ ZAN Project Optimizer อยู่' } else { 'ใช้โหมดประสิทธิภาพสูงอยู่' }) '' }
     else { Add 'plan' 'Power Plan' 'warn' 'ยังใช้ Power Plan แบบประหยัด/สมดุล' 'เปิด "Power Plan: ZAN Project Optimizer" ในหน้าปรับแต่ง หรือกดบูสต์เครื่อง' }
 
-    Emit @{ t = 'result'; action = 'Health'; items = @($r) }
+    Emit @{ t = 'result'; action = 'Health'; items = $r.ToArray() }
 }
 
 # ------------------------------------------------------- pre-game ----
@@ -1209,7 +1209,7 @@ function Do-FpsScan {
 
     } catch { Unknown 'disk' 'hdd' 'เกมอยู่บน SSD หรือ HDD' }
 
-    Emit @{ t = 'result'; action = 'FpsScan'; items = @($r); lostGB = $lostGB }
+    Emit @{ t = 'result'; action = 'FpsScan'; items = $r.ToArray(); lostGB = $lostGB }
 }
 
 # แก้ตามที่ผู้ใช้กด (เก็บค่าเดิมก่อนทุกครั้ง) $Ids = รหัสข้อ, $Opt = ค่าเสริม
@@ -1341,7 +1341,7 @@ function Do-Report {
     try {
         $Script:Capture = New-Object System.Collections.Generic.List[object]
         foreach ($fn in 'Do-SysInfo', 'Do-Status', 'Do-Health', 'Do-GfxPlan', 'Do-GfxStatus') { try { & $fn } catch { $errs.Add("$fn : $($_.Exception.Message)") } }
-        $data = @($Script:Capture); $Script:Capture = $null
+        $data = $Script:Capture.ToArray(); $Script:Capture = $null
         $osName = ''; try { $os = Get-CimInstance Win32_OperatingSystem; $osName = "$($os.Caption) $($os.Version)" } catch { }
         $report = [ordered]@{ created = (Get-Date).ToString('s'); app = "$Opt"; os = $osName; results = $data }
         try { $report | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $tmp 'report.json') -Encoding UTF8 }
