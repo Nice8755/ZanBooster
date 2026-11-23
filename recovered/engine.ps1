@@ -238,7 +238,6 @@ $Tweaks = [ordered]@{
         Apply = {
             $prev = Get-ActiveScheme
             if (-not $Script:Backup.PrevScheme -and $prev -ne $SchemeGuid) { $Script:Backup.PrevScheme = $prev }
-            # ลบ plan เดิมของโปรแกรม (เวอร์ชันเก่าใช้ Ultimate Performance) แล้วนำเข้า ZAN_Project_Optimizer ใหม่ทุกครั้ง
             if (((powercfg /list) -join ' ') -match $SchemeGuid) {
                 if ((Get-ActiveScheme) -eq $SchemeGuid) { powercfg /setactive $BalancedGuid | Out-Null }
                 powercfg /delete $SchemeGuid | Out-Null
@@ -428,13 +427,11 @@ $Tweaks = [ordered]@{
         Check = { [Environment]::OSVersion.Version.Build -lt 22000 -or (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' 'GlobalTimerResolutionRequests') -eq 1 }
     }
     NoP2PUpdate = @{
-        # ไม่ให้ Windows Update อัปโหลดไฟล์ให้เครื่องอื่นในเน็ต (Delivery Optimization) แย่งเน็ตตอนเล่น ปิงกระโดด
         Apply = { Set-RegValue 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization' 'DODownloadMode' 0 }
         Check = { (Get-Reg 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization' 'DODownloadMode') -eq 0 }
     }
     DefenderFiveM = @{
         # ทำแค่ "เพิ่มข้อยกเว้น" ไม่เปิด Defender ถ้า Defender ปิดอยู่แล้วจะไม่ทำอะไรเลย
-        # ให้ Defender ข้ามการสแกนโฟลเดอร์ FiveM: ตอนเกมโหลดแมพ/ไฟล์เซิร์ฟ Defender สแกนทุกไฟล์ทำให้กระตุก
         Apply = {
             if (-not (Test-DefenderOn)) { Write-Log 'Defender ปิดอยู่แล้ว ไม่ต้องตั้ง (ไม่ได้เปิด Defender กลับมา)'; return }
             $fd = Get-FiveMData
@@ -468,7 +465,6 @@ $Tweaks = [ordered]@{
         }
     }
     GpuPref = @{
-        # ให้ FiveM / GTA ใช้การ์ดจอแยกเสมอ (โน้ตบุ๊กที่มีการ์ดจอ 2 ตัว) เครื่องตั้งโต๊ะไม่มีผลอะไร
         Apply = {
             $key = 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences'
             $n = 0
@@ -887,7 +883,11 @@ function Do-Health {
         $type = ($mods | Select-Object -First 1).SMBIOSMemoryType
         $ddr = switch ($type) { 26 { 'DDR4' } 34 { 'DDR5' } 24 { 'DDR3' } default { 'DDR' } }
         $low = ($ddr -eq 'DDR4' -and $cfg -le 2666) -or ($ddr -eq 'DDR5' -and $cfg -le 4800) -or ($rated -gt $cfg)
-        if ($low) { Add 'xmp' 'ความเร็วแรม' 'warn' "แรม $ddr วิ่งอยู่ที่ $cfg MHz อาจยังไม่ได้เปิด XMP / EXPO" 'ถ้าแรมที่ซื้อมาเป็น 3200 MHz ขึ้นไป (DDR4) หรือ 5600 ขึ้นไป (DDR5) ให้เปิด XMP / EXPO ในไบออส ดูทางไปและปุ่มรีสตาร์ทเข้าไบออสในหัวข้อไบออสด้านล่าง ข้อนี้ช่วย FPS ใน FiveM ได้มากที่สุด' }
+        $kit = 0
+        foreach ($pn in $mods) { foreach ($mm in [regex]::Matches([string]$pn.PartNumber, '(?<!\d)(2666|3000|3200|3600|3733|4000|4400|5200|5600|6000|6400|6800|7200)(?!\d)')) { $kit = [math]::Max($kit, [int]$mm.Value) } }
+        if ($kit -ge $cfg + 200) { Add 'xmp' 'ความเร็วแรม' 'warn' "รุ่นแรมน่าจะเป็น $kit MHz แต่วิ่งอยู่ $cfg MHz" 'เข้าไบออสแล้วเปิด XMP / EXPO / DOCP' }
+        elseif ($kit -and $cfg -ge $kit - 50) { Add 'xmp' 'ความเร็วแรม' 'ok' "แรม $ddr วิ่งที่ $cfg MHz" '' }
+        elseif ($low) { Add 'xmp' 'ความเร็วแรม' 'warn' "แรม $ddr วิ่งอยู่ที่ $cfg MHz อาจยังไม่ได้เปิด XMP / EXPO" 'ถ้าแรมที่ซื้อมาเป็น 3200 MHz ขึ้นไป (DDR4) หรือ 5600 ขึ้นไป (DDR5) ให้เปิด XMP / EXPO ในไบออส ดูทางไปและปุ่มรีสตาร์ทเข้าไบออสในหัวข้อไบออสด้านล่าง ข้อนี้ช่วย FPS ใน FiveM ได้มากที่สุด' }
         else { Add 'xmp' 'ความเร็วแรม' 'ok' "แรม $ddr วิ่งที่ $cfg MHz" '' }
 
         # channels
@@ -1628,6 +1628,7 @@ try {
         'JunkScan'   { Do-JunkScan }
         'JunkClean'  { Do-JunkClean }
         'BoostNow'   { Do-BoostNow }
+    'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -ErrorAction SilentlyContinue)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
         'Health'     { Do-Health }
         'GfxStatus'  { Do-GfxStatus }
