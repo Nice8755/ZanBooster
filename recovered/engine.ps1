@@ -627,7 +627,6 @@ function Do-Status {
         try { $st[$k] = [bool](& $Tweaks[$k].Check) } catch { $st[$k] = $false }
     }
     if (-not $Script:AppliedKnown) {
-        # backup จากเวอร์ชันเก่ายังไม่มีรายการที่ตั้งไว้: เดาจากค่าที่โปรแกรมเคยแก้จริง
         $Script:Backup.Applied = @($Tweaks.Keys | Where-Object { $st[$_] -and (Test-TweakOwned $_) })
         $Script:AppliedKnown = $true
         if (Test-HasBackup) { Save-Backup }
@@ -1360,7 +1359,6 @@ function Do-Report {
                     try {
                         $dst = Join-Path $tmp $lf.Name
                         if ($send -and $lf.Length -gt 409600) {
-                            # เอาแค่ท้ายไฟล์ (ส่วนที่มีปัญหาล่าสุด) ไม่ให้ไฟล์ใหญ่เกิน Discord รับ
                             $fs = New-Object System.IO.FileStream($lf.FullName, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
                             $out = $null
                             try {
@@ -1498,7 +1496,6 @@ function Do-CleanTemp {
 }
 
 # ---------------------------------------------------------------- junk ----
-# ล้างขยะทั้งเครื่อง: แต่ละหมวดคืนรายการ "โฟลเดอร์ที่ลบไฟล์ข้างใน" กับ "ไฟล์เดี่ยว"
 function Get-JunkTargets([string]$id) {
     $L = $env:LOCALAPPDATA; $R = $env:APPDATA; $W = $env:SystemRoot
     $dirs = @(); $files = @()
@@ -1627,7 +1624,18 @@ try {
         'CleanTemp'  { Do-CleanTemp }
         'JunkScan'   { Do-JunkScan }
         'JunkClean'  { Do-JunkClean }
-        'BoostNow'   { Do-BoostNow }
+        'UpdPrep'    {
+        try {
+            $pp = (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId
+            $x = [string](Get-CimInstance Win32_Process -Filter "ProcessId=$pp").ExecutablePath
+            if ($x -like '*.exe') {
+                Get-ChildItem -LiteralPath (Split-Path $x) -Filter "$(Split-Path $x -Leaf).old-*" -File | ForEach-Object { try { $_.Delete() } catch { } }
+                if (Test-Path -LiteralPath "$x.old") { try { [IO.File]::Delete("$x.old") } catch { [IO.File]::Move("$x.old", "$x.old-$PID") } }
+            }
+        } catch { }
+        Emit @{ t = 'result'; action = 'UpdPrep'; ok = $true }
+    }
+    'BoostNow'   { Do-BoostNow }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -ErrorAction SilentlyContinue)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
         'Health'     { Do-Health }
