@@ -256,6 +256,7 @@ $Tweaks = [ordered]@{
             # ปิดหน้าจอ (พักจอ) = Never ทั้งตอนเสียบปลั๊กและใช้แบต
             powercfg /setacvalueindex $SchemeGuid $VIDEO_SUB $VIDEO_IDLE 0 | Out-Null
             powercfg /setdcvalueindex $SchemeGuid $VIDEO_SUB $VIDEO_IDLE 0 | Out-Null
+            if (@($Script:Backup.Applied) -contains 'UsbSuspend') { powercfg /setacvalueindex $SchemeGuid $USB_SUB $USB_SET 0 | Out-Null; powercfg /setdcvalueindex $SchemeGuid $USB_SUB $USB_SET 0 | Out-Null }
             powercfg /setactive $SchemeGuid | Out-Null
             if ((Get-ActiveScheme) -ne $SchemeGuid) { throw 'เปิดใช้ Power Plan ไม่ได้' }
         }
@@ -423,7 +424,6 @@ $Tweaks = [ordered]@{
         Check = { (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Enabled') -ne 1 }
     }
     TimerRes = @{
-        # Windows 11 ให้เกมขอ timer ละเอียด (0.5 ms) แล้วมีผลทั้งระบบเหมือน Windows 10: เฟรมออกสม่ำเสมอ input ตอบไวขึ้น ต้องรีสตาร์ท
         Apply = { Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' 'GlobalTimerResolutionRequests' 1 }
         Check = { [Environment]::OSVersion.Version.Build -lt 22000 -or (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' 'GlobalTimerResolutionRequests') -eq 1 }
     }
@@ -453,7 +453,6 @@ $Tweaks = [ordered]@{
         }
     }
     GpuMsi = @{
-        # ให้การ์ดจอใช้ MSI interrupt แทน line-based: ลด DPC latency เฟรมสม่ำเสมอขึ้น (การ์ดรุ่นใหม่ส่วนใหญ่เปิดอยู่แล้ว) ต้องรีสตาร์ท
         Apply = {
             $n = 0
             foreach ($d in @(Get-PnpDevice -Class Display -PresentOnly -ErrorAction SilentlyContinue | Where-Object { $_.InstanceId -like 'PCI\*' })) {
@@ -578,18 +577,28 @@ function Revert-Tweak([string]$id) {
         return
     }
     $n = 0
+    $keep = @{}
+    foreach ($o in @($b.Applied)) { if ($o -ne $id -and $Tweaks.Contains($o) -and $o -notin 'PowerPlan', 'Adapter', 'DefenderFiveM') { foreach ($k2 in Get-TweakKeys $o) { $keep[$k2] = 1 } } }
     foreach ($k in Get-TweakKeys $id) {
         if ($k.StartsWith('PC|')) {
             $p = $k -split '\|'
-            $scheme = Get-ActiveScheme
-            $bk = "$scheme|$($p[1])|$($p[2])"
-            $v = $(if ($b.Powercfg.ContainsKey($bk)) { @($b.Powercfg[$bk]) } else { @(1, 1) })
-            powercfg /setacvalueindex SCHEME_CURRENT $p[1] $p[2] $v[0] | Out-Null
-            powercfg /setdcvalueindex SCHEME_CURRENT $p[1] $p[2] $v[1] | Out-Null
+            $own = $false
+            foreach ($bk in @($b.Powercfg.Keys | Where-Object { $_ -like "*|$($p[1])|$($p[2])" })) {
+                $g = ($bk -split '\|')[0]; $v = @($b.Powercfg[$bk])
+                powercfg /setacvalueindex $g $p[1] $p[2] $v[0] | Out-Null
+                powercfg /setdcvalueindex $g $p[1] $p[2] $v[1] | Out-Null
+                if ($g -eq (Get-ActiveScheme)) { $own = $true }
+                $b.Powercfg.Remove($bk)
+            }
+            if (-not $own) {
+                powercfg /setacvalueindex SCHEME_CURRENT $p[1] $p[2] 1 | Out-Null
+                powercfg /setdcvalueindex SCHEME_CURRENT $p[1] $p[2] 1 | Out-Null
+            }
             powercfg /setactive SCHEME_CURRENT | Out-Null
-            $b.Powercfg.Remove($bk); $n++
+            $n++
             continue
         }
+        if ($keep.ContainsKey($k)) { $n++; continue }
         if ($b.Registry.ContainsKey($k)) { Restore-RegEntry $b.Registry[$k]; $b.Registry.Remove($k); $n++ }
     }
     if ($n -eq 0) { throw 'ไม่มีค่าเดิมเก็บไว้ ค่านี้ Windows หรือโปรแกรมอื่นตั้งไว้เอง' }
@@ -627,7 +636,6 @@ function Do-Status {
         $Script:AppliedKnown = $true
         if (Test-HasBackup) { Save-Backup }
     }
-    # ZanOS (Windows ที่ลง playbook ของเรา) ตั้งค่าบางข้อไว้เองแล้ว หน้าโปรแกรมจะไม่ติ๊กข้อพวกนั้นให้เอง
     $zanos = $false
     try { $zanos = (Test-Path -LiteralPath (Join-Path $env:windir 'ZanOSModules')) -or (Test-Path -LiteralPath 'HKLM:\SOFTWARE\ZanOS') } catch { }
     Emit @{ t = 'result'; action = 'Status'; status = $st; hasBackup = (Test-HasBackup); applied = @($Script:Backup.Applied); zanos = [bool]$zanos }
