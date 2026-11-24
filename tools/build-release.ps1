@@ -18,7 +18,7 @@ $tmp = Join-Path $env:TEMP 'zb-release-ui.html'
 [IO.File]::WriteAllText($tmp, $ui, $utf8)
 "ui.html release size: {0:N0} bytes (slot 1,055,130)" -f $utf8.GetByteCount($ui)
 $eng = [IO.File]::ReadAllText((Join-Path $root 'recovered\engine.ps1'), $utf8).Replace("`r`n", "`n")
-$min = ($eng.Split("`n") | ForEach-Object { $_.Trim() }) -join "`n"
+$min = ($eng.Split("`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -notmatch '^#' }) -join "`n"
 $ta = $null; $tb = $null; $pe = $null
 [void][Management.Automation.Language.Parser]::ParseInput($eng, [ref]$ta, [ref]$pe); if ($pe.Count) { throw "engine: $($pe[0])" }
 [void][Management.Automation.Language.Parser]::ParseInput($min, [ref]$tb, [ref]$pe); if ($pe.Count) { throw "engine min: $($pe[0])" }

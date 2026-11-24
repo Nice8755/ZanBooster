@@ -855,6 +855,12 @@ function Set-OvVal([string]$f, [string]$v) {
     $x = $x.Remove($m.Index, $m.Length).Insert($m.Index, $b)
     [IO.File]::WriteAllText("$f.zan", $x, (New-Object System.Text.UTF8Encoding($false))); Move-Item -LiteralPath "$f.zan" -Destination $f -Force
 }
+function Get-WebCache([string]$d) { 'Cache', 'Code Cache', 'GPUCache' | ForEach-Object { "$d\$_" } }
+function Clear-WebCache([string]$d, [string[]]$n) {
+    for ($i = 0; $i -lt 20 -and (Get-Process -Name $n -ErrorAction SilentlyContinue); $i++) { Start-Sleep -Milliseconds 300 }
+    if (Get-Process -Name $n -ErrorAction SilentlyContinue) { return }
+    Get-WebCache $d | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { [void](Remove-DirContents $_) }
+}
 function Do-OvOff {
     $un = $Opt -eq 'undo'; $ok = @(); $er = @()
     try {
@@ -874,6 +880,7 @@ function Do-OvOff {
                     }
                 }
                 $ok += $v.n
+                if ($exe) { Clear-WebCache "$env:APPDATA\$($v.n.ToLower())" $v.n }
             } catch { $er += "$($v.n): $($_.Exception.Message)" }
             finally { if ($exe) { Start-Process explorer.exe "`"$exe`"" } }
         }
@@ -888,6 +895,7 @@ function Do-OvOff {
                     for ($i = 0; $i -lt 60 -and (Get-Process steam -ErrorAction SilentlyContinue); $i++) { Start-Sleep -Milliseconds 500 }
                     if (Get-Process steam -ErrorAction SilentlyContinue) { throw 'Steam ยังไม่ปิด ลองกดอีกครั้ง' }
                 }
+                if ($exe) { Clear-WebCache "$env:LOCALAPPDATA\Steam\htmlcache\Default" 'steam', 'steamwebhelper' }
                 foreach ($f in $vf) {
                     if ($un) { Set-OvVal $f $bk[$f]; $bk.Remove($f) }
                     else { if (-not $bk.ContainsKey($f)) { $bk[$f] = Get-OvVal $f; $bk | ConvertTo-Json | Set-Content $OvBak -Encoding UTF8 }; Set-OvVal $f '0' }
@@ -1644,6 +1652,12 @@ function Do-CleanTemp {
 }
 
 # ---------------------------------------------------------------- junk ----
+# แอปที่เปิดอยู่ห้ามล้าง ลบได้แค่ครึ่งเดียวแล้วแคชพัง เปิดแอปครั้งหน้าจะค้าง
+$Script:JunkSkip = @()
+function Test-JunkFree([string]$n) {
+    if (Get-Process -Name $n -ErrorAction SilentlyContinue) { if ($Script:JunkSkip -notcontains $n) { $Script:JunkSkip += $n }; return $false }
+    $true
+}
 function Get-JunkTargets([string]$id) {
     $L = $env:LOCALAPPDATA; $R = $env:APPDATA; $W = $env:SystemRoot
     $dirs = @(); $files = @()
@@ -1659,15 +1673,18 @@ function Get-JunkTargets([string]$id) {
         'browser' {
             foreach ($root in "$L\Google\Chrome\User Data", "$L\Microsoft\Edge\User Data", "$L\BraveSoftware\Brave-Browser\User Data", "$R\Opera Software\Opera Stable", "$L\Opera Software\Opera Stable", "$R\Opera Software\Opera GX Stable", "$L\Opera Software\Opera GX Stable") {
                 if (-not (Test-Path -LiteralPath $root)) { continue }
+                if (-not (Test-JunkFree $(switch -Wildcard ($root) { '*Chrome*' { 'chrome' } '*Edge*' { 'msedge' } '*Brave*' { 'brave' } default { 'opera' } }))) { continue }
                 $profiles = @($root) + @(Get-ChildItem -LiteralPath $root -Directory -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'Default' -or $_.Name -like 'Profile *' } | ForEach-Object FullName)
                 foreach ($pr in $profiles) { foreach ($c in 'Cache', 'Code Cache', 'GPUCache', 'Service Worker\CacheStorage') { $dirs += (Join-Path $pr $c) } }
                 $dirs += (Join-Path $root 'ShaderCache'); $dirs += (Join-Path $root 'GrShaderCache')
             }
-            $dirs += @(Get-ChildItem "$L\Mozilla\Firefox\Profiles" -Directory -Force -ErrorAction SilentlyContinue | ForEach-Object { Join-Path $_.FullName 'cache2' })
+            if (Test-JunkFree 'firefox') { $dirs += @(Get-ChildItem "$L\Mozilla\Firefox\Profiles" -Directory -Force -ErrorAction SilentlyContinue | ForEach-Object { Join-Path $_.FullName 'cache2' }) }
         }
         'apps'    {
-            foreach ($d in 'discord', 'discordptb', 'discordcanary') { foreach ($c in 'Cache', 'Code Cache', 'GPUCache') { $dirs += "$R\$d\$c" } }
-            $dirs += @("$L\Steam\htmlcache", "$L\Spotify\Data", "$R\Spotify\Data", "$L\Microsoft\Teams\Cache", "$R\Microsoft\Teams\Cache")
+            foreach ($d in 'discord', 'discordptb', 'discordcanary') { if (Test-JunkFree $d) { $dirs += Get-WebCache "$R\$d" } }
+            if ((Test-JunkFree 'steam') -and (Test-JunkFree 'steamwebhelper')) { $dirs += Get-WebCache "$L\Steam\htmlcache\Default"; $dirs += Get-WebCache "$L\Steam\htmlcache" }
+            if (Test-JunkFree 'spotify') { $dirs += "$L\Spotify\Data", "$R\Spotify\Data" }
+            if (Test-JunkFree 'teams') { $dirs += "$L\Microsoft\Teams\Cache", "$R\Microsoft\Teams\Cache" }
         }
         'shader'  { $dirs = @("$L\NVIDIA\DXCache", "$L\NVIDIA\GLCache", "$L\AMD\DxCache", "$L\AMD\DxcCache", "$L\AMD\VkCache", "$L\D3DSCache") }
         'recycle' { }
@@ -1751,7 +1768,7 @@ function Do-JunkClean {
         Emit @{ t = 'junk'; id = $id; state = 'ok'; freed = $freed }
     }
     Write-Log ("ล้างขยะทั้งเครื่อง ได้พื้นที่คืน {0:N0} MB" -f ($total / 1MB))
-    Emit @{ t = 'result'; action = 'JunkClean'; ok = $true; mb = [math]::Round($total / 1MB); per = $per }
+    Emit @{ t = 'result'; action = 'JunkClean'; ok = $true; mb = [math]::Round($total / 1MB); per = $per; skip = ($Script:JunkSkip -join ', ') }
 }
 
 function Do-BoostNow {
