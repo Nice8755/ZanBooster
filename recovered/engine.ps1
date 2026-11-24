@@ -478,6 +478,20 @@ $Tweaks = [ordered]@{
             $exes.Count -gt 0 -and @($exes | Where-Object { (Get-Reg $key $_) -ne 'GpuPreference=2;' }).Count -eq 0
         }
     }
+    FiveMPrio = @{
+        # ให้ Windows เปิดตัวเกม FiveM ที่ priority High ตั้งแต่เริ่ม (ไฟล์เกมที่มีในเครื่องตอนนี้)
+        Apply = {
+            foreach ($x in Get-FiveMExes) { if ($x -match '(?i)(GTAProcess|GameProcess)\.exe$') { Set-RegValue "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$(Split-Path $x -Leaf)\PerfOptions" 'CpuPriorityClass' 3 } }
+        }
+        Check = { @(Get-FiveMExes | Where-Object { $_ -match '(?i)(GTAProcess|GameProcess)\.exe$' -and (Get-Reg "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$(Split-Path $_ -Leaf)\PerfOptions" 'CpuPriorityClass') -ne 3 }).Count -eq 0 }
+    }
+    SearchIdx = @{
+        Apply = {
+            Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Services\WSearch' 'Start' 3
+            if (-not $Script:DryRun) { Stop-Service WSearch -Force -ErrorAction SilentlyContinue }
+        }
+        Check = { $s = Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Services\WSearch' 'Start'; $null -eq $s -or $s -ge 3 }
+    }
     Services = @{
         Apply = {
             # Start: 3 = Manual (เปิดเองเมื่อจำเป็น), 4 = Disabled
