@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.43",
-    "sha256": "f8701a80cf109cfe7e2cd4adf878d5a5a0325028c3e6471d62716cb3cc93e98a",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/eb754ef2289fe00f9a0a1e02a5b207fd034c4612/ZanBooster.exe",
-    "notes": "หน้าตาสวยขึ้น ใช้เครื่องน้อยลง โชว์จำนวนคนที่ใช้ Zan Booster"
+    "version": "4.11.44",
+    "sha256": "a83e5256e893ec857abaa58b996208aa029cbf015599b57da69a661f954800fd",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9651188cd3cba8d2fe786a53903b81e83a6de736/ZanBooster.exe",
+    "notes": "หน้าตาใหม่เรียบหรู ใช้เครื่องน้อยลง · โชว์จำนวนคนที่ใช้ Zan Booster · แก้พับจอแล้วกลับมาหน้าจอว่าง"
   },
   "vip": {
     "version": "4.11.41",
