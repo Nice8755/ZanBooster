@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.50",
-    "sha256": "36fe12ceff825c0e21b9e2aafe26cf1574ee737cf2a89bc05cd0a0443d9861b1",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/d8a347c9c4405ef01717da9efea7ace157185aed/ZanBooster.exe",
-    "notes": "แก้โหมดเทียบ: โหมดเล่นเกมเปิดค่ากลับเองจนวัดไม่ได้"
+    "version": "4.11.51",
+    "sha256": "beddea106c0b3c78a12d2c8663290662eeb8e3beb58f4373c6510bda567ee9f6",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/37ba4ad80fa2532dfe2d52e21a5eb0e4543c25a7/ZanBooster.exe",
+    "notes": "หน้าบูสต์เหลือปุ่มน้อยลง รวมการวัดไว้ในปุ่มเดียว"
   },
   "vip": {
     "version": "4.11.47",
