@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.36",
-    "sha256": "22e7da466122432ad03db340ac1d23a23f13e1648294ed39574f2f21a97d41c2",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/342218aebd8941cec5bca89d8d58329e6604001b/ZanBooster.exe",
-    "notes": "overlay ที่ปิดแล้วไม่ขึ้นแนะนำอีก"
+    "version": "4.11.37",
+    "sha256": "3f48021a2e9cf504f72e6f408ac47b174d94480726a9b726af2a25cdf8af66fc",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/57f881c51e40279bf81a482d4792acb1ac183a79/ZanBooster.exe",
+    "notes": "อนิเมชั่นใหม่ทั้งโปรแกรม ไม่ใช้งาน 20 วินาทีหยุดเอฟเฟกต์เอง"
   },
   "vip": {
     "version": "4.11.29",
