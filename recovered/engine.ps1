@@ -483,7 +483,7 @@ $Tweaks = [ordered]@{
         Apply = {
             foreach ($x in Get-FiveMExes) { if ($x -match '(?i)(GTAProcess|GameProcess)\.exe$') { Set-RegValue "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$(Split-Path $x -Leaf)\PerfOptions" 'CpuPriorityClass' 3 } }
         }
-        Check = { @(Get-FiveMExes | Where-Object { $_ -match '(?i)(GTAProcess|GameProcess)\.exe$' -and (Get-Reg "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$(Split-Path $_ -Leaf)\PerfOptions" 'CpuPriorityClass') -ne 3 }).Count -eq 0 }
+        Check = { $l = @(Get-FiveMExes | Where-Object { $_ -match '(?i)(GTAProcess|GameProcess)\.exe$' }); $l.Count -and -not @($l | Where-Object { (Get-Reg "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$(Split-Path $_ -Leaf)\PerfOptions" 'CpuPriorityClass') -ne 3 }).Count }
     }
     SearchIdx = @{
         Apply = {
