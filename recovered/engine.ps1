@@ -647,7 +647,8 @@ function Do-Status {
     }
     $zanos = $false
     try { $zanos = (Test-Path -LiteralPath (Join-Path $env:windir 'ZanOSModules')) -or (Test-Path -LiteralPath 'HKLM:\SOFTWARE\ZanOS') } catch { }
-    Emit @{ t = 'result'; action = 'Status'; status = $st; hasBackup = (Test-HasBackup); applied = @($Script:Backup.Applied); zanos = [bool]$zanos }
+    $boot = 0; try { $boot = [DateTimeOffset]::new((Get-CimInstance Win32_OperatingSystem).LastBootUpTime).ToUnixTimeSeconds() } catch { }
+    Emit @{ t = 'result'; action = 'Status'; boot = $boot; status = $st; hasBackup = (Test-HasBackup); applied = @($Script:Backup.Applied); zanos = [bool]$zanos }
 }
 
 function Do-SysInfo {

@@ -10,6 +10,8 @@ $ui = [IO.File]::ReadAllText((Join-Path $root 'recovered\ui.html'), $utf8).Repla
 $a = $ui.IndexOf("if (!NATIVE) {`n"); $b = $ui.IndexOf("`n}`n`n/* ================= data")
 if ($a -lt 0 -or $b -lt $a) { throw 'mock block markers not found' }
 $ui = $ui.Substring(0, $a) + "if (!NATIVE) {" + $ui.Substring($b + 1)
+# strip indentation and comment-only lines (release copy only)
+$ui = ($ui.Split("`n") | ForEach-Object { $_.TrimStart(' ') } | Where-Object { $_ -ne '' -and $_ -notmatch '^//' -and $_ -notmatch '^/\*[^*]*\*/$' }) -join "`n"
 # drop the oldest changelog entries from the release copy until it fits the slot
 $cut = 0
 while ($utf8.GetByteCount($ui) -gt 1054600) { $end = $ui.IndexOf(']</script>', $ui.IndexOf('id="changelog"')); $st = $ui.LastIndexOf(', {"v": "', $end); if ($st -lt 0) { throw 'cannot fit' }; $ui = $ui.Remove($st, $end - $st); $cut++ }
