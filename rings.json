@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.32",
-    "sha256": "5caa4e4d88898cb9730934250d5084b9f119173cd83ee103b170cbaa27592f81",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/0d5be9e7deb173a5dbbe36cc5052fbb5c3ec924a/ZanBooster.exe",
-    "notes": "หน้าต่างเด้งเบลอพื้นหลัง ปิดเองตอนวัดบูสต์และตอนเกมเปิด"
+    "version": "4.11.33",
+    "sha256": "5b48120cc71384b65bc7d6a5359375c334a55be3515f9f4cd263df786e61cb56",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/b94c5f8f2718e4b5895ab290c7bc4fe12d5ffc31/ZanBooster.exe",
+    "notes": "รายการฟีเจอร์ใหม่มุมซ้ายล่างอัปเดตแล้ว"
   },
   "vip": {
     "version": "4.11.29",
