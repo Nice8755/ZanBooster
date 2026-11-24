@@ -911,19 +911,32 @@ function Do-OvOff {
 }
 # จูนเร็ว: ลดเฉพาะชุดที่ตัน ลดอย่างเดียวไม่เพิ่ม เก็บไฟล์ก่อนจูนไว้คืน
 $TuneBackup = Join-Path $DataDir 'gta5_settings.pretune.xml'
+$StepBackup = Join-Path $DataDir 'gta5_settings.prestep.xml'
 function Do-GfxTune {
     try {
-        if ($Opt -eq 'keep') { Remove-Item $TuneBackup -Force -ErrorAction SilentlyContinue; Emit @{ t = 'result'; action = 'GfxTune'; ok = $true; n = 0 }; return }
+        if ($Opt -eq 'keep') { Remove-Item $TuneBackup, $StepBackup -Force -ErrorAction SilentlyContinue; Emit @{ t = 'result'; action = 'GfxTune'; ok = $true; n = 0 }; return }
         if (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' }) { throw 'ปิด FiveM ก่อน เกมจะเขียนทับไฟล์ตอนปิด' }
+        if ($Opt -eq 'stepback') {
+            if (-not (Test-Path $StepBackup)) { throw 'ไม่มีไฟล์ก่อนขั้นนี้เก็บไว้' }
+            Copy-Item $StepBackup $GfxFile -Force; Remove-Item $StepBackup -Force
+            Emit @{ t = 'result'; action = 'GfxTune'; ok = $true; n = 0 }; return
+        }
         if ($Opt -eq 'undo') {
             if (-not (Test-Path $TuneBackup)) { throw 'ไม่มีไฟล์ก่อนจูนเก็บไว้' }
-            Copy-Item $TuneBackup $GfxFile -Force; Remove-Item $TuneBackup -Force
+            Copy-Item $TuneBackup $GfxFile -Force; Remove-Item $TuneBackup, $StepBackup -Force -ErrorAction SilentlyContinue
             Emit @{ t = 'result'; action = 'GfxTune'; ok = $true; n = 0 }; return
         }
         if (-not (Test-Path $GfxFile)) { throw 'ยังไม่มีไฟล์ตั้งค่ากราฟิก เข้าเกม FiveM สักครั้งก่อน' }
         $g = @{ ShadowQuality = 1; Shadow_SoftShadows = 0; Shadow_Distance = 1; UltraShadows_Enabled = 'false'; Shadow_LongShadows = 'false'; Shadow_ParticleShadows = 'false'; ReflectionQuality = 0; ReflectionMSAA = 0; MSAA = 0; MSAAFragments = 0; TXAA_Enabled = 'false'; SSAO = 0; Tessellation = 0; GrassQuality = 0; WaterQuality = 0; ParticleQuality = 0; PostFX = 0; Lighting_FogVolumes = 'false'; DoF = 'false'; MotionBlurStrength = 0; VSync = 0 }
         $c = @{ LodScale = 0; MaxLodScale = 0; PedLodBias = 0; VehicleLodBias = 0; CityDensity = 0; PedVarietyMultiplier = 0; VehicleVarietyMultiplier = 0; GrassQuality = 0; ShadowQuality = 1; Shadow_LongShadows = 'false'; UltraShadows_Enabled = 'false'; HdStreamingInFlight = 'false'; VSync = 0 }
         $set = @{}; if ($Opt -in 'gpu', 'both') { foreach ($k in $g.Keys) { $set[$k] = $g[$k] } }; if ($Opt -in 'cpu', 'both') { foreach ($k in $c.Keys) { $set[$k] = $c[$k] } }
+        $step = $Opt -match '^(gpu|cpu)([123])$'
+        if ($step) {
+            $k1 = $Matches[1]; $lv = [int]$Matches[2]; $src = $(if ($k1 -eq 'gpu') { $g } else { $c })
+            $t1 = 'ReflectionMSAA TXAA_Enabled Lighting_FogVolumes DoF MotionBlurStrength Shadow_ParticleShadows Shadow_LongShadows UltraShadows_Enabled VSync MaxLodScale VehicleLodBias PedLodBias HdStreamingInFlight' -split ' '
+            $t2 = 'MSAA MSAAFragments Tessellation SSAO Shadow_SoftShadows WaterQuality ParticleQuality LodScale CityDensity PedVarietyMultiplier VehicleVarietyMultiplier' -split ' '
+            foreach ($k in $src.Keys) { if ($lv -eq 3 -or $t1 -contains $k -or ($lv -eq 2 -and $t2 -contains $k)) { $set[$k] = $(if ($lv -eq 2 -and $k1 -eq 'cpu' -and $t2 -contains $k) { 0.5 } else { $src[$k] }) } }
+        }
         if (-not $set.Count) { throw 'ไม่รู้จักแบบจูนนี้' }
         [xml]$x = Get-Content $GfxFile -Raw -Encoding UTF8
         $ci = [Globalization.CultureInfo]::InvariantCulture; $n = 0
@@ -937,6 +950,7 @@ function Do-GfxTune {
         if ($n) {
             if (-not (Test-Path $GfxBackup)) { Copy-Item $GfxFile $GfxBackup -Force }
             if (-not (Test-Path $TuneBackup)) { Copy-Item $GfxFile $TuneBackup -Force }
+            if ($step) { Copy-Item $GfxFile $StepBackup -Force }
             $cs = $x.SelectSingleNode('//configSource'); if ($cs) { $cs.InnerText = 'SMC_USER' }
             $s = New-Object System.Xml.XmlWriterSettings; $s.Indent = $true; $s.Encoding = New-Object System.Text.UTF8Encoding($false)
             $w = [System.Xml.XmlWriter]::Create($GfxFile, $s); $x.Save($w); $w.Close()
