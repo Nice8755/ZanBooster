@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.38",
-    "sha256": "865eb89c064fef0053b70f03e13e8148644e577b833ff2697b6f77705cf7024b",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/66422e51cd5fd814a51d5787cd869524c2144d31/ZanBooster.exe",
-    "notes": "ปุ่มรับทราบในตรวจเครื่อง แก้อ่านความเร็วแรมผิด"
+    "version": "4.11.39",
+    "sha256": "bf0d893d8272ce96aeb9ec813e6052bb0fe523947e298b6a9dd10ff1a444bbd5",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/58b01b48b89499c1fbdb43ef5dec608a700571fd/ZanBooster.exe",
+    "notes": "แก้ Discord/Steam ค้างหลังล้างขยะ · ปิด overlay ในปุ่มเดียว · อนิเมชั่นใหม่ · กราฟประวัติ FPS และเตือนเมื่อ FPS ตก · การ์ดผล FPS แนวตั้ง · ปุ่มรับทราบในตรวจเครื่อง"
   },
   "vip": {
     "version": "4.11.29",
