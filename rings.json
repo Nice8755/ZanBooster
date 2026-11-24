@@ -1,4 +1,4 @@
 {
   "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.28", "sha256": "71417147de4fe2973593e46c9e5c4cf94aff9f54e60391d580d633f82d990d32", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6e3dfb84ed5d593102c8f0c822a1df59313a3be9/ZanBooster.exe", "notes": "ผลบูสต์แม่นขึ้น ตัวเลขเรืองแสง" },
-  "vip": {}
+  "vip": { "version": "4.11.28", "sha256": "71417147de4fe2973593e46c9e5c4cf94aff9f54e60391d580d633f82d990d32", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6e3dfb84ed5d593102c8f0c822a1df59313a3be9/ZanBooster.exe", "notes": "กดบูสต์ครั้งเดียวครบ วัดก่อน/หลัง โชว์ + − ตามจริง · แก้อัปเดตสลับไฟล์ไม่ได้ · แก้บูสต์ขึ้นรายการซ้ำ" }
 }
