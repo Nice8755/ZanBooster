@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.53",
-    "sha256": "4438a935574b9f8fbeb6106c8ac39f4dba4bb429ba2a83d8a1a4a1cd188bc3e2",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/b816bc6774f1c3873fbcc45ea10ce5fbacf8ea2d/ZanBooster.exe",
-    "notes": "บูสต์พรีเมียม: ปุ่มใหม่ ปรับทุกอย่างที่ช่วย FPS รวมไดรเวอร์การ์ดจอ"
+    "version": "4.11.54",
+    "sha256": "b751cd680a289a18dd814ce6c7a3b63b54a0a5eebdfe31930a5452bd18a6a2ef",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/73620c9b2298d0623b9e7334a2ee52887955c0fc/ZanBooster.exe",
+    "notes": "วงแหวนและปุ่มบูสต์พรีเมียมแบบใหม่"
   },
   "vip": {
     "version": "4.11.47",
