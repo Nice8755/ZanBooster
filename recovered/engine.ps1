@@ -393,8 +393,8 @@ $Tweaks = [ordered]@{
             }
         }
         Check = {
-            $a = Get-UpAdapters | Select-Object -First 1
-            $a -and ((Get-Reg "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$($a.InterfaceGuid)" 'TCPNoDelay') -eq 1)
+            $l = @(Get-UpAdapters); if (-not $l.Count) { $l = @(Get-NetAdapter -Physical -ErrorAction SilentlyContinue) }
+            @($l | Where-Object { (Get-Reg "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$($_.InterfaceGuid)" 'TCPNoDelay') -eq 1 }).Count -gt 0
         }
     }
     Adapter = @{
@@ -414,6 +414,7 @@ $Tweaks = [ordered]@{
             if ($changed.Count -eq 0) { throw 'การ์ดแลนเครื่องนี้ไม่มีตัวเลือกนี้' }
             Write-Log 'รีสตาร์ทการ์ดแลน (เน็ตหลุดไม่กี่วินาที)...'
             foreach ($n in $changed) { Restart-NetAdapter -Name $n -Confirm:$false }
+            for ($i = 0; $i -lt 40 -and @(Get-NetAdapter -Name $changed -ErrorAction SilentlyContinue | Where-Object { $_.Status -eq 'Up' }).Count -lt $changed.Count; $i++) { Start-Sleep -Milliseconds 500 }
         }
         Check = { $Script:Backup.Adapters.Count -gt 0 }
     }
@@ -514,7 +515,6 @@ $Tweaks = [ordered]@{
 
 # ------------------------------------------------------------ actions ----
 function Test-DefenderOn {
-    # Defender ทำงานอยู่จริงไหม (เครื่องที่ปิด/ลบ Defender หรือใช้แอนตี้ไวรัสตัวอื่น = false)
     if (-not (Get-Command Get-MpComputerStatus -ErrorAction SilentlyContinue)) { return $false }
     $svc = Get-Service WinDefend -ErrorAction SilentlyContinue
     if (-not $svc -or $svc.Status -ne 'Running') { return $false }
