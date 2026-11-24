@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.55",
-    "sha256": "5e4f9eee832d638bb8a672caf6818cc1d33b0bb2773363dcf38afa79381dcbf5",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/5d786eb9bf55177c7d0d2b3f43937a443a96df9b/ZanBooster.exe",
-    "notes": "แก้หน้าจอโดนตัดขอบเมื่อหน้าต่างเล็กหรือจอขยาย"
+    "version": "4.11.56",
+    "sha256": "d2ae873ad317ffba5a4a968d418ce3029241eb6157a746eaee3a9ee638e9670d",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/604102bd15ebc9fcaec36fe3fefc81a4039582de/ZanBooster.exe",
+    "notes": "ตรวจและซ่อมเสียงในหน้าเช็กเครื่อง · หน้ากำลังปรับเครื่องลื่นขึ้น"
   },
   "vip": {
     "version": "4.11.55",
