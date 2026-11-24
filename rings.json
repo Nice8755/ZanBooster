@@ -9,9 +9,9 @@
     "notes": "ผลบูสต์แม่นขึ้น วัด 5 รอบ รอเครื่องนิ่งก่อน"
   },
   "vip": {
-    "version": "4.11.55",
-    "sha256": "5e4f9eee832d638bb8a672caf6818cc1d33b0bb2773363dcf38afa79381dcbf5",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/5d786eb9bf55177c7d0d2b3f43937a443a96df9b/ZanBooster.exe",
-    "notes": "แก้หน้าจอโดนตัดขอบเมื่อหน้าต่างเล็ก · วัดผลจริงในเกม · ปุ่มบูสต์พรีเมียมแบบใหม่ ปรับทุกข้อรวมไดรเวอร์การ์ดจอ"
+    "version": "4.11.57",
+    "sha256": "49d2082e86cecfa8c96f78023305cc81ca63f89add081df95a25da10edc9ec99",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/433e243b6f87374c5f4b6342ac4a514a4e76cb2f/ZanBooster.exe",
+    "notes": "เพิ่มตรวจและซ่อมเสียง · หน้ากำลังปรับเครื่องลื่นขึ้น · ผลบูสต์วัดแม่นขึ้น"
   }
 }
