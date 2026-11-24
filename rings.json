@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.57",
-    "sha256": "49d2082e86cecfa8c96f78023305cc81ca63f89add081df95a25da10edc9ec99",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/433e243b6f87374c5f4b6342ac4a514a4e76cb2f/ZanBooster.exe",
-    "notes": "ผลบูสต์แม่นขึ้น วัด 5 รอบ รอเครื่องนิ่งก่อน"
+    "version": "4.11.58",
+    "sha256": "0870ae04d3380c41780bf9082222c45885a86fda29b1d28b24b2fc57cf1d1c10",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/aa27287758c25b8fef7ee7a5884703f172ba6f9e/ZanBooster.exe",
+    "notes": "ซ่อมเสียงหาเจอง่ายขึ้นในหน้าตรวจเครื่อง"
   },
   "vip": {
     "version": "4.11.57",
