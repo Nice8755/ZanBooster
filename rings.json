@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.45",
-    "sha256": "1f88e48bf6df0f5c141ca24c47d045f599bddfc350e96091df37ed75b4af1de5",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/b81999448b0a23509398ed349023fac6518a0ff4/ZanBooster.exe",
-    "notes": "หน้าต่างเด้งและตอนอัปเดตไม่ทึบแล้ว"
+    "version": "4.11.46",
+    "sha256": "81fb79b24cd10073726ab4dff34218c174893215f4401e55df6dbccbf99284d1",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/7f300a80b759b1bbc32f1cc3775679a7022d3eb1/ZanBooster.exe",
+    "notes": "ใช้การ์ดจอและ CPU ตอนเปิดหน้าโปรแกรมน้อยลง"
   },
   "vip": {
     "version": "4.11.45",
