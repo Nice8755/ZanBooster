@@ -1,0 +1,132 @@
+name: Publish
+
+# Phone-friendly release button (GitHub app > Actions > Publish > Run workflow).
+# test     = build and check only, nothing is published
+# owner    = build the version from rebuild-4x, offer it to the owner's PC only
+# premium  = offer the SAME exe the owner has to Premium customers
+# everyone = release the SAME exe to all customers (asks for confirm = YES)
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "test / owner / premium / everyone"
+        type: choice
+        options: [test, owner, premium, everyone]
+        default: test
+      version:
+        description: "owner/test: new version, e.g. 4.11.30. premium/everyone: the version you tested"
+        required: true
+      notes:
+        description: "What changed (customers read this)"
+        default: ""
+      confirm:
+        description: "everyone: type YES"
+        default: ""
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency: publish
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      GH_TOKEN: ${{ github.token }}
+      STAGE: ${{ inputs.stage }}
+      VERSION: ${{ inputs.version }}
+      NOTES: ${{ inputs.notes }}
+      CONFIRM: ${{ inputs.confirm }}
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: rebuild-4x, path: src }
+      - uses: actions/checkout@v4
+        with: { ref: rings, path: rings }
+      - uses: actions/checkout@v4
+        with: { ref: main, path: main }
+
+      - name: Check inputs
+        run: |
+          if ($env:VERSION -notmatch '^\d\.\d\d\.\d\d$') { throw "version must look like 4.11.30" }
+          if ($env:STAGE -eq 'everyone' -and $env:CONFIRM -cne 'YES') { throw 'everyone needs confirm = YES' }
+          $r = Get-Content rings/rings.json -Raw | ConvertFrom-Json
+          $cur = [version]$r.owner.version; $new = [version]$env:VERSION
+          if ($env:STAGE -eq 'owner' -and $new -le $cur) { throw "owner already has $cur, use a higher version" }
+          if ($env:STAGE -in 'premium', 'everyone' -and $new -ne $cur) { throw "owner ring is $cur, not $new. Publish stage owner first and test it" }
+          if ($env:STAGE -eq 'everyone') {
+            $l = [version](Get-Content main/latest.json -Raw | ConvertFrom-Json).version
+            if ($new -le $l) { throw "customers already have $l" }
+          }
+
+      - uses: actions/setup-go@v5
+        if: inputs.stage == 'test' || inputs.stage == 'owner'
+        with: { go-version: "1.24", cache: false }
+      - name: Build and check
+        if: inputs.stage == 'test' || inputs.stage == 'owner'
+        shell: powershell
+        working-directory: src
+        run: |
+          $ErrorActionPreference = 'Stop'
+          ./tools/ci-check.ps1
+          ./tools/build-release.ps1 -Version $env:VERSION -Out "$env:RUNNER_TEMP\ZanBooster.exe"
+          $v = (Get-Item "$env:RUNNER_TEMP\ZanBooster.exe").VersionInfo.FileVersion
+          if ($v -ne "$env:VERSION.0") { throw "exe version is $v" }
+          $u = [IO.File]::ReadAllText("$PWD\recovered\ui.html")
+          if ($env:STAGE -eq 'owner' -and -not $u.Contains("id=`"changelog`">[{`"v`": `"$env:VERSION`"")) { throw "changelog has no entry for $env:VERSION on top" }
+
+      - name: Owner ring
+        if: inputs.stage == 'owner'
+        run: |
+          git config --global user.name "Nice8755"; git config --global user.email "Nice8755@users.noreply.github.com"
+          Copy-Item "$env:RUNNER_TEMP/ZanBooster.exe" rings/ZanBooster.exe -Force
+          $sha = (Get-FileHash rings/ZanBooster.exe).Hash.ToLower()
+          git -C rings add ZanBooster.exe; git -C rings commit -m "owner build $env:VERSION"; git -C rings push; if ($LASTEXITCODE) { throw 'push' }
+          $c = (git -C rings rev-parse HEAD).Trim()
+          $r = Get-Content rings/rings.json -Raw | ConvertFrom-Json
+          $o = [ordered]@{ machines = @($r.owner.machines); version = $env:VERSION; sha256 = $sha; url = "https://raw.githubusercontent.com/$env:REPO/$c/ZanBooster.exe"; notes = $env:NOTES }
+          [IO.File]::WriteAllText("$PWD/rings/rings.json", ([ordered]@{ owner = $o; vip = $r.vip } | ConvertTo-Json -Depth 5), [Text.UTF8Encoding]::new($false))
+          git -C rings add rings.json; git -C rings commit -m "rings: owner $env:VERSION"; git -C rings push; if ($LASTEXITCODE) { throw 'push' }
+
+      - name: Fetch the exact exe the owner tested
+        if: inputs.stage == 'premium' || inputs.stage == 'everyone'
+        run: |
+          $o = (Get-Content rings/rings.json -Raw | ConvertFrom-Json).owner
+          Invoke-WebRequest $o.url -OutFile "$env:RUNNER_TEMP/ZanBooster.exe"
+          if ((Get-FileHash "$env:RUNNER_TEMP/ZanBooster.exe").Hash.ToLower() -ne $o.sha256) { throw 'sha mismatch' }
+
+      - name: Premium ring
+        if: inputs.stage == 'premium' || inputs.stage == 'everyone'
+        run: |
+          git config --global user.name "Nice8755"; git config --global user.email "Nice8755@users.noreply.github.com"
+          $r = Get-Content rings/rings.json -Raw | ConvertFrom-Json
+          $n = if ($env:NOTES) { $env:NOTES } else { $r.owner.notes }
+          $r.vip = [pscustomobject][ordered]@{ version = $r.owner.version; sha256 = $r.owner.sha256; url = $r.owner.url; notes = $n }
+          [IO.File]::WriteAllText("$PWD/rings/rings.json", ($r | ConvertTo-Json -Depth 5), [Text.UTF8Encoding]::new($false))
+          git -C rings add rings.json
+          git -C rings diff --cached --quiet
+          if ($LASTEXITCODE) { git -C rings commit -m "rings: vip $env:VERSION"; git -C rings push; if ($LASTEXITCODE) { throw 'push' } }
+          exit 0
+
+      - name: Everyone
+        if: inputs.stage == 'everyone'
+        run: |
+          $o = (Get-Content rings/rings.json -Raw | ConvertFrom-Json).owner
+          $n = if ($env:NOTES) { $env:NOTES } else { $o.notes }
+          foreach ($c in 'release', 'beta') {
+            Copy-Item "$env:RUNNER_TEMP/ZanBooster.exe" "main/$c/ZanBooster.exe" -Force
+            $f = if ($c -eq 'release') { 'latest.json' } else { 'beta.json' }
+            [IO.File]::WriteAllText("$PWD/main/$f", ([ordered]@{ version = $o.version; sha256 = $o.sha256; file = "$c/ZanBooster.exe"; notes = $n } | ConvertTo-Json), [Text.UTF8Encoding]::new($false))
+          }
+          git -C main add -A; git -C main commit -m "v${env:VERSION}: release to everyone (binary release)"; git -C main push; if ($LASTEXITCODE) { throw 'push' }
+          gh workflow run release.yml --repo $env:REPO --ref main
+
+      - name: Result
+        run: |
+          $r = Get-Content rings/rings.json -Raw | ConvertFrom-Json
+          $l = (Get-Content main/latest.json -Raw | ConvertFrom-Json).version
+          "### ${env:STAGE} ${env:VERSION}`n- owner: $($r.owner.version)`n- premium: $($r.vip.version)`n- everyone: $l" | Out-File $env:GITHUB_STEP_SUMMARY -Encoding utf8
