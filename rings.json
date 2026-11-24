@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.34",
-    "sha256": "83d0308162ee3aa7359f7262e0a99a4556a4d567e5209222ff6d405f4222d798",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/e15360e0b9bad37a62659c8107dc7abe5702ec99/ZanBooster.exe",
-    "notes": "ปิด overlay ของ Discord ทุกตัวและ Steam ในปุ่มเดียว เปิดกลับได้"
+    "version": "4.11.35",
+    "sha256": "d78441616cbcc50d8d57a22f22976bd71fd7e907fa805a9ee16dbbb15d1ad259",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/243ee284996ab3a998c1396b0ad1679320b46198/ZanBooster.exe",
+    "notes": "แก้ Discord / Steam ค้างหลังล้างขยะตอนแอปเปิดอยู่"
   },
   "vip": {
     "version": "4.11.29",
