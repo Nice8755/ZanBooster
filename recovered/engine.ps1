@@ -1778,6 +1778,40 @@ function Do-JunkClean {
     Emit @{ t = 'result'; action = 'JunkClean'; ok = $true; mb = [math]::Round($total / 1MB); per = $per; skip = ($Script:JunkSkip -join ', ') }
 }
 
+# ถามแอป Discord ที่เปิดอยู่ว่าเป็นบัญชีไหน (ช่อง RPC ปกติของ Discord) แล้วขอยศ Test ให้บัญชีนั้น
+function Get-DcUser([string]$app) {
+    foreach ($i in 0..9) {
+        $p = New-Object IO.Pipes.NamedPipeClientStream('.', "discord-ipc-$i", [IO.Pipes.PipeDirection]::InOut, [IO.Pipes.PipeOptions]::Asynchronous)
+        try {
+            $p.Connect(200)
+            $b = [Text.Encoding]::UTF8.GetBytes("{`"v`":1,`"client_id`":`"$app`"}")
+            $o = [BitConverter]::GetBytes([int]0) + [BitConverter]::GetBytes([int]$b.Length) + $b
+            $p.Write($o, 0, $o.Length); $p.Flush()
+            $rd = { param($n) $z = New-Object byte[] $n; $g = 0; while ($g -lt $n) { $k = $p.ReadAsync($z, $g, $n - $g); if (-not $k.Wait(3000) -or $k.Result -le 0) { throw 'pipe' }; $g += $k.Result }; , $z }
+            $h = & $rd 8; $n = [BitConverter]::ToInt32($h, 4)
+            if ([BitConverter]::ToInt32($h, 0) -eq 1 -and $n -gt 0 -and $n -lt 65536) {
+                $j = [Text.Encoding]::UTF8.GetString((& $rd $n)) | ConvertFrom-Json
+                if ($j.evt -eq 'READY' -and $j.data.user.id) { return $j.data.user }
+            }
+        } catch { } finally { $p.Dispose() }
+    }
+}
+function Do-TestRole {
+    $code = ''; $name = ''
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor 3072
+        $api = 'https://zan-license.zanhub.workers.dev/v1/test'
+        $u = Get-DcUser ([string](Invoke-RestMethod $api -TimeoutSec 8).app)
+        if (-not $u) { $code = 'nodiscord' }
+        else {
+            $name = [string]$u.username
+            $q = Invoke-RestMethod $api -Method Post -ContentType 'application/json' -TimeoutSec 15 -Body (@{ m = $Ids; u = [string]$u.id; e = [int64]$Opt } | ConvertTo-Json -Compress)
+            $code = $(if ($q.ok) { 'ok' } else { [string]$q.code })
+        }
+    } catch { $code = 'net' }
+    Emit @{ t = 'result'; action = 'TestRole'; ok = ($code -eq 'ok'); code = $code; name = $name }
+}
+
 function Do-BoostNow {
     $procs = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*GTAProcess' })
     if ($procs.Count -eq 0) { Emit @{ t = 'result'; action = 'BoostNow'; ok = $false; m = 'ยังไม่ได้เปิดเกม FiveM' }; return }
@@ -1810,6 +1844,7 @@ try {
     'NuiGpu'     { Do-NuiGpu }
     'GfxTune'    { Do-GfxTune }
     'OvOff'      { Do-OvOff }
+    'TestRole'   { Do-TestRole }
     'BoostNow'   { Do-BoostNow }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -ErrorAction SilentlyContinue)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
