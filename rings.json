@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.48",
-    "sha256": "1fe74af11e594c9427aa224e63c161b1cdacaea03da3859f1025028007969337",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/c44f4e9cdb1d044c2fe5cc96e074780a95ed1e1a/ZanBooster.exe",
-    "notes": "พิสูจน์ผลจริง: วัดในเกมก่อน/หลัง ปรับทีละขั้น ขั้นไหนไม่ดีขึ้นคืนให้"
+    "version": "4.11.49",
+    "sha256": "95505fbef90db2126255e6d43e1b8f05025c416090da5efe45c28dcd5634303d",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/3d4f02358b3675b3de2f7de49ec819330466894d/ZanBooster.exe",
+    "notes": "เทียบกับก่อนมีโปรแกรม: ปิดค่า วัด เปิดกลับ วัด เห็นผลทั้งชุด"
   },
   "vip": {
     "version": "4.11.47",
