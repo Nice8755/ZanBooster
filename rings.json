@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.30",
-    "sha256": "0ee335f113dfddd0356352ef7bfb925c96a4887d91e5106dc4cc8d2606a342e9",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2b055f10af2a118d6c6eb4ac8121ec23f208d0c5/ZanBooster.exe",
-    "notes": "จูน FPS แบบเร็ว · บูสต์ลื่นขึ้นและใช้เวลาน้อยลง"
+    "version": "4.11.31",
+    "sha256": "16aed87b8325950635386c6dc69cf81919689faa39f5365f4b6b24174e8ea33c",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/79ffae3f6eb26b6e236abbc885a08eb21c7eabcf/ZanBooster.exe",
+    "notes": "หน้าตาใหม่ ดูหรูขึ้นและเบากว่าเดิม"
   },
   "vip": {
     "version": "4.11.29",
