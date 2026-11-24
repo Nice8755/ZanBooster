@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.35",
-    "sha256": "d78441616cbcc50d8d57a22f22976bd71fd7e907fa805a9ee16dbbb15d1ad259",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/243ee284996ab3a998c1396b0ad1679320b46198/ZanBooster.exe",
-    "notes": "แก้ Discord / Steam ค้างหลังล้างขยะตอนแอปเปิดอยู่"
+    "version": "4.11.36",
+    "sha256": "22e7da466122432ad03db340ac1d23a23f13e1648294ed39574f2f21a97d41c2",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/342218aebd8941cec5bca89d8d58329e6604001b/ZanBooster.exe",
+    "notes": "overlay ที่ปิดแล้วไม่ขึ้นแนะนำอีก"
   },
   "vip": {
     "version": "4.11.29",
