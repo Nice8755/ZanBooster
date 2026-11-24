@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.59",
-    "sha256": "114186d1403c5c738145fc322c0ee81607f6fe71e28998eab3e24606f07e27b6",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/a5d52ac490936e1b5768a794ac883b698b20247a/ZanBooster.exe",
-    "notes": "พรีเซ็ต Zan 12 โทนสวยขึ้นทุกสภาพแสง แก้ ReShade ขึ้น Error"
+    "version": "4.11.60",
+    "sha256": "80dacb54dd581749a6076315d6b2f5f6d5355654ec69b9f097ffee5fdd75c268",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2b277fdc60903ced4df2c46ab95d8dd959094dda/ZanBooster.exe",
+    "notes": "พรีเซ็ต Zan เลือกได้ 3 ระดับ Low Medium High"
   },
   "vip": {
     "version": "4.11.58",
