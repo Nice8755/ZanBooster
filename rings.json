@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.52",
-    "sha256": "7245b285c735767c00dc61edadbe31c14980abdfe0cd8802bd0b629f0e6573b6",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ff423a77add69f4d4bf84b0af4c1f96c992ee1b2/ZanBooster.exe",
-    "notes": "กดตัวเลขหมวดดูข้อที่ยังไม่เปิด"
+    "version": "4.11.53",
+    "sha256": "4438a935574b9f8fbeb6106c8ac39f4dba4bb429ba2a83d8a1a4a1cd188bc3e2",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/b816bc6774f1c3873fbcc45ea10ce5fbacf8ea2d/ZanBooster.exe",
+    "notes": "บูสต์พรีเมียม: ปุ่มใหม่ ปรับทุกอย่างที่ช่วย FPS รวมไดรเวอร์การ์ดจอ"
   },
   "vip": {
     "version": "4.11.47",
