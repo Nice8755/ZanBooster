@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.49",
-    "sha256": "95505fbef90db2126255e6d43e1b8f05025c416090da5efe45c28dcd5634303d",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/3d4f02358b3675b3de2f7de49ec819330466894d/ZanBooster.exe",
-    "notes": "เทียบกับก่อนมีโปรแกรม: ปิดค่า วัด เปิดกลับ วัด เห็นผลทั้งชุด"
+    "version": "4.11.50",
+    "sha256": "36fe12ceff825c0e21b9e2aafe26cf1574ee737cf2a89bc05cd0a0443d9861b1",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/d8a347c9c4405ef01717da9efea7ace157185aed/ZanBooster.exe",
+    "notes": "แก้โหมดเทียบ: โหมดเล่นเกมเปิดค่ากลับเองจนวัดไม่ได้"
   },
   "vip": {
     "version": "4.11.47",
