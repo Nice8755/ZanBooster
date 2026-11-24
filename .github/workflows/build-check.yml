@@ -1,0 +1,23 @@
+name: Build check
+
+# Runs on every work branch: checks the code on Windows and proves the exe can be built. Publishes nothing.
+on:
+  push:
+    branches-ignore: [main, rings]
+    paths: ["recovered/**", "tools/**", ".github/workflows/build-check.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.24", cache: false }
+      - run: ./tools/ci-check.ps1
+      - run: ./tools/build-release.ps1 -Version 4.11.99 -Out "$env:RUNNER_TEMP\ZanBooster.exe"
