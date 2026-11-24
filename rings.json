@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.31",
-    "sha256": "16aed87b8325950635386c6dc69cf81919689faa39f5365f4b6b24174e8ea33c",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/79ffae3f6eb26b6e236abbc885a08eb21c7eabcf/ZanBooster.exe",
-    "notes": "หน้าตาใหม่ ดูหรูขึ้นและเบากว่าเดิม"
+    "version": "4.11.32",
+    "sha256": "5caa4e4d88898cb9730934250d5084b9f119173cd83ee103b170cbaa27592f81",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/0d5be9e7deb173a5dbbe36cc5052fbb5c3ec924a/ZanBooster.exe",
+    "notes": "หน้าต่างเด้งเบลอพื้นหลัง ปิดเองตอนวัดบูสต์และตอนเกมเปิด"
   },
   "vip": {
     "version": "4.11.29",
