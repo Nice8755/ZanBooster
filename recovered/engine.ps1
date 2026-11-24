@@ -833,6 +833,43 @@ function Do-NuiGpu {
     catch { Emit @{ t = 'result'; action = 'NuiGpu'; ok = $false; m = $_.Exception.Message } }
 }
 
+# จูนเร็ว: ลดเฉพาะชุดที่ตัน ลดอย่างเดียวไม่เพิ่ม เก็บไฟล์ก่อนจูนไว้คืน
+$TuneBackup = Join-Path $DataDir 'gta5_settings.pretune.xml'
+function Do-GfxTune {
+    try {
+        if ($Opt -eq 'keep') { Remove-Item $TuneBackup -Force -ErrorAction SilentlyContinue; Emit @{ t = 'result'; action = 'GfxTune'; ok = $true; n = 0 }; return }
+        if (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' }) { throw 'ปิด FiveM ก่อน เกมจะเขียนทับไฟล์ตอนปิด' }
+        if ($Opt -eq 'undo') {
+            if (-not (Test-Path $TuneBackup)) { throw 'ไม่มีไฟล์ก่อนจูนเก็บไว้' }
+            Copy-Item $TuneBackup $GfxFile -Force; Remove-Item $TuneBackup -Force
+            Emit @{ t = 'result'; action = 'GfxTune'; ok = $true; n = 0 }; return
+        }
+        if (-not (Test-Path $GfxFile)) { throw 'ยังไม่มีไฟล์ตั้งค่ากราฟิก เข้าเกม FiveM สักครั้งก่อน' }
+        $g = @{ ShadowQuality = 1; Shadow_SoftShadows = 0; Shadow_Distance = 1; UltraShadows_Enabled = 'false'; Shadow_LongShadows = 'false'; Shadow_ParticleShadows = 'false'; ReflectionQuality = 0; ReflectionMSAA = 0; MSAA = 0; MSAAFragments = 0; TXAA_Enabled = 'false'; SSAO = 0; Tessellation = 0; GrassQuality = 0; WaterQuality = 0; ParticleQuality = 0; PostFX = 0; Lighting_FogVolumes = 'false'; DoF = 'false'; MotionBlurStrength = 0; VSync = 0 }
+        $c = @{ LodScale = 0; MaxLodScale = 0; PedLodBias = 0; VehicleLodBias = 0; CityDensity = 0; PedVarietyMultiplier = 0; VehicleVarietyMultiplier = 0; GrassQuality = 0; ShadowQuality = 1; Shadow_LongShadows = 'false'; UltraShadows_Enabled = 'false'; HdStreamingInFlight = 'false'; VSync = 0 }
+        $set = @{}; if ($Opt -in 'gpu', 'both') { foreach ($k in $g.Keys) { $set[$k] = $g[$k] } }; if ($Opt -in 'cpu', 'both') { foreach ($k in $c.Keys) { $set[$k] = $c[$k] } }
+        if (-not $set.Count) { throw 'ไม่รู้จักแบบจูนนี้' }
+        [xml]$x = Get-Content $GfxFile -Raw -Encoding UTF8
+        $ci = [Globalization.CultureInfo]::InvariantCulture; $n = 0
+        foreach ($k in $set.Keys) {
+            foreach ($node in @($x.SelectNodes("//$k"))) {
+                $a = $node.Attributes['value']; if (-not $a) { continue }
+                if ($set[$k] -is [string]) { if ($a.Value -ne 'false') { $a.Value = 'false'; $n++ } }
+                else { $v = 0.0; if ([double]::TryParse($a.Value, [Globalization.NumberStyles]::Float, $ci, [ref]$v) -and $v -gt $set[$k]) { $a.Value = $(if ($a.Value.Contains('.')) { ([double]$set[$k]).ToString('0.000000', $ci) } else { [string]$set[$k] }); $n++ } }
+            }
+        }
+        if ($n) {
+            if (-not (Test-Path $GfxBackup)) { Copy-Item $GfxFile $GfxBackup -Force }
+            if (-not (Test-Path $TuneBackup)) { Copy-Item $GfxFile $TuneBackup -Force }
+            $cs = $x.SelectSingleNode('//configSource'); if ($cs) { $cs.InnerText = 'SMC_USER' }
+            $s = New-Object System.Xml.XmlWriterSettings; $s.Indent = $true; $s.Encoding = New-Object System.Text.UTF8Encoding($false)
+            $w = [System.Xml.XmlWriter]::Create($GfxFile, $s); $x.Save($w); $w.Close()
+            Write-Log "จูนกราฟิก ($Opt) $n ค่า"
+        }
+        Emit @{ t = 'result'; action = 'GfxTune'; ok = $true; n = $n }
+    } catch { Emit @{ t = 'result'; action = 'GfxTune'; ok = $false; m = $_.Exception.Message } }
+}
+
 function Do-GfxApply {
     $preset = $Opt
     $GfxPresets = (Get-GfxPlan).presets
@@ -1675,6 +1712,7 @@ try {
         Emit @{ t = 'result'; action = 'UpdPrep'; ok = $true }
     }
     'NuiGpu'     { Do-NuiGpu }
+    'GfxTune'    { Do-GfxTune }
     'BoostNow'   { Do-BoostNow }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -ErrorAction SilentlyContinue)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
