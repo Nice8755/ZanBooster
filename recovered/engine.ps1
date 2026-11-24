@@ -1117,9 +1117,9 @@ function Do-Health {
         if ($names -contains 'radeonsoftware' -or $names -contains 'amdrsserv') { $ov.Add('AMD Adrenalin'); $tips.Add('Adrenalin > Preferences > ปิด In-Game Overlay') }
         if ((Get-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled') -ne 0) { $ov.Add('Xbox Game Bar'); $tips.Add('หน้าปรับแต่ง > ปิดการอัดคลิปของ Xbox Game Bar') }
         if ($ov.Count) { Add 'overlay' 'Overlay ในเกม' 'info' ($ov -join ', ') (($tips -join ' · ') + ' (ปิดแค่ overlay ที่ขึ้นทับในเกม ตัวโปรแกรมยังเปิดคุยและแชร์จอได้ตามปกติ)'); if ($au.Count) { $r[$r.Count - 1].act = 'ovoff'; $r[$r.Count - 1].actTxt = 'ปิดให้เลย' } }
-        else { Add 'overlay' 'Overlay' 'ok' 'ไม่เจอ overlay ที่เปิดอยู่' '' }
-        $oz = @($od | Where-Object { $_.off.Count } | ForEach-Object { $_.n }); if (Test-Path $OvBak) { $oz += 'Steam' }
-        if ($oz.Count) { Add 'ovundo' 'Overlay ที่ปิดไว้' 'info' ($oz -join ', ') 'อยากใช้อีกก็เปิดกลับได้'; $r[$r.Count - 1].act = 'ovundo'; $r[$r.Count - 1].actTxt = 'เปิดกลับ' }
+        $oz = @($od | Where-Object { $_.off.Count -and -not $_.on.Count } | ForEach-Object { $_.n }); if ((Test-Path $OvBak) -and $au -notcontains 'Steam') { $oz += 'Steam' }
+        if (-not $ov.Count -and -not $oz.Count) { Add 'overlay' 'Overlay' 'ok' 'ไม่เจอ overlay ที่เปิดอยู่' '' }
+        if ($oz.Count) { Add 'ovundo' 'Overlay ปิดไว้แล้ว' 'ok' ($oz -join ', ') ''; $r[$r.Count - 1].act = 'ovundo'; $r[$r.Count - 1].actTxt = 'เปิดกลับ' }
     } catch { }
 
     # power plan
