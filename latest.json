@@ -1,6 +1,6 @@
 {
-  "version": "4.11.45",
-  "sha256": "1f88e48bf6df0f5c141ca24c47d045f599bddfc350e96091df37ed75b4af1de5",
+  "version": "4.11.47",
+  "sha256": "947e2991997ab107f54c52bcceaccca61b4b333738cef7bbc96762d78eb5824a",
   "file": "release/ZanBooster.exe",
-  "notes": "หน้าต่างเด้งและตอนอัปเดตไม่ทึบแล้ว"
+  "notes": "ใช้การ์ดจอและ CPU ตอนเปิดหน้าโปรแกรมน้อยลง"
 }
