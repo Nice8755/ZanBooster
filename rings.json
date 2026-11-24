@@ -9,9 +9,9 @@
     "notes": "แก้หน้าจอโดนตัดขอบเมื่อหน้าต่างเล็กหรือจอขยาย"
   },
   "vip": {
-    "version": "4.11.47",
-    "sha256": "947e2991997ab107f54c52bcceaccca61b4b333738cef7bbc96762d78eb5824a",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/47a89866846d7fe20fe980de853f47cd1c0635ed/ZanBooster.exe",
-    "notes": "ใช้การ์ดจอและ CPU ตอนเปิดหน้าโปรแกรมน้อยลง"
+    "version": "4.11.55",
+    "sha256": "5e4f9eee832d638bb8a672caf6818cc1d33b0bb2773363dcf38afa79381dcbf5",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/5d786eb9bf55177c7d0d2b3f43937a443a96df9b/ZanBooster.exe",
+    "notes": "แก้หน้าจอโดนตัดขอบเมื่อหน้าต่างเล็ก · วัดผลจริงในเกม · ปุ่มบูสต์พรีเมียมแบบใหม่ ปรับทุกข้อรวมไดรเวอร์การ์ดจอ"
   }
 }
