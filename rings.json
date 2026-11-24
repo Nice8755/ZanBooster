@@ -1,4 +1,4 @@
 {
-  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.26", "sha256": "32b327af9fe03df7c414a6c4c6bbb6f2f5a006fc0bff4225620e2bc67933d7d3", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/af4805a24a0e6aa8167f765131cfb524dfbb009c/ZanBooster.exe", "notes": "กดบูสต์ครั้งเดียวครบทุกรายการ" },
+  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.27", "sha256": "f4c276937a50231e4d86e7908080539530513cfd0eea38bd8cdae6fcc4ecac91", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/512952841f4ff7b4d750e06999fba266a43e56e4/ZanBooster.exe", "notes": "บูสต์วัดก่อน/หลัง โชว์ + - ตามจริง และเพิ่มข้อใหม่" },
   "vip": {}
 }
