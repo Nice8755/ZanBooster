@@ -1046,6 +1046,12 @@ function Get-KitSpeed($mods) {
     [int]($o | Measure-Object -Minimum).Minimum
 }
 # เสียง: บริการเสียงของ Windows และอุปกรณ์ที่ใช้งานได้
+# เอฟเฟกต์ของคนอื่นที่คอมไพล์ไม่ผ่านใน FiveM: เปลี่ยนชื่อเป็น .off ให้ ReShade ข้าม (ไม่ลบ เปลี่ยนชื่อกลับได้)
+function Do-RsFix {
+    $n = 0; $fd = Get-FiveMData
+    if ($fd) { foreach ($x in 'METEOR\MartysMods_LONGEXPOSURE.fx', 'UniqFX\UniqFX_ConditionalUIMask.fx') { $q = Join-Path (Split-Path $fd -Parent) "plugins\reshade-shaders\Shaders\$x"; if (Test-Path -LiteralPath $q) { try { Move-Item -LiteralPath $q "$q.off" -Force -ErrorAction Stop; $n++ } catch { } } } }
+    Emit @{ t = 'result'; action = 'RsFix'; ok = $true; n = $n }
+}
 function Get-Audio {
     $sv = @(foreach ($n in 'AudioEndpointBuilder', 'Audiosrv') { $s = Get-Service $n -EA 0; if (-not $s -or $s.Status -ne 'Running' -or (Get-Reg "HKLM:\SYSTEM\CurrentControlSet\Services\$n" 'Start') -ne 2) { $n } })
     $out = @(Get-PnpDevice -Class AudioEndpoint -PresentOnly -EA 0 | Where-Object { $_.Status -eq 'OK' -and $_.InstanceId -like '*{0.0.0.00000000}*' } | ForEach-Object { $_.FriendlyName })
@@ -1886,6 +1892,7 @@ try {
     'NuiGpu'     { Do-NuiGpu }
     'GfxTune'    { Do-GfxTune }
     'OvOff'      { Do-OvOff }
+    'RsFix'      { Do-RsFix }
     'AudioFix'   { Do-AudioFix }
     'TestRole'   { Do-TestRole }
     'BoostNow'   { Do-BoostNow }

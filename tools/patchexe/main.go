@@ -24,6 +24,7 @@ type part struct {
 
 var parts = map[string]part{
 	"ui":     {"ui.html", "<!DOCTYPE html", "</html>", "</html>"},
+	"shader": {"ZanGrade.fx", "// ZanGrade.fx - Zan Booster", "pass Grade { VertexShader = ZanGradeVS; PixelShader = ZanGradePS; }\n}", ""},
 	"engine": {"engine.ps1", "param(\n    [string]$Action", "Emit @{ t = 'error'; action = $Action; m = $_.Exception.Message }\n}", ""},
 }
 

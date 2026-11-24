@@ -44,6 +44,10 @@ $tmp = Join-Path $env:TEMP 'zb-release-ui.html'
 "ui.html release size: {0:N0} bytes (slot 1,055,130)" -f $utf8.GetByteCount($ui)
 $eng = [IO.File]::ReadAllText((Join-Path $root 'recovered\engine.ps1'), $utf8).Replace("`r`n", "`n")
 $min = ($eng.Split("`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -notmatch '^#' }) -join "`n"
+# drop comments at the end of code lines too (the token check below proves the code is unchanged)
+$ct = $null; $ce = $null; [void][Management.Automation.Language.Parser]::ParseInput($min, [ref]$ct, [ref]$ce)
+foreach ($k in @($ct | Where-Object { $_.Kind -eq 'Comment' -and $_.Text -notlike '<#*' } | Sort-Object { $_.Extent.StartOffset } -Descending)) { $min = $min.Remove($k.Extent.StartOffset, $k.Extent.EndOffset - $k.Extent.StartOffset) }
+$min = ($min.Split("`n") | ForEach-Object { $_.TrimEnd() }) -join "`n"
 $ta = $null; $tb = $null; $pe = $null
 [void][Management.Automation.Language.Parser]::ParseInput($eng, [ref]$ta, [ref]$pe); if ($pe.Count) { throw "engine: $($pe[0])" }
 [void][Management.Automation.Language.Parser]::ParseInput($min, [ref]$tb, [ref]$pe); if ($pe.Count) { throw "engine min: $($pe[0])" }
@@ -53,11 +57,13 @@ $engTmp = Join-Path $env:TEMP 'zb-release-engine.ps1'
 [IO.File]::WriteAllText($engTmp, $min, $utf8)
 $base = Join-Path $root 'beta\ZanBooster.exe'
 if ((Get-FileHash $base).Hash -ne '34CBF139FB3D8811FD8AFD8A363B5E7DC86781067AC4F8DEB0FA8EEC8EB7F6F8') { throw 'beta\ZanBooster.exe on this branch must be the original v4.11.15 binary' }
-$patch = Join-Path $env:TEMP 'patchexe.exe'
+$fxTmp = Join-Path $env:TEMP 'zb-release-shader.fx'
+& (Join-Path $PSScriptRoot 'shader-patch.ps1') -Exe $base -Out $fxTmp
+$patch = Join-Path $env:TEMP 'patchexe-2.exe'
 Push-Location $root
 try {
-    if (-not (Test-Path $patch)) { go build -mod=vendor -o $patch ./tools/patchexe; if ($LASTEXITCODE) { throw 'patchexe build failed' } }
-    & $patch (Join-Path $root 'beta\ZanBooster.exe') $Out "ver=4.11.15:$Version" "ui=$tmp" "engine=$engTmp"
+    if (1) { go build -mod=vendor -o $patch ./tools/patchexe; if ($LASTEXITCODE) { throw 'patchexe build failed' } }
+    & $patch (Join-Path $root 'beta\ZanBooster.exe') $Out "ver=4.11.15:$Version" "ui=$tmp" "engine=$engTmp" "shader=$fxTmp"
     if ($LASTEXITCODE) { throw 'patch failed' }
 } finally { Pop-Location }
 (Get-FileHash $Out).Hash.ToLower()
