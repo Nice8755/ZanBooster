@@ -833,6 +833,74 @@ function Do-NuiGpu {
     catch { Emit @{ t = 'result'; action = 'NuiGpu'; ok = $false; m = $_.Exception.Message } }
 }
 
+# ปิด overlay ของ Discord ทุกตัว + Steam: เปลี่ยนชื่อไฟล์โมดูล / ตั้งค่า Steam คืนได้
+$OvBak = Join-Path $DataDir 'overlay.json'
+function Get-OvDisc {
+    foreach ($v in 'Discord', 'DiscordPTB', 'DiscordCanary', 'DiscordDevelopment') {
+        $d = Join-Path $env:LOCALAPPDATA $v
+        if (-not (Test-Path -LiteralPath $d)) { continue }
+        $f = @(Get-ChildItem "$d\app-*\modules\discord_*overlay*\*\*.node*" -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+        [pscustomobject]@{ n = $v; d = $d; on = @($f -like '*.node'); off = @($f -like '*.node.zanoff') }
+    }
+}
+function Get-OvSteam { [string](Get-Reg 'HKCU:\Software\Valve\Steam' 'SteamPath') -replace '/', '\' }
+function Get-OvVdf { $s = Get-OvSteam; if ($s) { @(Get-ChildItem "$s\userdata\*\config\localconfig.vdf" -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }) } }
+function Get-OvSys([string]$x) { [regex]::Match($x, '(?m)^\t"system"\r?\n\t\{\r?\n[\s\S]*?^\t\}') }
+function Get-OvVal([string]$f) { $m = [regex]::Match((Get-OvSys ([IO.File]::ReadAllText($f))).Value, '(?m)^\t\t"EnableGameOverlay"\t\t"(\d)"'); if ($m.Success) { $m.Groups[1].Value } else { '' } }
+function Set-OvVal([string]$f, [string]$v) {
+    $x = [IO.File]::ReadAllText($f); $nl = $(if ($x.Contains("`r`n")) { "`r`n" } else { "`n" }); $m = Get-OvSys $x
+    if (-not $m.Success) { throw 'อ่านไฟล์ตั้งค่า Steam ไม่ได้' }
+    $b = [regex]::Replace($m.Value, '(?m)^\t\t"EnableGameOverlay"[^\n]*\n', '')
+    if ($v -ne '') { $b = $b.Insert($b.IndexOf("{$nl") + 1 + $nl.Length, "`t`t`"EnableGameOverlay`"`t`t`"$v`"$nl") }
+    $x = $x.Remove($m.Index, $m.Length).Insert($m.Index, $b)
+    [IO.File]::WriteAllText("$f.zan", $x, (New-Object System.Text.UTF8Encoding($false))); Move-Item -LiteralPath "$f.zan" -Destination $f -Force
+}
+function Do-OvOff {
+    $un = $Opt -eq 'undo'; $ok = @(); $er = @()
+    try {
+        if (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' }) { throw 'ปิด FiveM ก่อน แล้วกดอีกครั้ง' }
+        foreach ($v in @(Get-OvDisc)) {
+            $fs = @($(if ($un) { $v.off } else { $v.on })); if (-not $fs.Count) { continue }
+            $ps = @(Get-Process -Name $v.n -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$($v.d)\*" }); $exe = $(if ($ps.Count) { $ps[0].Path } else { '' })
+            try {
+                $ps | ForEach-Object { try { $_.Kill(); [void]$_.WaitForExit(5000) } catch { } }
+                foreach ($f in $fs) {
+                    $to = $(if ($un) { $f -replace '\.zanoff$', '' } else { "$f.zanoff" })
+                    for ($i = 0; ; $i++) {
+                        try {
+                            if ($un -and (Test-Path -LiteralPath $to)) { Remove-Item -LiteralPath $f -Force } else { Move-Item -LiteralPath $f -Destination $to -Force }
+                            break
+                        } catch { if ($i -ge 15) { throw }; Start-Sleep -Milliseconds 300 }
+                    }
+                }
+                $ok += $v.n
+            } catch { $er += "$($v.n): $($_.Exception.Message)" }
+            finally { if ($exe) { Start-Process explorer.exe "`"$exe`"" } }
+        }
+        $bk = @{}; if (Test-Path $OvBak) { (Get-Content $OvBak -Raw -Encoding UTF8 | ConvertFrom-Json).PSObject.Properties | ForEach-Object { $bk[$_.Name] = [string]$_.Value } }
+        $vf = @(Get-OvVdf | Where-Object { if ($un) { $bk.ContainsKey($_) } else { (Get-OvVal $_) -ne '0' } })
+        if ($vf.Count) {
+            $exe = ''
+            try {
+                if ([int](Get-Reg 'HKCU:\Software\Valve\Steam' 'RunningAppID')) { throw 'มีเกม Steam เปิดอยู่ ปิดเกมก่อน' }
+                if (Get-Process steam -ErrorAction SilentlyContinue) {
+                    $x = (Get-OvSteam) + '\steam.exe'; Start-Process $x '-shutdown'; $exe = $x
+                    for ($i = 0; $i -lt 60 -and (Get-Process steam -ErrorAction SilentlyContinue); $i++) { Start-Sleep -Milliseconds 500 }
+                    if (Get-Process steam -ErrorAction SilentlyContinue) { throw 'Steam ยังไม่ปิด ลองกดอีกครั้ง' }
+                }
+                foreach ($f in $vf) {
+                    if ($un) { Set-OvVal $f $bk[$f]; $bk.Remove($f) }
+                    else { if (-not $bk.ContainsKey($f)) { $bk[$f] = Get-OvVal $f; $bk | ConvertTo-Json | Set-Content $OvBak -Encoding UTF8 }; Set-OvVal $f '0' }
+                }
+                if ($un) { if ($bk.Count) { $bk | ConvertTo-Json | Set-Content $OvBak -Encoding UTF8 } else { Remove-Item $OvBak -Force } }
+                $ok += 'Steam'
+            } catch { $er += "Steam: $($_.Exception.Message)" }
+            finally { if ($exe -and -not (Get-Process steam -ErrorAction SilentlyContinue)) { Start-Process explorer.exe "`"$exe`"" } }
+        }
+    } catch { $er += $_.Exception.Message }
+    if ($ok.Count) { Write-Log "overlay $Opt : $($ok -join ', ')" }
+    Emit @{ t = 'result'; action = 'OvOff'; ok = ($ok.Count -gt 0); n = ($ok -join ', '); er = ($er -join ' · ') }
+}
 # จูนเร็ว: ลดเฉพาะชุดที่ตัน ลดอย่างเดียวไม่เพิ่ม เก็บไฟล์ก่อนจูนไว้คืน
 $TuneBackup = Join-Path $DataDir 'gta5_settings.pretune.xml'
 function Do-GfxTune {
@@ -1035,12 +1103,15 @@ function Do-Health {
         $names = @(Get-Process -ErrorAction SilentlyContinue | ForEach-Object { $_.ProcessName.ToLower() })
         $ov = New-Object System.Collections.Generic.List[string]; $tips = New-Object System.Collections.Generic.List[string]
         if ($names -contains 'nvidia overlay' -or $names -contains 'nvidia share') { $ov.Add('NVIDIA Overlay'); $tips.Add('NVIDIA app/GeForce Experience > ปิด In-game overlay') }
-        if ($names -contains 'discord' -or $names -contains 'discordptb' -or $names -contains 'discordcanary') { $ov.Add('Discord'); $tips.Add('Discord > User Settings > Game Overlay > ปิด Enable in-game overlay') }
-        if ($names -contains 'steam') { $ov.Add('Steam'); $tips.Add('Steam > Settings > In Game > ปิด Steam Overlay') }
+        $od = @(Get-OvDisc); $au = @($od | Where-Object { $_.on.Count } | ForEach-Object { $_.n }); $vf = @(Get-OvVdf)
+        if (@($vf | Where-Object { (Get-OvVal $_) -ne '0' }).Count) { $au += 'Steam' }
+        $au | ForEach-Object { $ov.Add($_) }
         if ($names -contains 'radeonsoftware' -or $names -contains 'amdrsserv') { $ov.Add('AMD Adrenalin'); $tips.Add('Adrenalin > Preferences > ปิด In-Game Overlay') }
         if ((Get-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled') -ne 0) { $ov.Add('Xbox Game Bar'); $tips.Add('หน้าปรับแต่ง > ปิดการอัดคลิปของ Xbox Game Bar') }
-        if ($ov.Count) { Add 'overlay' 'Overlay ในเกม' 'info' ($ov -join ', ') (($tips -join ' · ') + ' (ปิดแค่ overlay ที่ขึ้นทับในเกม ตัวโปรแกรมยังเปิดคุยและแชร์จอได้ตามปกติ)') }
+        if ($ov.Count) { Add 'overlay' 'Overlay ในเกม' 'info' ($ov -join ', ') (($tips -join ' · ') + ' (ปิดแค่ overlay ที่ขึ้นทับในเกม ตัวโปรแกรมยังเปิดคุยและแชร์จอได้ตามปกติ)'); if ($au.Count) { $r[$r.Count - 1].act = 'ovoff'; $r[$r.Count - 1].actTxt = 'ปิดให้เลย' } }
         else { Add 'overlay' 'Overlay' 'ok' 'ไม่เจอ overlay ที่เปิดอยู่' '' }
+        $oz = @($od | Where-Object { $_.off.Count } | ForEach-Object { $_.n }); if (Test-Path $OvBak) { $oz += 'Steam' }
+        if ($oz.Count) { Add 'ovundo' 'Overlay ที่ปิดไว้' 'info' ($oz -join ', ') 'อยากใช้อีกก็เปิดกลับได้'; $r[$r.Count - 1].act = 'ovundo'; $r[$r.Count - 1].actTxt = 'เปิดกลับ' }
     } catch { }
 
     # power plan
@@ -1216,14 +1287,15 @@ function Do-FpsScan {
     try {
         $names = @(Get-Process -ErrorAction SilentlyContinue | ForEach-Object { $_.ProcessName.ToLower() })
         $ov = @(); $tips = @()
-        if ($names -contains 'discord' -or $names -contains 'discordptb' -or $names -contains 'discordcanary') { $ov += 'Discord'; $tips += 'Discord > User Settings > Game Overlay > ปิด' }
+        $au = @(Get-OvDisc | Where-Object { $_.on.Count } | ForEach-Object { $_.n })
+        if (@(Get-OvVdf | Where-Object { (Get-OvVal $_) -ne '0' }).Count) { $au += 'Steam' }
+        $ov += $au
         if ($names -contains 'nvidia overlay' -or $names -contains 'nvidia share') { $ov += 'NVIDIA'; $tips += 'NVIDIA App > Settings > ปิด NVIDIA Overlay' }
         if ($names -contains 'radeonsoftware' -or $names -contains 'amdrsserv') { $ov += 'AMD'; $tips += 'Adrenalin > Settings > Preferences > ปิด In-Game Overlay' }
         if ($names -contains 'rtss') { $ov += 'RivaTuner (RTSS)'; $tips += 'ปิด RTSS ถ้าไม่ได้ใช้ล็อกเฟรม' }
-        if ($names -contains 'steam') { $ov += 'Steam'; $tips += 'Steam > Settings > In Game > ปิด Overlay' }
         $gb = (Get-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled') -ne 0
         if ($gb) { $ov += 'Xbox Game Bar' }
-        if ($ov.Count) { Add 'sys' 'overlay' 'Overlay ที่ทับในเกม' 'warn' ($ov -join ', ') (($tips -join ' · ') + $(if ($gb) { ' · Game Bar กดแก้ให้ได้' } else { '' }) + ' (ปิดแค่ overlay ตัวโปรแกรมยังใช้คุย/แชร์จอได้)') $(if ($gb) { 'gamebar' } else { '' }) 'ปิด Game Bar' }
+        if ($ov.Count) { Add 'sys' 'overlay' 'Overlay ที่ทับในเกม' 'warn' ($ov -join ', ') (($tips -join ' · ') + $(if ($gb) { ' · Game Bar กดแก้ให้ได้' } else { '' }) + ' (ปิดแค่ overlay ตัวโปรแกรมยังใช้คุย/แชร์จอได้)') $(if ($au.Count) { 'ovoff' } elseif ($gb) { 'gamebar' } else { '' }) $(if ($au.Count) { 'ปิดให้เลย' } else { 'ปิด Game Bar' }) }
         else { Add 'sys' 'overlay' 'Overlay ที่ทับในเกม' 'ok' 'ไม่เจอ' '' }
     } catch { Unknown 'sys' 'overlay' 'Overlay ที่ทับในเกม' }
 
@@ -1713,6 +1785,7 @@ try {
     }
     'NuiGpu'     { Do-NuiGpu }
     'GfxTune'    { Do-GfxTune }
+    'OvOff'      { Do-OvOff }
     'BoostNow'   { Do-BoostNow }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -ErrorAction SilentlyContinue)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
