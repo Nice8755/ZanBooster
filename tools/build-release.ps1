@@ -12,6 +12,29 @@ if ($a -lt 0 -or $b -lt $a) { throw 'mock block markers not found' }
 $ui = $ui.Substring(0, $a) + "if (!NATIVE) {" + $ui.Substring($b + 1)
 # strip indentation and comment-only lines (release copy only)
 $ui = ($ui.Split("`n") | ForEach-Object { $_.TrimStart(' ') } | Where-Object { $_ -ne '' -and $_ -notmatch '^//' -and $_ -notmatch '^/\*[^*]*\*/$' }) -join "`n"
+# compact the stylesheet: comments, line breaks, spaces around braces (release copy only)
+$s1 = $ui.IndexOf('<style>') + 7; $s2 = $ui.IndexOf('</style>', $s1); if ($s1 -lt 7 -or $s2 -lt $s1) { throw 'style block not found' }
+$css = [regex]::Replace($ui.Substring($s1, $s2 - $s1), '(?s)/\*.*?\*/', '')
+$css = [regex]::Replace([regex]::Replace([regex]::Replace($css, ';?\s*\}\s*', '}'), '\s*\{\s*', '{'), ';\s+', ';')
+$ui = $ui.Substring(0, $s1) + $css + $ui.Substring($s2)
+# graphics preview images: base85 instead of base64 (same bytes, about 24 KB smaller), decoded by Z8() at startup
+$abc = -join ([char[]](33..125) | Where-Object { '"\<&''`$%'.IndexOf($_) -lt 0 })
+if ($abc.Length -ne 85) { throw "alphabet $($abc.Length)" }
+$p1 = $ui.IndexOf('const ZP_PREV = {'); $p2 = $ui.IndexOf("`n", $p1); if ($p1 -lt 0) { throw 'ZP_PREV not found' }
+$sb = [Text.StringBuilder]::new(); $at = $p1
+foreach ($m in [regex]::Matches($ui.Substring($p1, $p2 - $p1), '"data:image/jpeg;base64,([A-Za-z0-9+/=]+)"')) {
+    $raw = [Convert]::FromBase64String($m.Groups[1].Value); $len = $raw.Length
+    [void]$sb.Append($ui, $at, $p1 + $m.Index - $at).Append('Z8("'); $at = $p1 + $m.Index + $m.Length
+    $buf = [byte[]]::new([int][math]::Ceiling($len / 4) * 4); [Array]::Copy($raw, $buf, $len)
+    for ($i = 0; $i -lt $buf.Length; $i += 4) {
+        [long]$v = [long]$buf[$i] * 16777216 + [long]$buf[$i + 1] * 65536 + [long]$buf[$i + 2] * 256 + $buf[$i + 3]
+        $c = [char[]]::new(5); for ($j = 4; $j -ge 0; $j--) { $c[$j] = $abc[[int]($v % 85)]; $v = [long][math]::Floor([decimal]$v / 85) }
+        [void]$sb.Append($c)
+    }
+    [void]$sb.Append("`",$len)")
+}
+$dec = 'const Z8=(s,n)=>{const A="' + $abc + '";let o="";for(let i=0;i<s.length;i+=5){let v=0;for(let j=0;j<5;j++)v=v*85+A.indexOf(s[i+j]);o+=String.fromCharCode(v>>>24,v>>>16&255,v>>>8&255,v&255)}return"data:image/jpeg;base64,"+btoa(o.slice(0,n))};' + "`n"
+$ui = $ui.Substring(0, $p1) + $dec + $sb.ToString() + $ui.Substring($at)
 # drop the oldest changelog entries from the release copy until it fits the slot
 $cut = 0
 while ($utf8.GetByteCount($ui) -gt 1054600) { $end = $ui.IndexOf(']</script>', $ui.IndexOf('id="changelog"')); $st = $ui.LastIndexOf(', {"v": "', $end); if ($st -lt 0) { throw 'cannot fit' }; $ui = $ui.Remove($st, $end - $st); $cut++ }

@@ -1045,6 +1045,26 @@ function Get-KitSpeed($mods) {
     })
     [int]($o | Measure-Object -Minimum).Minimum
 }
+# เสียง: บริการเสียงของ Windows และอุปกรณ์ที่ใช้งานได้
+function Get-Audio {
+    $sv = @(foreach ($n in 'AudioEndpointBuilder', 'Audiosrv') { $s = Get-Service $n -EA 0; if (-not $s -or $s.Status -ne 'Running' -or (Get-Reg "HKLM:\SYSTEM\CurrentControlSet\Services\$n" 'Start') -ne 2) { $n } })
+    $out = @(Get-PnpDevice -Class AudioEndpoint -PresentOnly -EA 0 | Where-Object { $_.Status -eq 'OK' -and $_.InstanceId -like '*{0.0.0.00000000}*' } | ForEach-Object { $_.FriendlyName })
+    @{ sv = $sv; out = $out }
+}
+function Do-AudioFix {
+    $m = @(); $old = @{}; $er = ''
+    try {
+        $a = Get-Audio
+        foreach ($n in 'AudioEndpointBuilder', 'Audiosrv') { $k = "HKLM:\SYSTEM\CurrentControlSet\Services\$n"; $old[$n] = Get-Reg $k 'Start'; if ($old[$n] -ne 2) { & sc.exe config $n start= auto | Out-Null } }
+        if ($a.sv.Count) { Save-FpsBackup 'audio' $old; $m += 'เปิดบริการเสียง' }
+        if (-not $a.out.Count) { foreach ($d in @(Get-PnpDevice -Class MEDIA -PresentOnly -EA 0 | Where-Object { "$($_.Problem)" -match 'DISABLED$|^22$' })) { Enable-PnpDevice -InstanceId $d.InstanceId -Confirm:$false; $m += "เปิด $($d.FriendlyName)" } }
+        Stop-Service Audiosrv -Force -EA 0
+        Restart-Service AudioEndpointBuilder -Force
+    } catch { $er = $_.Exception.Message } finally { Start-Service Audiosrv -EA 0 }
+    Start-Sleep 3; $a = Get-Audio; Write-Log "เสียง: $($m -join ', ') $er"
+    Start-Process explorer.exe 'ms-settings:sound'
+    Emit @{ t = 'result'; action = 'AudioFix'; ok = (-not $er -and -not $a.sv.Count); m = $er; out = ($a.out -join ', ') }
+}
 function Do-Health {
     $r = New-Object System.Collections.Generic.List[object]
     function Add($id, $title, $status, $detail, $fix) { $r.Add([ordered]@{ id = $id; title = $title; status = $status; detail = $detail; fix = $fix }) }
@@ -1150,6 +1170,13 @@ function Do-Health {
     if ($act -eq $SchemeGuid -or $act -eq $UltimateGuid -or $act -eq $HighPerfGuid) { Add 'plan' 'Power Plan' 'ok' $(if ($act -eq $SchemeGuid) { 'ใช้ ZAN Project Optimizer อยู่' } else { 'ใช้โหมดประสิทธิภาพสูงอยู่' }) '' }
     else { Add 'plan' 'Power Plan' 'warn' 'ยังใช้ Power Plan แบบประหยัด/สมดุล' 'เปิด "Power Plan: ZAN Project Optimizer" ในหน้าปรับแต่ง หรือกดบูสต์เครื่อง' }
 
+    try {
+        $a = Get-Audio
+        if ($a.sv.Count) { Add 'audio' 'เสียง' 'warn' "บริการเสียงไม่ทำงาน: $($a.sv -join ', ')" 'กดซ่อมเสียง' }
+        elseif (-not $a.out.Count) { Add 'audio' 'เสียง' 'warn' 'ไม่เจอลำโพงหรือหูฟังที่ใช้งานได้' 'เช็กสาย แล้วกดซ่อมเสียง' }
+        else { Add 'audio' 'เสียง' 'ok' ($a.out -join ', ') '' }
+        $r[$r.Count - 1].act = 'audio'; $r[$r.Count - 1].actTxt = 'ซ่อมเสียง'
+    } catch { }
     Emit @{ t = 'result'; action = 'Health'; items = $r.ToArray() }
 }
 
@@ -1859,6 +1886,7 @@ try {
     'NuiGpu'     { Do-NuiGpu }
     'GfxTune'    { Do-GfxTune }
     'OvOff'      { Do-OvOff }
+    'AudioFix'   { Do-AudioFix }
     'TestRole'   { Do-TestRole }
     'BoostNow'   { Do-BoostNow }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -ErrorAction SilentlyContinue)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
