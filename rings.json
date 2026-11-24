@@ -1,4 +1,4 @@
 {
-  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.25", "sha256": "3382824c62714dfca0ffb206e38f66cb25a00c67aa0928c150ee29b2d236bb23", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/1e879b0efc1e2c7e707f03afc0c2073fc6334080/ZanBooster.exe", "notes": "แก้อัปเดตสลับไฟล์ไม่ได้ (Access is denied)" },
+  "owner": { "machines": ["ZB-M6SWR-KZ37U"], "version": "4.11.26", "sha256": "32b327af9fe03df7c414a6c4c6bbb6f2f5a006fc0bff4225620e2bc67933d7d3", "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/af4805a24a0e6aa8167f765131cfb524dfbb009c/ZanBooster.exe", "notes": "กดบูสต์ครั้งเดียวครบทุกรายการ" },
   "vip": {}
 }
