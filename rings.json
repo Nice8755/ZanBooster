@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.37",
-    "sha256": "3f48021a2e9cf504f72e6f408ac47b174d94480726a9b726af2a25cdf8af66fc",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/57f881c51e40279bf81a482d4792acb1ac183a79/ZanBooster.exe",
-    "notes": "อนิเมชั่นใหม่ทั้งโปรแกรม ไม่ใช้งาน 20 วินาทีหยุดเอฟเฟกต์เอง"
+    "version": "4.11.38",
+    "sha256": "865eb89c064fef0053b70f03e13e8148644e577b833ff2697b6f77705cf7024b",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/66422e51cd5fd814a51d5787cd869524c2144d31/ZanBooster.exe",
+    "notes": "ปุ่มรับทราบในตรวจเครื่อง แก้อ่านความเร็วแรมผิด"
   },
   "vip": {
     "version": "4.11.29",
