@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.41",
-    "sha256": "146e86815db03bad95979cb76467d5dc9a5f8eae0bf2a180f3554f2c59ad365e",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/84b41b98b73a994fa208a6a49a5a8f0b38451876/ZanBooster.exe",
-    "notes": "ทดลองฟรีได้ยศ Test 3 Day ใน Discord อัตโนมัติ"
+    "version": "4.11.42",
+    "sha256": "dc734243d5f28d2dae0e5ad2b574de892b1816d42d0cefaa8536d409254ee9a3",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2d43859b59b8d140cfc8b942cfb8c45a7beed6bb/ZanBooster.exe",
+    "notes": "หน้าตาใหม่ทั้งโปรแกรม เรียบหรูขึ้น"
   },
   "vip": {
     "version": "4.11.41",
