@@ -146,7 +146,7 @@ function Load-Backup {
 function Save-Backup { $Script:Backup | ConvertTo-Json -Depth 6 | Set-Content -Path $BackupFile -Encoding UTF8 }
 function Test-HasBackup {
     $b = $Script:Backup
-    [bool](($b.Registry.Count + $b.CreatedKeys.Count + $b.Powercfg.Count + $b.Adapters.Count + $b.Defender.Count) -gt 0 -or $b.PrevScheme -or (Test-Path (Join-Path $DataDir 'gta5_settings.original.xml')))
+    [bool](($b.Registry.Count + $b.CreatedKeys.Count + $b.Powercfg.Count + $b.Adapters.Count + $b.Defender.Count) -gt 0 -or $b.PrevScheme -or (Test-Path (Join-Path $DataDir 'gta5_settings.original.xml')) -or (Test-Path (Join-Path $DataDir 'nui_gpu.original.txt')))
 }
 $Script:Backup = Load-Backup
 
@@ -809,6 +809,30 @@ function Do-GfxStatus {
     Emit @{ t = 'result'; action = 'GfxStatus'; found = (Test-Path $GfxFile); hasBackup = (Test-Path $GfxBackup); path = $GfxFile }
 }
 
+# ให้หน้า UI ในเกม (NUI) วาดในโปรเซสเดียวกับเกม เป็นตัวเลือกของ FiveM เอง เก็บค่าเดิมไว้คืนได้
+$NuiCfg = Join-Path $env:APPDATA 'CitizenFX\fivem.cfg'
+$NuiBackup = Join-Path $DataDir 'nui_gpu.original.txt'
+function Set-NuiGpu([bool]$on) {
+    if (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' }) { throw 'ปิด FiveM ก่อน เกมจะเขียนทับไฟล์ตอนปิด' }
+    if (-not (Test-Path -LiteralPath $NuiCfg)) { throw 'ยังไม่มีไฟล์ตั้งค่า FiveM เข้าเกมสักครั้งก่อน' }
+    if (-not $on -and -not (Test-Path -LiteralPath $NuiBackup)) { return }
+    $utf = New-Object System.Text.UTF8Encoding($false)
+    $t = [IO.File]::ReadAllText($NuiCfg, $utf); $nl = $(if ($t.Contains("`r`n")) { "`r`n" } else { "`n" })
+    $rx = [regex]'(?m)^[ \t]*seta?[ \t]+"?nui_useInProcessGpu"?[ \t]+[^\r\n]*(\r?\n)?'
+    if ($on) {
+        if (-not (Test-Path -LiteralPath $NuiBackup)) { [IO.File]::WriteAllText($NuiBackup, $rx.Match($t).Value.Trim(), $utf) }
+        $line = 'seta "nui_useInProcessGpu" "true"'
+    } else { $line = [IO.File]::ReadAllText($NuiBackup, $utf).Trim() }
+    $t = $rx.Replace($t, '')
+    if ($line) { if ($t -and -not $t.EndsWith("`n")) { $t += $nl }; $t += $line + $nl }
+    $tmp = "$NuiCfg.zan"; [IO.File]::WriteAllText($tmp, $t, $utf); Move-Item -LiteralPath $tmp -Destination $NuiCfg -Force
+    if (-not $on) { Remove-Item -LiteralPath $NuiBackup -Force }
+}
+function Do-NuiGpu {
+    try { Set-NuiGpu ($Opt -ne 'off'); Write-Log "NUI in-process GPU: $Opt"; Emit @{ t = 'result'; action = 'NuiGpu'; ok = $true } }
+    catch { Emit @{ t = 'result'; action = 'NuiGpu'; ok = $false; m = $_.Exception.Message } }
+}
+
 function Do-GfxApply {
     $preset = $Opt
     $GfxPresets = (Get-GfxPlan).presets
@@ -1449,6 +1473,7 @@ function Do-Restore {
     if ((Test-Path $GfxBackup) -and -not (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' })) {
         Copy-Item $GfxBackup $GfxFile -Force; Remove-Item $GfxBackup -Force; Write-Log 'คืนไฟล์กราฟิก FiveM เดิมแล้ว'
     }
+    try { Set-NuiGpu $false } catch { Write-Log $_.Exception.Message }
     $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
     if (Test-Path $BackupFile) { Move-Item $BackupFile "$BackupFile.restored-$stamp" -Force }
     $Script:Backup = New-EmptyBackup
@@ -1649,6 +1674,7 @@ try {
         } catch { }
         Emit @{ t = 'result'; action = 'UpdPrep'; ok = $true }
     }
+    'NuiGpu'     { Do-NuiGpu }
     'BoostNow'   { Do-BoostNow }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -ErrorAction SilentlyContinue)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
