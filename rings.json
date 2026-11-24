@@ -9,9 +9,9 @@
     "notes": "ทดลองฟรีรับยศ Test 3 Day ใน Discord ได้"
   },
   "vip": {
-    "version": "4.11.39",
-    "sha256": "bf0d893d8272ce96aeb9ec813e6052bb0fe523947e298b6a9dd10ff1a444bbd5",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/58b01b48b89499c1fbdb43ef5dec608a700571fd/ZanBooster.exe",
-    "notes": "แก้ Discord/Steam ค้างหลังล้างขยะ · ปิด overlay ในปุ่มเดียว · อนิเมชั่นใหม่ · กราฟประวัติ FPS และเตือนเมื่อ FPS ตก · การ์ดผล FPS แนวตั้ง · ปุ่มรับทราบในตรวจเครื่อง"
+    "version": "4.11.40",
+    "sha256": "1cc8ed20454cfef808153b92a50520ea46dc031323a69d8b1a8d1dc915787077",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/5ab05554fab7a0f1918575778e87c0fa16b2070c/ZanBooster.exe",
+    "notes": "ทดลองฟรีรับยศ Test 3 Day ใน Discord ได้"
   }
 }
