@@ -62,16 +62,16 @@ function Find-FiveM {
     $cfg = Get-Config
     if ($cfg.FiveMPath) { $cands.Add([string]$cfg.FiveMPath) }
     # 1) เกมที่กำลังเปิดอยู่
-    try { Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' } | ForEach-Object { if ($_.Path) { $cands.Add($_.Path) } } } catch { }
+    try { Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*' } | ForEach-Object { if ($_.Path) { $cands.Add($_.Path) } } } catch { }
     # 2) LocalAppData ของผู้ใช้ปัจจุบัน
     $cands.Add((Join-Path $env:LOCALAPPDATA 'FiveM'))
     # 3) รายการโปรแกรมที่ติดตั้ง (ทุก user)
     $uroots = @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall', 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall')
-    try { Get-ChildItem 'Registry::HKEY_USERS' -ErrorAction SilentlyContinue | ForEach-Object { $uroots += "Registry::$($_.Name)\Software\Microsoft\Windows\CurrentVersion\Uninstall" } } catch { }
+    try { Get-ChildItem 'Registry::HKEY_USERS' -EA 0 | ForEach-Object { $uroots += "Registry::$($_.Name)\Software\Microsoft\Windows\CurrentVersion\Uninstall" } } catch { }
     foreach ($r in $uroots) {
         if (-not (Test-Path $r)) { continue }
-        Get-ChildItem $r -ErrorAction SilentlyContinue | ForEach-Object {
-            $pr = Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue
+        Get-ChildItem $r -EA 0 | ForEach-Object {
+            $pr = Get-ItemProperty $_.PSPath -EA 0
             if ($pr.DisplayName -match 'FiveM' -or $_.PSChildName -match 'FiveM') {
                 foreach ($v in $pr.InstallLocation, $pr.DisplayIcon, $pr.UninstallString) { if ($v) { $cands.Add([string]$v) } }
             }
@@ -82,27 +82,27 @@ function Find-FiveM {
         $sh = New-Object -ComObject WScript.Shell
         $lnkDirs = @([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('CommonDesktopDirectory'),
                      [Environment]::GetFolderPath('StartMenu'), [Environment]::GetFolderPath('CommonStartMenu'))
-        Get-ChildItem 'C:\Users' -Directory -ErrorAction SilentlyContinue | ForEach-Object {
+        Get-ChildItem 'C:\Users' -Directory -EA 0 | ForEach-Object {
             $lnkDirs += (Join-Path $_.FullName 'Desktop'); $lnkDirs += (Join-Path $_.FullName 'AppData\Roaming\Microsoft\Windows\Start Menu')
         }
         foreach ($d in $lnkDirs) {
             if (-not $d -or -not (Test-Path $d)) { continue }
-            Get-ChildItem $d -Filter '*FiveM*.lnk' -Recurse -Depth 3 -ErrorAction SilentlyContinue | ForEach-Object {
+            Get-ChildItem $d -Filter '*FiveM*.lnk' -Recurse -Depth 3 -EA 0 | ForEach-Object {
                 $t = $sh.CreateShortcut($_.FullName).TargetPath; if ($t) { $cands.Add($t) }
             }
         }
     } catch { }
     # 5) LocalAppData ของทุก user (กรณีเปิดโปรแกรมด้วยบัญชี admin อื่น)
-    Get-ChildItem 'C:\Users' -Directory -ErrorAction SilentlyContinue | ForEach-Object { $cands.Add((Join-Path $_.FullName 'AppData\Local\FiveM')) }
+    Get-ChildItem 'C:\Users' -Directory -EA 0 | ForEach-Object { $cands.Add((Join-Path $_.FullName 'AppData\Local\FiveM')) }
     foreach ($c in $cands) { $r = Resolve-FiveMApp $c; if ($r) { return $r } }
     # 6) สแกนไดรฟ์ (ลึก 2 ชั้น) เช่น D:\FiveM, D:\Games\FiveM
     foreach ($drv in [IO.DriveInfo]::GetDrives()) {
         if ($drv.DriveType -ne 'Fixed' -or -not $drv.IsReady) { continue }
         $root = $drv.RootDirectory.FullName
-        $lvl1 = @(Get-ChildItem $root -Directory -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch '^(Windows|\$Recycle\.Bin|System Volume Information|ProgramData|Recovery)$' })
+        $lvl1 = @(Get-ChildItem $root -Directory -Force -EA 0 | Where-Object { $_.Name -notmatch '^(Windows|\$Recycle\.Bin|System Volume Information|ProgramData|Recovery)$' })
         foreach ($d in $lvl1) {
             $r = Resolve-FiveMApp $d.FullName; if ($r) { return $r }
-            foreach ($d2 in @(Get-ChildItem $d.FullName -Directory -ErrorAction SilentlyContinue)) {
+            foreach ($d2 in @(Get-ChildItem $d.FullName -Directory -EA 0)) {
                 if (Test-Path -LiteralPath (Join-Path $d2.FullName 'FiveM.app')) { return (Join-Path $d2.FullName 'FiveM.app') }
             }
         }
@@ -224,10 +224,10 @@ function Set-PowercfgIndex([string]$Sub, [string]$Setting, [int]$Value) {
     powercfg /setdcvalueindex SCHEME_CURRENT $Sub $Setting $Value | Out-Null
     powercfg /setactive SCHEME_CURRENT | Out-Null
 }
-function Get-UpAdapters { @(Get-NetAdapter -Physical -ErrorAction SilentlyContinue | Where-Object { $_.Status -eq 'Up' }) }
+function Get-UpAdapters { @(Get-NetAdapter -Physical -EA 0 | Where-Object { $_.Status -eq 'Up' }) }
 function Get-FolderSize([string]$p) {
     if (-not (Test-Path $p)) { return 0 }
-    $s = (Get-ChildItem $p -Recurse -Force -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum
+    $s = (Get-ChildItem $p -Recurse -Force -File -EA 0 | Measure-Object Length -Sum).Sum
     if ($s) { [int64]$s } else { 0 }
 }
 
@@ -393,7 +393,7 @@ $Tweaks = [ordered]@{
             }
         }
         Check = {
-            $l = @(Get-UpAdapters); if (-not $l.Count) { $l = @(Get-NetAdapter -Physical -ErrorAction SilentlyContinue) }
+            $l = @(Get-UpAdapters); if (-not $l.Count) { $l = @(Get-NetAdapter -Physical -EA 0) }
             @($l | Where-Object { (Get-Reg "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$($_.InterfaceGuid)" 'TCPNoDelay') -eq 1 }).Count -gt 0
         }
     }
@@ -402,7 +402,7 @@ $Tweaks = [ordered]@{
             $changed = @()
             foreach ($a in Get-UpAdapters) {
                 foreach ($kw in '*InterruptModeration', '*EEE', 'EEE', 'AdvancedEEE', 'EnableGreenEthernet', 'GigaLite', 'PowerSavingMode', '*FlowControl') {
-                    $prop = Get-NetAdapterAdvancedProperty -Name $a.Name -RegistryKeyword $kw -ErrorAction SilentlyContinue
+                    $prop = Get-NetAdapterAdvancedProperty -Name $a.Name -RegistryKeyword $kw -EA 0
                     if (-not $prop) { continue }
                     $id = "$($a.Name)|$kw"
                     if (-not $Script:Backup.Adapters.ContainsKey($id)) { $Script:Backup.Adapters[$id] = [string]($prop.RegistryValue | Select-Object -First 1) }
@@ -414,7 +414,7 @@ $Tweaks = [ordered]@{
             if ($changed.Count -eq 0) { throw 'การ์ดแลนเครื่องนี้ไม่มีตัวเลือกนี้' }
             Write-Log 'รีสตาร์ทการ์ดแลน (เน็ตหลุดไม่กี่วินาที)...'
             foreach ($n in $changed) { Restart-NetAdapter -Name $n -Confirm:$false }
-            for ($i = 0; $i -lt 40 -and @(Get-NetAdapter -Name $changed -ErrorAction SilentlyContinue | Where-Object { $_.Status -eq 'Up' }).Count -lt $changed.Count; $i++) { Start-Sleep -Milliseconds 500 }
+            for ($i = 0; $i -lt 40 -and @(Get-NetAdapter -Name $changed -EA 0 | Where-Object { $_.Status -eq 'Up' }).Count -lt $changed.Count; $i++) { Start-Sleep -Milliseconds 500 }
         }
         Check = { $Script:Backup.Adapters.Count -gt 0 }
     }
@@ -447,13 +447,13 @@ $Tweaks = [ordered]@{
         Check = {
             if (-not (Test-DefenderOn)) { return $true } # Defender ปิดอยู่ = ไม่มีการสแกนอยู่แล้ว
             $fd = Get-FiveMData
-            [bool]($fd -and (@((Get-MpPreference -ErrorAction SilentlyContinue).ExclusionPath) -contains (Split-Path $fd -Parent)))
+            [bool]($fd -and (@((Get-MpPreference -EA 0).ExclusionPath) -contains (Split-Path $fd -Parent)))
         }
     }
     GpuMsi = @{
         Apply = {
             $n = 0
-            foreach ($d in @(Get-PnpDevice -Class Display -PresentOnly -ErrorAction SilentlyContinue | Where-Object { $_.InstanceId -like 'PCI\*' })) {
+            foreach ($d in @(Get-PnpDevice -Class Display -PresentOnly -EA 0 | Where-Object { $_.InstanceId -like 'PCI\*' })) {
                 $k = "HKLM:\SYSTEM\CurrentControlSet\Enum\$($d.InstanceId)\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
                 try { Set-RegValue $k 'MSISupported' 1; $n++ } catch { Write-Log "ตั้ง MSI ให้ $($d.FriendlyName) ไม่ได้" }
             }
@@ -461,7 +461,7 @@ $Tweaks = [ordered]@{
             Write-Log "ตั้ง MSI mode ให้การ์ดจอ $n ตัว (มีผลหลังรีสตาร์ท)"
         }
         Check = {
-            $ds = @(Get-PnpDevice -Class Display -PresentOnly -ErrorAction SilentlyContinue | Where-Object { $_.InstanceId -like 'PCI\*' })
+            $ds = @(Get-PnpDevice -Class Display -PresentOnly -EA 0 | Where-Object { $_.InstanceId -like 'PCI\*' })
             $ds.Count -gt 0 -and @($ds | Where-Object { (Get-Reg "HKLM:\SYSTEM\CurrentControlSet\Enum\$($_.InstanceId)\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties" 'MSISupported') -ne 1 }).Count -eq 0
         }
     }
@@ -488,7 +488,7 @@ $Tweaks = [ordered]@{
     SearchIdx = @{
         Apply = {
             Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Services\WSearch' 'Start' 3
-            if (-not $Script:DryRun) { Stop-Service WSearch -Force -ErrorAction SilentlyContinue }
+            if (-not $Script:DryRun) { Stop-Service WSearch -Force -EA 0 }
         }
         Check = { $s = Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Services\WSearch' 'Start'; $null -eq $s -or $s -ge 3 }
     }
@@ -502,7 +502,7 @@ $Tweaks = [ordered]@{
                 $key = "HKLM:\SYSTEM\CurrentControlSet\Services\$name"
                 if (-not (Test-Path $key)) { continue }
                 Set-RegValue $key 'Start' $list[$name]
-                if ($list[$name] -eq 4 -and -not $Script:DryRun) { try { Stop-Service -Name $name -Force -ErrorAction SilentlyContinue } catch { } }
+                if ($list[$name] -eq 4 -and -not $Script:DryRun) { try { Stop-Service -Name $name -Force -EA 0 } catch { } }
                 $n++
             }
             Write-Log "ปรับ service $n ตัว"
@@ -529,8 +529,8 @@ $Tweaks = [ordered]@{
 
 # ------------------------------------------------------------ actions ----
 function Test-DefenderOn {
-    if (-not (Get-Command Get-MpComputerStatus -ErrorAction SilentlyContinue)) { return $false }
-    $svc = Get-Service WinDefend -ErrorAction SilentlyContinue
+    if (-not (Get-Command Get-MpComputerStatus -EA 0)) { return $false }
+    $svc = Get-Service WinDefend -EA 0
     if (-not $svc -or $svc.Status -ne 'Running') { return $false }
     try { return [bool](Get-MpComputerStatus -ErrorAction Stop).RealTimeProtectionEnabled } catch { return $false }
 }
@@ -555,7 +555,7 @@ function Restore-RegEntry($e) {
             if ($e.Type -eq 'MultiString') { $val = [string[]]@($e.Value) }
             New-ItemProperty -LiteralPath $e.Path -Name $e.Name -Value $val -PropertyType $e.Type -Force | Out-Null
         } else {
-            Remove-ItemProperty -LiteralPath $e.Path -Name $e.Name -ErrorAction SilentlyContinue
+            Remove-ItemProperty -LiteralPath $e.Path -Name $e.Name -EA 0
         }
     } catch { Write-Log "คืนค่า $($e.Path)\$($e.Name) ไม่ได้: $($_.Exception.Message)" }
 }
@@ -571,7 +571,7 @@ function Revert-Tweak([string]$id) {
     }
     if ($id -eq 'DefenderFiveM') {
         if (@($b.Defender).Count -eq 0) { throw 'ไม่มีค่าเดิมเก็บไว้ (โฟลเดอร์นี้ถูกยกเว้นไว้ก่อนแล้ว)' }
-        foreach ($p in @($b.Defender)) { Remove-MpPreference -ExclusionPath $p -ErrorAction SilentlyContinue }
+        foreach ($p in @($b.Defender)) { Remove-MpPreference -ExclusionPath $p -EA 0 }
         $b.Defender = @()
         return
     }
@@ -583,7 +583,7 @@ function Revert-Tweak([string]$id) {
             try { Set-NetAdapterAdvancedProperty -Name $parts[0] -RegistryKeyword $parts[1] -RegistryValue $kv.Value -NoRestart -ErrorAction Stop; if ($restart -notcontains $parts[0]) { $restart += $parts[0] } } catch { }
         }
         $b.Adapters = @{}
-        foreach ($n in $restart) { Restart-NetAdapter -Name $n -Confirm:$false -ErrorAction SilentlyContinue }
+        foreach ($n in $restart) { Restart-NetAdapter -Name $n -Confirm:$false -EA 0 }
         return
     }
     $n = 0
@@ -673,10 +673,10 @@ function Do-Apply {
     if ($Opt -match 'restorepoint') {
         Write-Log 'กำลังสร้างจุดคืนค่า Windows...'
         try {
-            Enable-ComputerRestore -Drive "$env:SystemDrive\" -ErrorAction SilentlyContinue
-            $before = @(Get-ComputerRestorePoint -ErrorAction SilentlyContinue).Count
+            Enable-ComputerRestore -Drive "$env:SystemDrive\" -EA 0
+            $before = @(Get-ComputerRestorePoint -EA 0).Count
             Checkpoint-Computer -Description 'Before Zan Booster' -RestorePointType MODIFY_SETTINGS -WarningAction SilentlyContinue
-            $after = @(Get-ComputerRestorePoint -ErrorAction SilentlyContinue).Count
+            $after = @(Get-ComputerRestorePoint -EA 0).Count
             if ($after -gt $before) { Write-Log 'สร้างจุดคืนค่าแล้ว' }
             else { Write-Log 'วันนี้สร้างจุดคืนค่าไปแล้ว Windows ให้สร้างได้วันละครั้ง ใช้ backup ของโปรแกรมแทน' }
         } catch { Write-Log 'สร้างจุดคืนค่าไม่ได้ ใช้ backup ของโปรแกรมแทน' }
@@ -709,8 +709,8 @@ $GfxBackup = Join-Path $DataDir 'gta5_settings.original.xml'
 function Get-GpuInfo {
     $best = $null
     $cls = 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}'
-    Get-ChildItem $cls -ErrorAction SilentlyContinue | Where-Object { $_.PSChildName -match '^\d{4}$' } | ForEach-Object {
-        $pr = Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue
+    Get-ChildItem $cls -EA 0 | Where-Object { $_.PSChildName -match '^\d{4}$' } | ForEach-Object {
+        $pr = Get-ItemProperty $_.PSPath -EA 0
         $name = [string]$pr.DriverDesc
         $mem = $pr.'HardwareInformation.qwMemorySize'
         if (-not $mem) { $raw = $pr.'HardwareInformation.MemorySize'; if ($raw -is [byte[]]) { $mem = [BitConverter]::ToUInt32($raw, 0) } else { $mem = $raw } }
@@ -814,7 +814,7 @@ function Do-GfxStatus {
 $NuiCfg = Join-Path $env:APPDATA 'CitizenFX\fivem.cfg'
 $NuiBackup = Join-Path $DataDir 'nui_gpu.original.txt'
 function Set-NuiGpu([bool]$on) {
-    if (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' }) { throw 'ปิด FiveM ก่อน เกมจะเขียนทับไฟล์ตอนปิด' }
+    if (Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*' }) { throw 'ปิด FiveM ก่อน เกมจะเขียนทับไฟล์ตอนปิด' }
     if (-not (Test-Path -LiteralPath $NuiCfg)) { throw 'ยังไม่มีไฟล์ตั้งค่า FiveM เข้าเกมสักครั้งก่อน' }
     if (-not $on -and -not (Test-Path -LiteralPath $NuiBackup)) { return }
     $utf = New-Object System.Text.UTF8Encoding($false)
@@ -840,12 +840,12 @@ function Get-OvDisc {
     foreach ($v in 'Discord', 'DiscordPTB', 'DiscordCanary', 'DiscordDevelopment') {
         $d = Join-Path $env:LOCALAPPDATA $v
         if (-not (Test-Path -LiteralPath $d)) { continue }
-        $f = @(Get-ChildItem "$d\app-*\modules\discord_*overlay*\*\*.node*" -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName })
+        $f = @(Get-ChildItem "$d\app-*\modules\discord_*overlay*\*\*.node*" -EA 0 | ForEach-Object { $_.FullName })
         [pscustomobject]@{ n = $v; d = $d; on = @($f -like '*.node'); off = @($f -like '*.node.zanoff') }
     }
 }
 function Get-OvSteam { [string](Get-Reg 'HKCU:\Software\Valve\Steam' 'SteamPath') -replace '/', '\' }
-function Get-OvVdf { $s = Get-OvSteam; if ($s) { @(Get-ChildItem "$s\userdata\*\config\localconfig.vdf" -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }) } }
+function Get-OvVdf { $s = Get-OvSteam; if ($s) { @(Get-ChildItem "$s\userdata\*\config\localconfig.vdf" -EA 0 | ForEach-Object { $_.FullName }) } }
 function Get-OvSys([string]$x) { [regex]::Match($x, '(?m)^\t"system"\r?\n\t\{\r?\n[\s\S]*?^\t\}') }
 function Get-OvVal([string]$f) { $m = [regex]::Match((Get-OvSys ([IO.File]::ReadAllText($f))).Value, '(?m)^\t\t"EnableGameOverlay"\t\t"(\d)"'); if ($m.Success) { $m.Groups[1].Value } else { '' } }
 function Set-OvVal([string]$f, [string]$v) {
@@ -858,17 +858,17 @@ function Set-OvVal([string]$f, [string]$v) {
 }
 function Get-WebCache([string]$d) { 'Cache', 'Code Cache', 'GPUCache' | ForEach-Object { "$d\$_" } }
 function Clear-WebCache([string]$d, [string[]]$n) {
-    for ($i = 0; $i -lt 20 -and (Get-Process -Name $n -ErrorAction SilentlyContinue); $i++) { Start-Sleep -Milliseconds 300 }
-    if (Get-Process -Name $n -ErrorAction SilentlyContinue) { return }
+    for ($i = 0; $i -lt 20 -and (Get-Process -Name $n -EA 0); $i++) { Start-Sleep -Milliseconds 300 }
+    if (Get-Process -Name $n -EA 0) { return }
     Get-WebCache $d | Where-Object { Test-Path -LiteralPath $_ } | ForEach-Object { [void](Remove-DirContents $_) }
 }
 function Do-OvOff {
     $un = $Opt -eq 'undo'; $ok = @(); $er = @()
     try {
-        if (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' }) { throw 'ปิด FiveM ก่อน แล้วกดอีกครั้ง' }
+        if (Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*' }) { throw 'ปิด FiveM ก่อน แล้วกดอีกครั้ง' }
         foreach ($v in @(Get-OvDisc)) {
             $fs = @($(if ($un) { $v.off } else { $v.on })); if (-not $fs.Count) { continue }
-            $ps = @(Get-Process -Name $v.n -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$($v.d)\*" }); $exe = $(if ($ps.Count) { $ps[0].Path } else { '' })
+            $ps = @(Get-Process -Name $v.n -EA 0 | Where-Object { $_.Path -like "$($v.d)\*" }); $exe = $(if ($ps.Count) { $ps[0].Path } else { '' })
             try {
                 $ps | ForEach-Object { try { $_.Kill(); [void]$_.WaitForExit(5000) } catch { } }
                 foreach ($f in $fs) {
@@ -891,10 +891,10 @@ function Do-OvOff {
             $exe = ''
             try {
                 if ([int](Get-Reg 'HKCU:\Software\Valve\Steam' 'RunningAppID')) { throw 'มีเกม Steam เปิดอยู่ ปิดเกมก่อน' }
-                if (Get-Process steam -ErrorAction SilentlyContinue) {
+                if (Get-Process steam -EA 0) {
                     $x = (Get-OvSteam) + '\steam.exe'; Start-Process $x '-shutdown'; $exe = $x
-                    for ($i = 0; $i -lt 60 -and (Get-Process steam -ErrorAction SilentlyContinue); $i++) { Start-Sleep -Milliseconds 500 }
-                    if (Get-Process steam -ErrorAction SilentlyContinue) { throw 'Steam ยังไม่ปิด ลองกดอีกครั้ง' }
+                    for ($i = 0; $i -lt 60 -and (Get-Process steam -EA 0); $i++) { Start-Sleep -Milliseconds 500 }
+                    if (Get-Process steam -EA 0) { throw 'Steam ยังไม่ปิด ลองกดอีกครั้ง' }
                 }
                 if ($exe) { Clear-WebCache "$env:LOCALAPPDATA\Steam\htmlcache\Default" 'steam', 'steamwebhelper' }
                 foreach ($f in $vf) {
@@ -904,7 +904,7 @@ function Do-OvOff {
                 if ($un) { if ($bk.Count) { $bk | ConvertTo-Json | Set-Content $OvBak -Encoding UTF8 } else { Remove-Item $OvBak -Force } }
                 $ok += 'Steam'
             } catch { $er += "Steam: $($_.Exception.Message)" }
-            finally { if ($exe -and -not (Get-Process steam -ErrorAction SilentlyContinue)) { Start-Process explorer.exe "`"$exe`"" } }
+            finally { if ($exe -and -not (Get-Process steam -EA 0)) { Start-Process explorer.exe "`"$exe`"" } }
         }
     } catch { $er += $_.Exception.Message }
     if ($ok.Count) { Write-Log "overlay $Opt : $($ok -join ', ')" }
@@ -915,8 +915,8 @@ $TuneBackup = Join-Path $DataDir 'gta5_settings.pretune.xml'
 $StepBackup = Join-Path $DataDir 'gta5_settings.prestep.xml'
 function Do-GfxTune {
     try {
-        if ($Opt -eq 'keep') { Remove-Item $TuneBackup, $StepBackup -Force -ErrorAction SilentlyContinue; Emit @{ t = 'result'; action = 'GfxTune'; ok = $true; n = 0 }; return }
-        if (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' }) { throw 'ปิด FiveM ก่อน เกมจะเขียนทับไฟล์ตอนปิด' }
+        if ($Opt -eq 'keep') { Remove-Item $TuneBackup, $StepBackup -Force -EA 0; Emit @{ t = 'result'; action = 'GfxTune'; ok = $true; n = 0 }; return }
+        if (Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*' }) { throw 'ปิด FiveM ก่อน เกมจะเขียนทับไฟล์ตอนปิด' }
         if ($Opt -eq 'stepback') {
             if (-not (Test-Path $StepBackup)) { throw 'ไม่มีไฟล์ก่อนขั้นนี้เก็บไว้' }
             Copy-Item $StepBackup $GfxFile -Force; Remove-Item $StepBackup -Force
@@ -924,7 +924,7 @@ function Do-GfxTune {
         }
         if ($Opt -eq 'undo') {
             if (-not (Test-Path $TuneBackup)) { throw 'ไม่มีไฟล์ก่อนจูนเก็บไว้' }
-            Copy-Item $TuneBackup $GfxFile -Force; Remove-Item $TuneBackup, $StepBackup -Force -ErrorAction SilentlyContinue
+            Copy-Item $TuneBackup $GfxFile -Force; Remove-Item $TuneBackup, $StepBackup -Force -EA 0
             Emit @{ t = 'result'; action = 'GfxTune'; ok = $true; n = 0 }; return
         }
         if (-not (Test-Path $GfxFile)) { throw 'ยังไม่มีไฟล์ตั้งค่ากราฟิก เข้าเกม FiveM สักครั้งก่อน' }
@@ -965,7 +965,7 @@ function Do-GfxApply {
     $preset = $Opt
     $GfxPresets = (Get-GfxPlan).presets
     if (-not $GfxPresets.ContainsKey($preset)) { Emit @{ t = 'result'; action = 'GfxApply'; ok = $false; m = 'ไม่รู้จัก preset นี้' }; return }
-    if (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' }) {
+    if (Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*' }) {
         Emit @{ t = 'result'; action = 'GfxApply'; ok = $false; m = 'ปิด FiveM ก่อน เกมจะเขียนทับไฟล์ตอนปิด' }; return
     }
     if (-not (Test-Path $GfxFile)) {
@@ -994,7 +994,7 @@ function Do-GfxApply {
 
 function Do-GfxRestore {
     if (-not (Test-Path $GfxBackup)) { Emit @{ t = 'result'; action = 'GfxRestore'; ok = $false; m = 'ยังไม่เคยเปลี่ยนกราฟิกผ่านโปรแกรม' }; return }
-    if (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' }) {
+    if (Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*' }) {
         Emit @{ t = 'result'; action = 'GfxRestore'; ok = $false; m = 'ปิด FiveM ก่อน' }; return
     }
     Copy-Item $GfxBackup $GfxFile -Force
@@ -1008,7 +1008,7 @@ function Get-DriveMedia([string]$path) {
         $letter = ([IO.Path]::GetPathRoot($path)).Substring(0, 1)
         $part = Get-Partition -DriveLetter $letter -ErrorAction Stop
         $disk = Get-Disk -Number $part.DiskNumber -ErrorAction Stop
-        $pd = Get-PhysicalDisk -ErrorAction SilentlyContinue | Where-Object { [string]$_.DeviceId -eq [string]$disk.Number } | Select-Object -First 1
+        $pd = Get-PhysicalDisk -EA 0 | Where-Object { [string]$_.DeviceId -eq [string]$disk.Number } | Select-Object -First 1
         $media = [string]$pd.MediaType; $bus = [string]$pd.BusType
         if ($bus -eq 'NVMe') { return 'NVMe SSD' }
         if ($media -eq 'SSD') { return 'SSD' }
@@ -1026,10 +1026,10 @@ function Get-FiveMExes {
         $root = Split-Path (Split-Path $fd -Parent) -Parent
         $fe = Join-Path $root 'FiveM.exe'; if (Test-Path -LiteralPath $fe) { $out.Add($fe) }
         $sub = Join-Path $fd 'cache\subprocess'
-        if (Test-Path -LiteralPath $sub) { Get-ChildItem -LiteralPath $sub -Filter '*.exe' -ErrorAction SilentlyContinue | Where-Object { $_.Name -match 'GTAProcess|GameProcess' } | ForEach-Object { $out.Add($_.FullName) } }
+        if (Test-Path -LiteralPath $sub) { Get-ChildItem -LiteralPath $sub -Filter '*.exe' -EA 0 | Where-Object { $_.Name -match 'GTAProcess|GameProcess' } | ForEach-Object { $out.Add($_.FullName) } }
         $ini = Join-Path (Split-Path $fd -Parent) 'CitizenFX.ini'
         if (Test-Path -LiteralPath $ini) {
-            $m = Select-String -LiteralPath $ini -Pattern '^IVPath=(.+)$' -ErrorAction SilentlyContinue | Select-Object -First 1
+            $m = Select-String -LiteralPath $ini -Pattern '^IVPath=(.+)$' -EA 0 | Select-Object -First 1
             if ($m) { $g = Join-Path $m.Matches[0].Groups[1].Value.Trim() 'GTA5.exe'; if (Test-Path -LiteralPath $g) { $out.Add($g) } }
         }
     }
@@ -1049,8 +1049,18 @@ function Get-KitSpeed($mods) {
 # เอฟเฟกต์ของคนอื่นที่คอมไพล์ไม่ผ่านใน FiveM: เปลี่ยนชื่อเป็น .off ให้ ReShade ข้าม (ไม่ลบ เปลี่ยนชื่อกลับได้)
 function Do-RsFix {
     $n = 0; $fd = Get-FiveMData
-    if ($fd) { foreach ($x in 'METEOR\MartysMods_LONGEXPOSURE.fx', 'UniqFX\UniqFX_ConditionalUIMask.fx') { $q = Join-Path (Split-Path $fd -Parent) "plugins\reshade-shaders\Shaders\$x"; if (Test-Path -LiteralPath $q) { try { Move-Item -LiteralPath $q "$q.off" -Force -ErrorAction Stop; $n++ } catch { } } } }
+    if ($fd) { foreach ($x in 'METEOR\MartysMods_LONGEXPOSURE.fx', 'UniqFX\UniqFX_ConditionalUIMask.fx') { $q = Join-Path (Split-Path $fd) "plugins\reshade-shaders\Shaders\$x"; if (Test-Path -LiteralPath $q) { try { Move-Item -LiteralPath $q "$q.off" -Force -ErrorAction Stop; $n++ } catch { } } } }
     Emit @{ t = 'result'; action = 'RsFix'; ok = $true; n = $n }
+}
+# ระดับพรีเซ็ต Zan: ใส่ ZAN_LEVEL ใน ReShade.ini (ปิดเกมก่อน ReShade เขียนทับตอนปิด)
+function Do-RsLevel {
+    $ok = $false; $fd = Get-FiveMData; $p = if ($fd) { Join-Path (Split-Path $fd) 'plugins\ReShade.ini' }
+    if ($p -and (Test-Path $p) -and -not (Get-Process FiveM*)) {
+        $k = 'PreprocessorDefinitions='
+        $x = [IO.File]::ReadAllText($p) -replace 'ZAN_LEVEL=\d,?' -replace "(?m)^$k", "${k}ZAN_LEVEL=$Opt," -replace '(ZAN_LEVEL=\d),(?=\r?\n)', '$1'
+        [IO.File]::WriteAllText($p, $x); $ok = $x -match 'ZAN_LEVEL'
+    }
+    Emit @{ t = 'result'; action = 'RsLevel'; ok = $ok }
 }
 function Get-Audio {
     $sv = @(foreach ($n in 'AudioEndpointBuilder', 'Audiosrv') { $s = Get-Service $n -EA 0; if (-not $s -or $s.Status -ne 'Running' -or (Get-Reg "HKLM:\SYSTEM\CurrentControlSet\Services\$n" 'Start') -ne 2) { $n } })
@@ -1139,7 +1149,7 @@ function Do-Health {
 
     # battery
     try {
-        $bat = Get-CimInstance Win32_Battery -ErrorAction SilentlyContinue | Select-Object -First 1
+        $bat = Get-CimInstance Win32_Battery -EA 0 | Select-Object -First 1
         if ($bat) {
             if ($bat.BatteryStatus -eq 1) { Add 'power' 'แหล่งไฟ' 'warn' 'กำลังใช้แบตเตอรี่' 'เสียบสายชาร์จตอนเล่น โน้ตบุ๊กจะลดความเร็วการ์ดจอกับ CPU ตอนใช้แบต' }
             else { Add 'power' 'แหล่งไฟ' 'ok' 'เสียบสายชาร์จอยู่' '' }
@@ -1157,7 +1167,7 @@ function Do-Health {
 
     # overlay ที่ทำให้เฟรมสะดุด
     try {
-        $names = @(Get-Process -ErrorAction SilentlyContinue | ForEach-Object { $_.ProcessName.ToLower() })
+        $names = @(Get-Process -EA 0 | ForEach-Object { $_.ProcessName.ToLower() })
         $ov = New-Object System.Collections.Generic.List[string]; $tips = New-Object System.Collections.Generic.List[string]
         if ($names -contains 'nvidia overlay' -or $names -contains 'nvidia share') { $ov.Add('NVIDIA Overlay'); $tips.Add('NVIDIA app/GeForce Experience > ปิด In-game overlay') }
         $od = @(Get-OvDisc); $au = @($od | Where-Object { $_.on.Count } | ForEach-Object { $_.n }); $vf = @(Get-OvVdf)
@@ -1287,7 +1297,7 @@ function Do-FpsScan {
         else { Add 'ram' 'xmp' 'ความเร็วแรม' 'ok' "$ddr $cfg MHz" '' }
 
         $chan = @($mods | ForEach-Object { $s = "$($_.BankLabel) $($_.DeviceLocator)"; if ($s -match 'Channel\s*([A-D])|CHANNEL\s*([A-D])|DIMM_?([A-D])\d|\b([A-D])[12]\b') { ($Matches[1..4] | Where-Object { $_ } | Select-Object -First 1).ToUpper() } else { '?' } })
-        $laptop = $false; try { $laptop = [bool](Get-CimInstance Win32_Battery -ErrorAction SilentlyContinue) } catch { }
+        $laptop = $false; try { $laptop = [bool](Get-CimInstance Win32_Battery -EA 0) } catch { }
         $sizes = @($mods | ForEach-Object { [math]::Round($_.Capacity / 1GB) }); $txt = ($sizes -join ' + ')
         if ($mods.Count -eq 1) { Add 'ram' 'chan' 'แรมแผงเดียว (Single channel)' $(if ($laptop) { 'warn' } else { 'heavy' }) "ใส่แรมแผงเดียว $txt GB" 'ใช้ 2 แผงขนาดเท่ากัน เสียบช่อง A2 กับ B2 (ช่องที่ 2 กับ 4 นับจาก CPU) FPS ใน FiveM ขึ้นชัด' '' '' 'chan' }
         elseif (($chan | Where-Object { $_ -ne '?' } | Select-Object -Unique).Count -eq 1 -and ($chan -notcontains '?')) { Add 'ram' 'chan' 'เสียบแรมผิดช่อง' 'heavy' "แรม $($mods.Count) แผงอยู่ช่อง $($chan[0]) เหมือนกัน ทำงานแบบ Single channel" 'ย้ายแรมไปเสียบช่อง A2 กับ B2 (ดูตัวหนังสือบนเมนบอร์ดข้างช่องแรม)' '' '' 'chan' }
@@ -1299,7 +1309,7 @@ function Do-FpsScan {
         $tot = [double]$os.TotalVisibleMemorySize; $free = [double]$os.FreePhysicalMemory
         $pct = [math]::Round((1 - $free / $tot) * 100)
         if ($pct -ge 80) {
-            $top = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { -not (Test-FpsProtected $_.ProcessName) -and $_.Id -ne $PID } | Group-Object ProcessName | ForEach-Object {
+            $top = @(Get-Process -EA 0 | Where-Object { -not (Test-FpsProtected $_.ProcessName) -and $_.Id -ne $PID } | Group-Object ProcessName | ForEach-Object {
                 $mb = [math]::Round((($_.Group | Measure-Object WorkingSet64 -Sum).Sum) / 1MB)
                 $p1 = $_.Group | Select-Object -First 1; $path = ''; try { $path = $p1.Path } catch { }
                 [pscustomobject]@{ name = $_.Name; mb = $mb; path = "$path" } } | Sort-Object mb -Descending | Select-Object -First 5)
@@ -1333,9 +1343,9 @@ function Do-FpsScan {
     # ---------- CPU / ระบบ ----------
     try {
         $n = [Environment]::ProcessorCount
-        $s1 = @{}; Get-Process -ErrorAction SilentlyContinue | ForEach-Object { try { $s1[$_.Id] = $_.TotalProcessorTime.TotalMilliseconds } catch { } }
+        $s1 = @{}; Get-Process -EA 0 | ForEach-Object { try { $s1[$_.Id] = $_.TotalProcessorTime.TotalMilliseconds } catch { } }
         Start-Sleep -Milliseconds 1500
-        $hogs = @(Get-Process -ErrorAction SilentlyContinue | ForEach-Object {
+        $hogs = @(Get-Process -EA 0 | ForEach-Object {
             $t0 = $s1[$_.Id]; if ($t0 -eq $null) { return }; $t1 = 0; try { $t1 = $_.TotalProcessorTime.TotalMilliseconds } catch { return }
             $pc = ($t1 - $t0) / 1500 / $n * 100
             if ($pc -ge 4 -and $_.ProcessName -notmatch '^(Idle|System|FiveM|GTA5|ZanBooster|powershell|msedgewebview2)') { [pscustomobject]@{ name = $_.ProcessName; pct = [math]::Round($pc) } } } | Sort-Object pct -Descending | Select-Object -First 5)
@@ -1348,7 +1358,7 @@ function Do-FpsScan {
     } catch { Unknown 'sys' 'cpuhog' 'โปรแกรมเบื้องหลังแย่ง CPU' }
 
     try {
-        $names = @(Get-Process -ErrorAction SilentlyContinue | ForEach-Object { $_.ProcessName.ToLower() })
+        $names = @(Get-Process -EA 0 | ForEach-Object { $_.ProcessName.ToLower() })
         $ov = @(); $tips = @()
         $au = @(Get-OvDisc | Where-Object { $_.on.Count } | ForEach-Object { $_.n })
         if (@(Get-OvVdf | Where-Object { (Get-OvVal $_) -ne '0' }).Count) { $au += 'Steam' }
@@ -1434,7 +1444,7 @@ function Do-FpsFix {
         }
         'pagefile' {
             $cs = Get-CimInstance Win32_ComputerSystem
-            Save-FpsBackup 'pagefile' @{ auto = [bool]$cs.AutomaticManagedPagefile; files = @((Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name PagingFiles -ErrorAction SilentlyContinue).PagingFiles) }
+            Save-FpsBackup 'pagefile' @{ auto = [bool]$cs.AutomaticManagedPagefile; files = @((Get-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name PagingFiles -EA 0).PagingFiles) }
             Set-CimInstance -InputObject $cs -Property @{ AutomaticManagedPagefile = $true } | Out-Null
             $m = 'ให้ Windows จัดการ Pagefile เองแล้ว'; $restart = $true
         }
@@ -1467,11 +1477,11 @@ function Do-FpsFix {
             $names = @($Opt -split ',' | Where-Object { $_ }); $done = @(); $paths = @()
             foreach ($n in $names) {
                 if (Test-FpsProtected $n) { continue }
-                $ps = @(Get-Process -Name $n -ErrorAction SilentlyContinue); if (-not $ps.Count) { continue }
+                $ps = @(Get-Process -Name $n -EA 0); if (-not $ps.Count) { continue }
                 $pth = ''; try { $pth = $ps[0].Path } catch { }
                 foreach ($p in $ps) { try { [void]$p.CloseMainWindow() } catch { } }
                 Start-Sleep -Milliseconds 1200
-                Get-Process -Name $n -ErrorAction SilentlyContinue | ForEach-Object { try { $_.Kill() } catch { } }
+                Get-Process -Name $n -EA 0 | ForEach-Object { try { $_.Kill() } catch { } }
                 $done += $n; if ($pth) { $paths += $pth }
             }
             $o = Get-FpsBackup; $prev = @(); if ($o -and $o.kill) { $prev = @($o.kill) }
@@ -1496,13 +1506,13 @@ function Do-FpsUndo {
             if (-not $v.auto) { Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name PagingFiles -Value @($v.files) -Type MultiString }
             $restart = $true
         }
-        'vbs' { $p = 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity'; if ($v.enabled -ne $null) { Set-RegValue $p 'Enabled' ([int]$v.enabled) } else { Remove-ItemProperty $p -Name Enabled -ErrorAction SilentlyContinue }; $restart = $true }
+        'vbs' { $p = 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity'; if ($v.enabled -ne $null) { Set-RegValue $p 'Enabled' ([int]$v.enabled) } else { Remove-ItemProperty $p -Name Enabled -EA 0 }; $restart = $true }
         'plan' { if ($v.guid) { & powercfg.exe /setactive $v.guid | Out-Null } }
         'cpumax' { & powercfg.exe /setacvalueindex $v.guid SUB_PROCESSOR PROCTHROTTLEMAX ([int]$v.ac) | Out-Null; & powercfg.exe /setactive SCHEME_CURRENT | Out-Null }
         'gamebar' {
             $p = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR'; $p2 = 'HKCU:\System\GameConfigStore'
-            if ($v.cap -ne $null) { Set-RegValue $p 'AppCaptureEnabled' ([int]$v.cap) } else { Remove-ItemProperty $p -Name AppCaptureEnabled -ErrorAction SilentlyContinue }
-            if ($v.dvr -ne $null) { Set-RegValue $p2 'GameDVR_Enabled' ([int]$v.dvr) } else { Remove-ItemProperty $p2 -Name GameDVR_Enabled -ErrorAction SilentlyContinue }
+            if ($v.cap -ne $null) { Set-RegValue $p 'AppCaptureEnabled' ([int]$v.cap) } else { Remove-ItemProperty $p -Name AppCaptureEnabled -EA 0 }
+            if ($v.dvr -ne $null) { Set-RegValue $p2 'GameDVR_Enabled' ([int]$v.dvr) } else { Remove-ItemProperty $p2 -Name GameDVR_Enabled -EA 0 }
         }
         'kill' { foreach ($pth in @($v)) { if ($pth -and (Test-Path $pth)) { try { Start-Process -FilePath $pth } catch { } } } }
     }
@@ -1512,7 +1522,7 @@ function Do-FpsUndo {
 }
 
 function Do-ListApps {
-    $procs = Get-Process -ErrorAction SilentlyContinue
+    $procs = Get-Process -EA 0
     $out = @()
     foreach ($k in $KnownApps.Keys) {
         if (-not $KnownApps[$k]) { continue }
@@ -1527,12 +1537,12 @@ function Do-ListApps {
 function Do-CloseApps {
     $n = 0; $mb = 0
     foreach ($id in @($Ids -split ',' | Where-Object { $_ })) {
-        $ps = @(Get-Process -Name $id -ErrorAction SilentlyContinue)
+        $ps = @(Get-Process -Name $id -EA 0)
         if ($ps.Count -eq 0) { continue }
         $mb += [math]::Round((($ps | Measure-Object WorkingSet64 -Sum).Sum) / 1MB)
         foreach ($p in $ps) { try { [void]$p.CloseMainWindow() } catch { } }
         Start-Sleep -Milliseconds 1500
-        Get-Process -Name $id -ErrorAction SilentlyContinue | ForEach-Object { try { $_.Kill() } catch { } }
+        Get-Process -Name $id -EA 0 | ForEach-Object { try { $_.Kill() } catch { } }
         Write-Log "ปิด $($KnownApps[$id])"
         $n++
     }
@@ -1587,13 +1597,13 @@ function Do-Report {
     $zipDir = [Environment]::GetFolderPath('Desktop'); if ($send) { $zipDir = $env:TEMP }
     $zip = Join-Path $zipDir "ZanBooster-report-$stamp.zip"
     try {
-        Add-Type -AssemblyName System.IO.Compression.FileSystem -ErrorAction SilentlyContinue
+        Add-Type -AssemblyName System.IO.Compression.FileSystem -EA 0
         if (Test-Path $zip) { Remove-Item $zip -Force }
         [System.IO.Compression.ZipFile]::CreateFromDirectory($tmp, $zip)
     } catch {
-        try { Compress-Archive -Path (Join-Path $tmp '*') -DestinationPath $zip -Force } catch { Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue; throw "สร้างไฟล์รายงานไม่ได้: $($_.Exception.Message)" }
+        try { Compress-Archive -Path (Join-Path $tmp '*') -DestinationPath $zip -Force } catch { Remove-Item $tmp -Recurse -Force -EA 0; throw "สร้างไฟล์รายงานไม่ได้: $($_.Exception.Message)" }
     }
-    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item $tmp -Recurse -Force -EA 0
     if (-not $send) { Start-Process explorer.exe "/select,`"$zip`"" }
     Emit @{ t = 'result'; action = 'Report'; ok = $true; path = $zip }
 }
@@ -1610,12 +1620,12 @@ function Do-Restore {
                 if ($e.Type -eq 'MultiString') { $val = [string[]]@($e.Value) }
                 New-ItemProperty -LiteralPath $e.Path -Name $e.Name -Value $val -PropertyType $e.Type -Force | Out-Null
             } else {
-                Remove-ItemProperty -LiteralPath $e.Path -Name $e.Name -ErrorAction SilentlyContinue
+                Remove-ItemProperty -LiteralPath $e.Path -Name $e.Name -EA 0
             }
         } catch { Write-Log "คืนค่า $($e.Path)\$($e.Name) ไม่ได้: $($_.Exception.Message)" }
     }
     Write-Log "คืนค่า Registry $($b.Registry.Count) รายการ"
-    foreach ($k in $b.CreatedKeys) { if (Test-Path -LiteralPath $k) { Remove-Item -LiteralPath $k -Recurse -Force -ErrorAction SilentlyContinue } }
+    foreach ($k in $b.CreatedKeys) { if (Test-Path -LiteralPath $k) { Remove-Item -LiteralPath $k -Recurse -Force -EA 0 } }
 
     foreach ($kv in @($b.Powercfg.GetEnumerator())) {
         $parts = $kv.Key -split '\|'
@@ -1639,10 +1649,10 @@ function Do-Restore {
             if ($restart -notcontains $parts[0]) { $restart += $parts[0] }
         } catch { Write-Log "คืนค่าการ์ดแลน $($parts[0]) ไม่ได้" }
     }
-    foreach ($n in $restart) { Restart-NetAdapter -Name $n -Confirm:$false -ErrorAction SilentlyContinue }
-    foreach ($p in @($b.Defender)) { Remove-MpPreference -ExclusionPath $p -ErrorAction SilentlyContinue; Write-Log "Defender กลับมาสแกน $p" }
+    foreach ($n in $restart) { Restart-NetAdapter -Name $n -Confirm:$false -EA 0 }
+    foreach ($p in @($b.Defender)) { Remove-MpPreference -ExclusionPath $p -EA 0; Write-Log "Defender กลับมาสแกน $p" }
 
-    if ((Test-Path $GfxBackup) -and -not (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' })) {
+    if ((Test-Path $GfxBackup) -and -not (Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*' })) {
         Copy-Item $GfxBackup $GfxFile -Force; Remove-Item $GfxBackup -Force; Write-Log 'คืนไฟล์กราฟิก FiveM เดิมแล้ว'
     }
     try { Set-NuiGpu $false } catch { Write-Log $_.Exception.Message }
@@ -1653,7 +1663,7 @@ function Do-Restore {
 }
 
 function Do-CleanCache {
-    if (Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*' }) {
+    if (Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*' }) {
         Emit @{ t = 'result'; action = 'CleanCache'; ok = $false; m = 'กรุณาปิด FiveM ก่อนล้างแคช' }; return
     }
     $FiveMData = Get-FiveMData
@@ -1663,19 +1673,19 @@ function Do-CleanCache {
     $total = [int64]0
     foreach ($d in 'server-cache', 'server-cache-priv') {
         $p = Join-Path $FiveMData $d
-        if (Test-Path $p) { $total += Get-FolderSize $p; Remove-Item $p -Recurse -Force -ErrorAction SilentlyContinue; Write-Log "ลบ $d" }
+        if (Test-Path $p) { $total += Get-FolderSize $p; Remove-Item $p -Recurse -Force -EA 0; Write-Log "ลบ $d" }
     }
     $cache = Join-Path $FiveMData 'cache'
     if (Test-Path $cache) {
-        Get-ChildItem $cache -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne 'game' } | ForEach-Object {
+        Get-ChildItem $cache -Force -EA 0 | Where-Object { $_.Name -ne 'game' } | ForEach-Object {
             $total += $(if ($_.PSIsContainer) { Get-FolderSize $_.FullName } else { $_.Length })
-            Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            Remove-Item $_.FullName -Recurse -Force -EA 0
         }
         Write-Log 'ลบ cache (เก็บ cache\game ไว้)'
     }
     foreach ($d in 'crashes', 'logs') {
         $p = Join-Path (Split-Path $FiveMData -Parent) $d
-        if (Test-Path $p) { $total += Get-FolderSize $p; Get-ChildItem $p -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue }
+        if (Test-Path $p) { $total += Get-FolderSize $p; Get-ChildItem $p -Force | Remove-Item -Recurse -Force -EA 0 }
     }
     Emit @{ t = 'result'; action = 'CleanCache'; ok = $true; mb = [math]::Round($total / 1MB) }
 }
@@ -1710,7 +1720,7 @@ function Do-CleanTemp {
 # แอปที่เปิดอยู่ห้ามล้าง ลบได้แค่ครึ่งเดียวแล้วแคชพัง เปิดแอปครั้งหน้าจะค้าง
 $Script:JunkSkip = @()
 function Test-JunkFree([string]$n) {
-    if (Get-Process -Name $n -ErrorAction SilentlyContinue) { if ($Script:JunkSkip -notcontains $n) { $Script:JunkSkip += $n }; return $false }
+    if (Get-Process -Name $n -EA 0) { if ($Script:JunkSkip -notcontains $n) { $Script:JunkSkip += $n }; return $false }
     $true
 }
 function Get-JunkTargets([string]$id) {
@@ -1724,16 +1734,16 @@ function Get-JunkTargets([string]$id) {
             $dirs = @("$W\Minidump", "$L\CrashDumps", "$env:ProgramData\Microsoft\Windows\WER\ReportArchive", "$env:ProgramData\Microsoft\Windows\WER\ReportQueue", "$L\Microsoft\Windows\WER\ReportArchive", "$L\Microsoft\Windows\WER\ReportQueue")
             $files = @("$W\MEMORY.DMP")
         }
-        'thumbs'  { $files = @(Get-ChildItem "$L\Microsoft\Windows\Explorer" -Filter '*cache_*.db' -Force -ErrorAction SilentlyContinue | ForEach-Object FullName) }
+        'thumbs'  { $files = @(Get-ChildItem "$L\Microsoft\Windows\Explorer" -Filter '*cache_*.db' -Force -EA 0 | ForEach-Object FullName) }
         'browser' {
             foreach ($root in "$L\Google\Chrome\User Data", "$L\Microsoft\Edge\User Data", "$L\BraveSoftware\Brave-Browser\User Data", "$R\Opera Software\Opera Stable", "$L\Opera Software\Opera Stable", "$R\Opera Software\Opera GX Stable", "$L\Opera Software\Opera GX Stable") {
                 if (-not (Test-Path -LiteralPath $root)) { continue }
                 if (-not (Test-JunkFree $(switch -Wildcard ($root) { '*Chrome*' { 'chrome' } '*Edge*' { 'msedge' } '*Brave*' { 'brave' } default { 'opera' } }))) { continue }
-                $profiles = @($root) + @(Get-ChildItem -LiteralPath $root -Directory -Force -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'Default' -or $_.Name -like 'Profile *' } | ForEach-Object FullName)
+                $profiles = @($root) + @(Get-ChildItem -LiteralPath $root -Directory -Force -EA 0 | Where-Object { $_.Name -eq 'Default' -or $_.Name -like 'Profile *' } | ForEach-Object FullName)
                 foreach ($pr in $profiles) { foreach ($c in 'Cache', 'Code Cache', 'GPUCache', 'Service Worker\CacheStorage') { $dirs += (Join-Path $pr $c) } }
                 $dirs += (Join-Path $root 'ShaderCache'); $dirs += (Join-Path $root 'GrShaderCache')
             }
-            if (Test-JunkFree 'firefox') { $dirs += @(Get-ChildItem "$L\Mozilla\Firefox\Profiles" -Directory -Force -ErrorAction SilentlyContinue | ForEach-Object { Join-Path $_.FullName 'cache2' }) }
+            if (Test-JunkFree 'firefox') { $dirs += @(Get-ChildItem "$L\Mozilla\Firefox\Profiles" -Directory -Force -EA 0 | ForEach-Object { Join-Path $_.FullName 'cache2' }) }
         }
         'apps'    {
             foreach ($d in 'discord', 'discordptb', 'discordcanary') { if (Test-JunkFree $d) { $dirs += Get-WebCache "$R\$d" } }
@@ -1773,7 +1783,7 @@ function Do-JunkScan {
 
 function Remove-DirContents([string]$d) {
     $freed = [int64]0
-    foreach ($it in @(Get-ChildItem -LiteralPath $d -Force -ErrorAction SilentlyContinue)) {
+    foreach ($it in @(Get-ChildItem -LiteralPath $d -Force -EA 0)) {
         try {
             if ($it.PSIsContainer) {
                 if ($it.Attributes -band [IO.FileAttributes]::ReparsePoint) { continue } # ลิงก์ไปที่อื่น ห้ามลบข้างใน
@@ -1796,13 +1806,13 @@ function Do-JunkClean {
         $freed = [int64]0
         try {
             switch ($id) {
-                'recycle' { $b = Get-RecycleSize; Clear-RecycleBin -Force -ErrorAction SilentlyContinue; $freed = [math]::Max(0, $b - (Get-RecycleSize)) }
+                'recycle' { $b = Get-RecycleSize; Clear-RecycleBin -Force -EA 0; $freed = [math]::Max(0, $b - (Get-RecycleSize)) }
                 'wu' {
                     $tg = Get-JunkTargets $id
-                    $svc = @('wuauserv', 'bits') | Where-Object { (Get-Service $_ -ErrorAction SilentlyContinue).Status -eq 'Running' }
-                    foreach ($x in $svc) { Stop-Service $x -Force -ErrorAction SilentlyContinue }
+                    $svc = @('wuauserv', 'bits') | Where-Object { (Get-Service $_ -EA 0).Status -eq 'Running' }
+                    foreach ($x in $svc) { Stop-Service $x -Force -EA 0 }
                     foreach ($d in $tg.Dirs) { $freed += Remove-DirContents $d }
-                    foreach ($x in $svc) { Start-Service $x -ErrorAction SilentlyContinue }
+                    foreach ($x in $svc) { Start-Service $x -EA 0 }
                 }
                 'do' {
                     $tg = Get-JunkTargets $id
@@ -1861,7 +1871,7 @@ function Do-TestRole {
 }
 
 function Do-BoostNow {
-    $procs = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like 'FiveM*GTAProcess' })
+    $procs = @(Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*GTAProcess' })
     if ($procs.Count -eq 0) { Emit @{ t = 'result'; action = 'BoostNow'; ok = $false; m = 'ยังไม่ได้เปิดเกม FiveM' }; return }
     foreach ($p in $procs) { try { $p.PriorityClass = 'High'; Write-Log "$($p.Name) -> High" } catch { } }
     Emit @{ t = 'result'; action = 'BoostNow'; ok = $true }
@@ -1893,10 +1903,11 @@ try {
     'GfxTune'    { Do-GfxTune }
     'OvOff'      { Do-OvOff }
     'RsFix'      { Do-RsFix }
+    'RsLevel'    { Do-RsLevel }
     'AudioFix'   { Do-AudioFix }
     'TestRole'   { Do-TestRole }
     'BoostNow'   { Do-BoostNow }
-    'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -ErrorAction SilentlyContinue)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
+    'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -EA 0)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
         'Health'     { Do-Health }
         'GfxStatus'  { Do-GfxStatus }

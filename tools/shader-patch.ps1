@@ -39,6 +39,24 @@ float tk = (1.0 - 0.5 * calm) * (1.0 - 0.35 * wetD);
 Rep "c *= float3(1.0 + Temp * 0.1 + Tint * 0.03, 1.0 + Temp * 0.01 - Tint * 0.06, 1.0 - Temp * 0.1 + Tint * 0.03);" "c *= 1.0 + float3(Temp * 0.1 + Tint * 0.03, Temp * 0.01 - Tint * 0.06, Tint * 0.03 - Temp * 0.1) * tk;"
 Rep "(ZFrame % 64)" "(uint(ZFrame) % 64u)"
 Rep "c = lerp(c, rawIn, tex2D(ZanHudS, uv).r * HudProtect);`n`treturn saturate(c);" "c += (frac(52.9829189 * frac(dot(vpos.xy, float2(0.06711056, 0.00583715)))) - 0.5) / 255.0; // กันฟ้าเป็นริ้ว`n`tc = lerp(c, rawIn, tex2D(ZanHudS, uv).r * HudProtect);`n`treturn saturate(c);"
+# 3 ระดับ: 0 เบา · 1 ปกติ · 2 สวยสุด (ตั้งจากโปรแกรมผ่าน PreprocessorDefinitions)
+Rep "#define ZAN_LIFT " "#ifndef ZAN_LEVEL`n#define ZAN_LEVEL 1`n#endif`n#define ZAN_LIFT "
+Rep "if (Sharp > 0.0) //" "if (Sharp > 0.0 && ZAN_LEVEL > 0) //"
+Rep "if (ChromaAb > 0.0) //" "if (ChromaAb > 0.0 && ZAN_LEVEL > 0) //"
+Rep "if (SunShafts <= 0.0) return 0.0;" "if (SunShafts <= 0.0 || ZAN_LEVEL == 0) return 0.0;"
+Rep "if (SunShafts > 0.0)`n" "if (SunShafts > 0.0 && ZAN_LEVEL > 0)`n"
+Rep "if (Halation > 0.0) //" "if (Halation > 0.0 && ZAN_LEVEL > 0) //"
+Rep "if (LensFlare > 0.0)`n" "if (LensFlare > 0.0 && ZAN_LEVEL > 0)`n"
+Rep "float3 bl = (tex2Dlod(ZanGradeHalfS, float4(uv, 0.0, 1.0)).rgb + m2.rgb + m3.rgb + tex2Dlod(ZanGradeHalfS, float4(uv, 0.0, 4.0)).rgb) * 0.25;" @"
+#if ZAN_LEVEL == 0
+		float3 bl = (m2.rgb + m3.rgb) * 0.5;
+#else
+		float3 bl = (tex2Dlod(ZanGradeHalfS, float4(uv, 0.0, 1.0)).rgb + m2.rgb + m3.rgb + tex2Dlod(ZanGradeHalfS, float4(uv, 0.0, 4.0)).rgb) * 0.25;
+#endif
+"@
+Rep "if (AO > 0.0) //" "float aoL = max(AO, ZAN_LEVEL == 2 ? 0.3 * zold : 0.0);`n`tif (ZAN_LEVEL == 2) c = saturate(c + clamp(Lraw - Lraw4, -0.05, 0.04) * 0.45 * zold * (1.0 - 0.6 * night) * (1.0 - 0.5 * haze));`n`tif (aoL > 0.0) //"
+Rep "min(Lraw - Lb8, 0.0) * AO * 3.0" "min(Lraw - Lb8, 0.0) * aoL * 3.0"
+Rep "(SpecPop + 0.3 * wet)" "(SpecPop + 0.3 * wet + (ZAN_LEVEL == 2 ? 0.2 * zold : 0.0))"
 # ตัดคอมเมนต์ทั้งบรรทัด ให้พอดีช่อง
 $t=($t.Split("`n")|Where-Object{$_ -notmatch '^\s*//' -or $_ -match '^// ZanGrade\.fx'}) -join "`n"
 [IO.File]::WriteAllText($Out,$t.TrimEnd()+"`n",$enc); "shader: $($enc.GetByteCount($t)) bytes"
