@@ -1021,6 +1021,15 @@ function Get-FiveMExes {
     $out
 }
 
+# ความเร็วแรมจากรหัสรุ่น: นับเฉพาะความเร็วที่มีขายจริง และแรมคละรุ่นใช้ตัวที่ช้าที่สุด
+function Get-KitSpeed($mods) {
+    $o = @(foreach ($m in $mods) {
+        $v = 0
+        foreach ($x in [regex]::Matches([string]$m.PartNumber, '(?<!\d)(2400|2666|2800|2933|3000|3200|3333|3466|3600|3733|3866|4000|4133|4266|4400|4600|4800|5200|5600|6000|6200|6400|6600|6800|7000|7200|7600|8000|8200|8400)(?!\d)')) { $v = [math]::Max($v, [int]$x.Value) }
+        $v
+    })
+    [int]($o | Measure-Object -Minimum).Minimum
+}
 function Do-Health {
     $r = New-Object System.Collections.Generic.List[object]
     function Add($id, $title, $status, $detail, $fix) { $r.Add([ordered]@{ id = $id; title = $title; status = $status; detail = $detail; fix = $fix }) }
@@ -1029,12 +1038,11 @@ function Do-Health {
     try {
         $mods = @(Get-CimInstance Win32_PhysicalMemory)
         $cfg = ($mods | Measure-Object ConfiguredClockSpeed -Maximum).Maximum
-        $rated = ($mods | Measure-Object Speed -Maximum).Maximum
+        $rated = ($mods | Measure-Object Speed -Minimum).Minimum
         $type = ($mods | Select-Object -First 1).SMBIOSMemoryType
         $ddr = switch ($type) { 26 { 'DDR4' } 34 { 'DDR5' } 24 { 'DDR3' } default { 'DDR' } }
         $low = ($ddr -eq 'DDR4' -and $cfg -le 2666) -or ($ddr -eq 'DDR5' -and $cfg -le 4800) -or ($rated -gt $cfg)
-        $kit = 0
-        foreach ($pn in $mods) { foreach ($mm in [regex]::Matches([string]$pn.PartNumber, '(?<!\d)(2666|3000|3200|3600|3733|4000|4400|5200|5600|6000|6400|6800|7200)(?!\d)')) { $kit = [math]::Max($kit, [int]$mm.Value) } }
+        $kit = Get-KitSpeed $mods
         if ($kit -ge $cfg + 200) { Add 'xmp' 'ความเร็วแรม' 'warn' "รุ่นแรมน่าจะเป็น $kit MHz แต่วิ่งอยู่ $cfg MHz" 'เข้าไบออสแล้วเปิด XMP / EXPO / DOCP' }
         elseif ($kit -and $cfg -ge $kit - 50) { Add 'xmp' 'ความเร็วแรม' 'ok' "แรม $ddr วิ่งที่ $cfg MHz" '' }
         elseif ($low) { Add 'xmp' 'ความเร็วแรม' 'warn' "แรม $ddr วิ่งอยู่ที่ $cfg MHz อาจยังไม่ได้เปิด XMP / EXPO" 'ถ้าแรมที่ซื้อมาเป็น 3200 MHz ขึ้นไป (DDR4) หรือ 5600 ขึ้นไป (DDR5) ให้เปิด XMP / EXPO ในไบออส ดูทางไปและปุ่มรีสตาร์ทเข้าไบออสในหัวข้อไบออสด้านล่าง ข้อนี้ช่วย FPS ใน FiveM ได้มากที่สุด' }
@@ -1220,10 +1228,9 @@ function Do-FpsScan {
 
     if ($mods) {
         $cfg = ($mods | Measure-Object ConfiguredClockSpeed -Maximum).Maximum
-        $rated = ($mods | Measure-Object Speed -Maximum).Maximum
+        $rated = ($mods | Measure-Object Speed -Minimum).Minimum
         $ddr = switch (($mods | Select-Object -First 1).SMBIOSMemoryType) { 26 { 'DDR4' } 34 { 'DDR5' } 24 { 'DDR3' } default { 'DDR' } }
-        $pn = (($mods | ForEach-Object { "$($_.PartNumber)" }) -join ' ')
-        $pnSpeed = 0; foreach ($m in [regex]::Matches($pn, '(?<!\d)(2[4-9]\d{2}|3\d{3}|4\d{3}|5\d{3}|6\d{3}|7\d{3}|8\d{3})(?!\d)')) { $v = [int]$m.Value; if ($v -gt $pnSpeed) { $pnSpeed = $v } }
+        $pnSpeed = Get-KitSpeed $mods
         $sure = ($rated -gt $cfg + 100) -or ($pnSpeed -gt $cfg + 100)
         $lowStd = ($ddr -eq 'DDR4' -and $cfg -le 2666) -or ($ddr -eq 'DDR5' -and $cfg -le 4800)
         if (-not $cfg) { Unknown 'ram' 'xmp' 'ความเร็วแรม (XMP/EXPO)' }
