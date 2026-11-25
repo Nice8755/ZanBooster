@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.68",
-    "sha256": "62aca49c5a8749ebc13dd7e77a9b09f2515178ce2b433e2a434458a0f19586a1",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/997bc1898236155c5aca5841b419a030ca6889e2/ZanBooster.exe",
-    "notes": "ธีมการ์ตูนใหม่ 6 แบบ เปลี่ยนลาย เอฟเฟกต์ และอนิเมชันตามธีม สีพรีเมียมเปลี่ยนตามธีมด้วย"
+    "version": "4.11.69",
+    "sha256": "a008cccb3600156f354aa68ffe757a29bfc4ef18d316e1c5c456ef48f17e06ec",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/48497858753327d37ebbecb63f593196a8b7ed9f/ZanBooster.exe",
+    "notes": "ธีมการ์ตูนมีรูปพื้นหลังของตัวเอง กล่องโปร่งให้เห็นรูป ใช้รูปของตัวเองเป็นพื้นหลังได้"
   },
   "vip": {
     "version": "4.11.68",
