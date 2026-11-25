@@ -1,6 +1,6 @@
 {
-  "version": "4.11.89",
-  "sha256": "2f56ccfb00ca126bf6216dabb86dcd9d70b586a1dc866530b59f527f6d231fa5",
+  "version": "4.11.90",
+  "sha256": "cc9d116ef9d5ac474c1e8980ac2f3864a6f88f2b2d31f438c1c7889a481d5570",
   "file": "release/ZanBooster.exe",
-  "notes": "เพลงเริ่ม 1% ค่อย ๆ ดังขึ้น, เล่นเพลงต่อตอนปิดโปรแกรมได้ (เปิดในเบราว์เซอร์)"
+  "notes": "แก้บูสต์ไม่ถึง 100% ติดข้อ priority FiveM"
 }
