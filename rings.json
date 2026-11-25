@@ -9,9 +9,9 @@
     "notes": "สร้างธีมเองและแชร์โค้ดได้, เสียงตามธีม, มาสคอต Zan, ลองธีมพรีเมียม 30 วินาที"
   },
   "vip": {
-    "version": "4.11.71",
-    "sha256": "bb00c2f8f7b1bc0cac0d328e5191537069e2168b52fe2f61f8cd5a343b139a42",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ea3de47ef8873f047d160da2b0aafe0e25343101/ZanBooster.exe",
-    "notes": "กราฟิกเกมปรับแต่งเองได้, ReShade ปรับภาพเองพร้อมแบบสมจริง, ธีมการ์ตูนมีรูปพื้นหลังขยับได้ ปรับความทึบของกล่องได้"
+    "version": "4.11.74",
+    "sha256": "4fc1200b2169329af58af3786d2ddf5dd38cd0814cc6d95202720ad90c121692",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/4567af17384c005c9a0a127e27ca147ad06488d0/ZanBooster.exe",
+    "notes": "สร้างธีมเองและแชร์โค้ดได้, มาสคอต Zan, เสียงตามธีม, กราฟิกเกมปรับแต่งเองมีแถบเลื่อนเหมือนในเกม"
   }
 }
