@@ -1013,5 +1013,6 @@
 "✓ เข้าเซิร์ฟสำเร็จ ปิดโปรแกรมตามที่ตั้งไว้": "✓ Joined the server, closing the app as set",
 "เล่นจาก YouTube · เล่นต่อตอนเกมเปิดและตอนพับโปรแกรม ·": "Plays from YouTube · keeps playing while the game runs or the app is minimized ·",
 "ปิดโปรแกรมแล้วเพลงเล่นต่อ (ย้ายไปเล่นในเบราว์เซอร์)": "Keep music playing after closing the app (moves to your browser)",
-"เล่นจาก YouTube · กด ✕ ตอนเพลงเล่น โปรแกรมพับลงแถบงาน เพลงเล่นต่อ (หยุดเพลงก่อนถ้าจะปิดจริง) ·": "Plays from YouTube · pressing ✕ while music plays minimizes the app and the music keeps going (stop the music first to really close) ·"
+"เล่นจาก YouTube · กด ✕ ตอนเพลงเล่น โปรแกรมพับลงแถบงาน เพลงเล่นต่อ (หยุดเพลงก่อนถ้าจะปิดจริง) ·": "Plays from YouTube · pressing ✕ while music plays minimizes the app and the music keeps going (stop the music first to really close) ·",
+"เล่นจาก YouTube · กด ✕ ตอนเพลงเล่น โปรแกรมไปอยู่ที่ถาดข้างนาฬิกา เพลงเล่นต่อ (หยุดเพลงก่อนถ้าจะปิดจริง) ·": "Plays from YouTube · pressing ✕ while music plays sends the app to the tray by the clock and the music keeps going (stop the music first to really close) ·"
 }

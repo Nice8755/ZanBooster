@@ -38,6 +38,27 @@ if ($env:GITHUB_ACTIONS) {
     "  yt search: $($l.Substring(0, [math]::Min(300, $l.Length)))"
 }
 
+# 1d) tray helper (Tray action): hides a real window, puts an icon in the tray, quits when the window comes back
+if ($env:GITHUB_ACTIONS) {
+    $ast = [Management.Automation.Language.Parser]::ParseFile($f, [ref]$null, [ref]$null)
+    $str = $ast.FindAll({ $args[0] -is [Management.Automation.Language.StringConstantExpressionAst] -and $args[0].Value -like 'Add-Type -AssemblyName System.Windows.Forms*' }, $true) | Select-Object -First 1
+    if (-not $str) { throw 'tray script not found in engine' }
+    Add-Type -Name V -Namespace CiTray -MemberDefinition '[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool ShowWindow(IntPtr h,int c);'
+    $np = Start-Process notepad.exe -PassThru; Start-Sleep 3; $np.Refresh(); $h = [int64]$np.MainWindowHandle
+    if (-not $h) { '  tray: no test window on this runner, skipped' } else {
+        $s = $str.Value.Replace('ZBH', "$h").Replace('ZBE', $np.Path.Replace("'", "''"))
+        $tp = Start-Process powershell.exe -PassThru -WindowStyle Hidden -ArgumentList '-NoProfile', '-STA', '-EncodedCommand', ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($s)))
+        $hid = $false; for ($i = 0; $i -lt 40 -and -not $hid; $i++) { Start-Sleep -Milliseconds 250; $hid = -not [CiTray.V]::IsWindowVisible([IntPtr]$h) }
+        $alive = -not $tp.HasExited
+        "  tray: window hidden=$hid, helper running=$alive"
+        [void][CiTray.V]::ShowWindow([IntPtr]$h, 9); $gone = $tp.WaitForExit(6000)
+        "  tray: window shown again, helper quit by itself=$gone"
+        if (-not $gone) { try { $tp.Kill() } catch { } }
+        try { $np.Kill() } catch { }
+        if (-not ($hid -and $alive -and $gone)) { throw 'tray helper test failed' }
+    }
+}
+
 # 2) ui.html scripts have no syntax error, changelog is valid JSON
 $ui = [IO.File]::ReadAllText((Join-Path $root 'recovered\ui.html'), $utf8)
 $cl = [regex]::Match($ui, 'id="changelog">(.*?)</script>', 'Singleline').Groups[1].Value

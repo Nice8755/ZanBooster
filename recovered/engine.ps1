@@ -1986,6 +1986,20 @@ function Do-YtSearch {
 
 # เข้าแล้วปิดโปรแกรม: ดูว่า FiveM เข้าเซิร์ฟสำเร็จหรือยัง (บรรทัด connectOK ใน log หลังผ่านหน้ายืนยันของเซิร์ฟ) อ่านอย่างเดียว ไม่แตะเกม
 # Opt = ตำแหน่งในไฟล์ที่อ่านไปแล้ว คืน n = ขนาดไฟล์ตอนนี้, f = ชื่อไฟล์ log ล่าสุด, hit = เจอ connectOK หลังตำแหน่งนั้น
+# ปุ่มปิดตอนเพลงเล่น: ซ่อนหน้าต่างไว้ที่ถาดข้างนาฬิกา (ตัวช่วยแยกกระบวนการ คลิกไอคอนเพื่อเปิด คลิกขวาเพื่อปิดโปรแกรม)
+function Do-Tray {
+    $ok = $false
+    try {
+        $pp = (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId; $p = Get-Process -Id $pp; $h = [int64]$p.MainWindowHandle
+        if ($h) {
+            $s = 'Add-Type -AssemblyName System.Windows.Forms,System.Drawing;Add-Type -Name W -Namespace Z -MemberDefinition ''[DllImport("user32")]public static extern bool ShowWindow(IntPtr h,int c);[DllImport("user32")]public static extern bool SetForegroundWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool PostMessage(IntPtr h,int m,IntPtr w,IntPtr l);'';$h=[IntPtr]ZBH;$x=0;$n=New-Object Windows.Forms.NotifyIcon;$n.Icon=[Drawing.Icon]::ExtractAssociatedIcon(''ZBE'');$n.Text=''Zan Booster'';$n.Visible=1;$q={$n.Visible=0;[Windows.Forms.Application]::Exit()};$o={[void][Z.W]::ShowWindow($h,9);[void][Z.W]::SetForegroundWindow($h);&$q};$n.add_MouseClick({if($_.Button -eq ''Left''){&$o}});$m=New-Object Windows.Forms.ContextMenuStrip;[void]$m.Items.Add(''เปิด Zan Booster'',$null,{&$o});[void]$m.Items.Add(''ปิดโปรแกรม'',$null,{$global:x=1;[void][Z.W]::PostMessage($h,16,[IntPtr]::Zero,[IntPtr]::Zero);&$q});$n.ContextMenuStrip=$m;[void][Z.W]::ShowWindow($h,0);$t=New-Object Windows.Forms.Timer;$t.Interval=2000;$t.add_Tick({if(-not [Z.W]::IsWindow($h) -or [Z.W]::IsWindowVisible($h)){&$q}});$t.Start();try{[Windows.Forms.Application]::Run()}finally{$n.Dispose();if(-not $x -and [Z.W]::IsWindow($h) -and -not [Z.W]::IsWindowVisible($h)){[void][Z.W]::ShowWindow($h,9)}}'.Replace('ZBH', "$h").Replace('ZBE', $p.Path.Replace("'", "''"))
+            Start-Process powershell.exe -WindowStyle Hidden -ArgumentList '-NoProfile', '-STA', '-EncodedCommand', ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($s)))
+            for ($i = 0; $i -lt 40 -and -not $ok; $i++) { Start-Sleep -Milliseconds 250; $p.Refresh(); $ok = $p.MainWindowHandle -eq 0 }
+        }
+    } catch { }
+    Emit @{ t = 'result'; action = 'Tray'; ok = $ok }
+}
+
 function Do-JoinWait {
     $n = -1; $hit = $false; $nm = ''
     try {
@@ -2041,6 +2055,7 @@ try {
     'Heat'       { Do-Heat }
     'YtSearch'   { Do-YtSearch }
     'JoinWait'   { Do-JoinWait }
+    'Tray'       { Do-Tray }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -EA 0)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
         'Health'     { Do-Health }
