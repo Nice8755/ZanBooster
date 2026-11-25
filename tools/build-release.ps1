@@ -48,6 +48,19 @@ $min = ($eng.Split("`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -not
 $ct = $null; $ce = $null; [void][Management.Automation.Language.Parser]::ParseInput($min, [ref]$ct, [ref]$ce)
 foreach ($k in @($ct | Where-Object { $_.Kind -eq 'Comment' -and $_.Text -notlike '<#*' } | Sort-Object { $_.Extent.StartOffset } -Descending)) { $min = $min.Remove($k.Extent.StartOffset, $k.Extent.EndOffset - $k.Extent.StartOffset) }
 $min = ($min.Split("`n") | ForEach-Object { $_.TrimEnd() }) -join "`n"
+# squeeze spaces next to { } @{ ; = | , (release copy only, same token check below proves the code is unchanged)
+# never next to a token that starts with '-' (parameters, -eq, -and ...) so nothing can glue onto them
+$tk = $null; $pe = $null; [void][Management.Automation.Language.Parser]::ParseInput($min, [ref]$tk, [ref]$pe)
+$sq = [Text.StringBuilder]::new($min)
+for ($i = $tk.Count - 2; $i -ge 1; $i--) {
+    $t = $tk[$i]; if ("$($t.Kind)" -notin 'LCurly', 'RCurly', 'AtCurly', 'Semi', 'Equals', 'Pipe', 'Comma') { continue }
+    $e = $t.Extent.EndOffset; $n = 0; while ($e + $n -lt $sq.Length -and $sq[$e + $n] -eq ' ') { $n++ }
+    if ($n -and -not $tk[$i + 1].Text.StartsWith('-')) { [void]$sq.Remove($e, $n) }
+    $s = $t.Extent.StartOffset; $n = 0; while ($s - $n -gt 0 -and $sq[$s - $n - 1] -eq ' ') { $n++ }
+    if ($n -and -not $tk[$i - 1].Text.StartsWith('-')) { [void]$sq.Remove($s - $n, $n) }
+}
+$min = $sq.ToString()
+"engine release size: {0:N0} bytes (slot 117,970)" -f $utf8.GetByteCount($min)
 $ta = $null; $tb = $null; $pe = $null
 [void][Management.Automation.Language.Parser]::ParseInput($eng, [ref]$ta, [ref]$pe); if ($pe.Count) { throw "engine: $($pe[0])" }
 [void][Management.Automation.Language.Parser]::ParseInput($min, [ref]$tb, [ref]$pe); if ($pe.Count) { throw "engine min: $($pe[0])" }
