@@ -480,11 +480,9 @@ $Tweaks = [ordered]@{
         }
     }
     FiveMPrio = @{
-        # ให้ Windows เปิดตัวเกม FiveM ที่ priority High ตั้งแต่เริ่ม (ไฟล์เกมที่มีในเครื่องตอนนี้)
-        Apply = {
-            foreach ($x in Get-FiveMExes) { if ($x -match '(?i)(GTAProcess|GameProcess)\.exe$') { Set-RegValue "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$(Split-Path $x -Leaf)\PerfOptions" 'CpuPriorityClass' 3 } }
-        }
-        Check = { $l = @(Get-FiveMExes | Where-Object { $_ -match '(?i)(GTAProcess|GameProcess)\.exe$' }); $l.Count -and -not @($l | Where-Object { (Get-Reg "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$(Split-Path $_ -Leaf)\PerfOptions" 'CpuPriorityClass') -ne 3 }).Count }
+        # ให้ Windows เปิดตัวเกม FiveM ที่ priority High ตั้งแต่เริ่ม: ตั้งตามชื่อไฟล์ทุก build ที่ใช้กันไว้ก่อน (ล้างแคชหรือยังไม่เคยเข้า build นั้นก็ได้ผล) + ไฟล์ที่เจอในเครื่อง
+        Apply = { foreach ($n in Get-FiveMPrioNames) { Set-RegValue "$KIF\$n\PerfOptions" 'CpuPriorityClass' 3 } }
+        Check = { -not @(Get-FiveMPrioNames | Where-Object { (Get-Reg "$KIF\$_\PerfOptions" 'CpuPriorityClass') -ne 3 }).Count }
     }
     SearchIdx = @{
         Apply = {
@@ -1026,6 +1024,13 @@ function Get-DriveMedia([string]$path) {
 }
 
 # ไฟล์ exe ของ FiveM ที่ควรใช้การ์ดจอแยก (FiveM.exe + ตัวเกมทุก build ใน cache\subprocess + GTA5.exe)
+$KIF = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options'
+function Get-FiveMPrioNames {
+    $n = [Collections.Generic.List[string]]::new(); $n.Add('FiveM_GTAProcess.exe'); $n.Add('FiveM_GameProcess.exe')
+    foreach ($b in 1604, 2060, 2189, 2372, 2545, 2612, 2699, 2802, 2944, 3095, 3258, 3323, 3407, 3570) { $n.Add("FiveM_b$($b)_GTAProcess.exe") }
+    foreach ($x in Get-FiveMExes) { $l = Split-Path $x -Leaf; if ($l -match '(?i)(GTAProcess|GameProcess)\.exe$' -and -not $n.Contains($l)) { $n.Add($l) } }
+    $n
+}
 function Get-FiveMExes {
     $out = [Collections.Generic.List[string]]::new()
     $fd = Get-FiveMData
