@@ -9,9 +9,9 @@
     "notes": "เปิดโปรแกรมซ้ำไม่ได้แล้ว ถ้าซ่อนอยู่ที่ถาดหรือพับอยู่ กดเปิดอีกครั้งจะดึงตัวเดิมขึ้นมา"
   },
   "vip": {
-    "version": "4.11.96",
-    "sha256": "6dcd59bf725f6aadb7c15484b3a289bdf0c050d96fc965706e8beb7b71d341c6",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9eed909bcfd480e462bc29bc542fbaa6c248e096/ZanBooster.exe",
-    "notes": "กด ✕ ตอนเพลงเล่นอยู่ โปรแกรมพับลงแถบงาน เพลงเล่นต่อ (หยุดเพลงก่อนถ้าจะปิดจริง)"
+    "version": "4.11.98",
+    "sha256": "7e42f81bf439b3c7638321622a4cf625c9b368d3ca9afda7082a28a3fbb5aee3",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6ee7fd0f26134458de3602180dd1bc7625e0d04c/ZanBooster.exe",
+    "notes": "กด ✕ ตอนเพลงเล่นอยู่ โปรแกรมไปอยู่ที่ถาดข้างนาฬิกา เพลงเล่นต่อ · เปิดโปรแกรมซ้ำไม่ได้แล้ว กดเปิดอีกครั้งจะดึงตัวเดิมขึ้นมา"
   }
 }
