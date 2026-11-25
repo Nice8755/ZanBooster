@@ -1616,6 +1616,7 @@ function Do-Report {
 }
 
 function Do-Restore {
+    $c = Get-Config; if ($c.affBoot) { $c | Add-Member affBoot $false -Force; Save-Config $c; Sync-AffBoot $false }
     if (-not (Test-HasBackup)) { Emit @{ t = 'result'; action = 'Restore'; ok = $false; m = 'ยังไม่มีค่าที่ต้องคืน' }; return }
     $b = $Script:Backup
     foreach ($e in @($b.Registry.Values)) {
@@ -1879,6 +1880,19 @@ function Do-TestRole {
 
 # เลือกแกน CPU ให้แต่ละโปรแกรม: Ids '' = ดูอย่างเดียว, set (Opt ชื่อ|mask), del (Opt ชื่อ คืนค่าเดิม), apply (ใช้กฎทั้งหมดอีกครั้ง)
 # กฎเก็บใน config.json เป็น "mask|ค่าเดิม" ค่าเดิมคือ affinity ตอนตั้งกฎครั้งแรก
+# ตั้งแกนตอนเปิดเครื่อง (ไม่ต้องเปิด Zan Booster): งานใน Task Scheduler รันเป็น SYSTEM ตอนล็อกอิน ไม่มีหน้าต่าง
+# ลองซ้ำทุก 5 วินาทีราว 2 นาที เพราะ audiodg เริ่มตอนมีเสียงแรก ไม่ใช่ทันทีที่เข้าเครื่อง · ปิดเมื่อติ๊กออก/ไม่มีกฎ/คืนค่าทั้งหมด
+$AffTask = 'ZanBooster CPU cores'
+function Sync-AffBoot([bool]$on) {
+    $f = Join-Path $DataDir 'aff-boot.ps1'
+    try {
+        if ($on) {
+            [IO.File]::WriteAllText($f, "`$c = Get-Content '$ConfigFile' -Raw | ConvertFrom-Json`nfor (`$i = 0; `$i -lt 24; `$i++) { foreach (`$r in `$c.aff.PSObject.Properties) { `$m = [int64](`$r.Value -split '\|')[0]; foreach (`$p in @(Get-Process -Name `$r.Name -EA 0)) { try { if ([int64]`$p.ProcessorAffinity -ne `$m) { `$p.ProcessorAffinity = [IntPtr]`$m } } catch { } } }; Start-Sleep 5 }")
+            Register-ScheduledTask -TaskName $AffTask -Action (New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$f`"") -Trigger (New-ScheduledTaskTrigger -AtLogOn) -Principal (New-ScheduledTaskPrincipal -UserId 'SYSTEM' -RunLevel Highest) -Settings (New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 5)) -Force | Out-Null
+        } else { Unregister-ScheduledTask -TaskName $AffTask -Confirm:$false -EA 0; Remove-Item $f -Force -EA 0 }
+    } catch { Write-Log "CPU affinity boot: $_" }
+}
+
 function Do-Aff {
     $c = Get-Config; $r = @{}; if ($c.aff) { $c.aff.PSObject.Properties | ForEach-Object { $r[$_.Name] = [string]$_.Value } }
     $n = [Environment]::ProcessorCount; $all = $(if ($n -ge 64) { -1 } else { ([int64]1 -shl $n) - 1 })
@@ -1891,7 +1905,8 @@ function Do-Aff {
         if (-not $script:hit -and (Get-Process -Name $k -EA 0)) { $r.Remove($k); if ($old) { $r[$k] = $old }; $fail = 1 }
     } elseif ($Ids -eq 'del' -and $r[$Opt]) { & $set $Opt ($r[$Opt] -split '\|')[1]; $r.Remove($Opt) }
     elseif ($Ids -eq 'apply') { foreach ($k in @($r.Keys)) { & $set $k ($r[$k] -split '\|')[0] } }
-    if ($Ids -in 'set', 'del') { $c | Add-Member aff ([pscustomobject]$r) -Force; Save-Config $c; Write-Log "CPU affinity $Ids $Opt" }
+    elseif ($Ids -eq 'boot') { $c | Add-Member affBoot ($Opt -eq '1') -Force }
+    if ($Ids -in 'set', 'del', 'boot') { $c | Add-Member aff ([pscustomobject]$r) -Force; Save-Config $c; Write-Log "CPU affinity $Ids $Opt"; Sync-AffBoot ([bool]$c.affBoot -and $r.Count) }
     $cores = [Collections.Generic.List[object]]::new()
     try {
         if (-not ('ZC' -as [type])) { Add-Type 'using System;using System.Runtime.InteropServices;public class ZC{[DllImport("kernel32")]public static extern bool GetLogicalProcessorInformationEx(int r,IntPtr b,ref int n);}' }
@@ -1905,7 +1920,7 @@ function Do-Aff {
         if ($seen[$k] -or ($p.MainWindowHandle -eq 0 -and -not $r[$k] -and $k -ne 'audiodg') -or $p.Id -eq $PID) { continue }
         try { $list.Add(@{ n = $k; d = [string]$p.Description; a = [string][int64]$p.ProcessorAffinity }); $seen[$k] = 1 } catch { if ($k -eq 'audiodg') { $list.Add(@{ n = $k; a = '' }); $seen[$k] = 1 } }
     }
-    Emit @{ t = 'result'; action = 'Aff'; ok = $true; hit = $script:hit; fail = $fail; ce = $ce; all = "$all"; cores = $cores.ToArray(); apps = $list.ToArray(); rules = $r }
+    Emit @{ t = 'result'; action = 'Aff'; ok = $true; hit = $script:hit; fail = $fail; ce = $ce; boot = [bool]$c.affBoot; task = $(if ($Ids -ne 'apply') { [bool](Get-ScheduledTask -TaskName $AffTask -EA 0) }); all = "$all"; cores = $cores.ToArray(); apps = $list.ToArray(); rules = $r }
 }
 
 # ระหว่างเล่น: CPU ถูกจำกัดความเร็วกี่ % (100 = ไม่โดน) และอุณหภูมิ/ลดความเร็วเพราะร้อนของการ์ด NVIDIA

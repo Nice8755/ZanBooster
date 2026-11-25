@@ -20,6 +20,18 @@ foreach ($a in 'Status', 'SysInfo', 'Health', 'FpsScan', 'GfxPlan', 'GfxStatus',
     if ($a -in 'Aff', 'Heat') { "  $($l.Substring(0, [math]::Min(400, $l.Length)))" }
 }
 
+# 1b) GitHub's throwaway machine only: CPU-core startup task is created, its script parses, and it is removed again
+if ($env:GITHUB_ACTIONS) {
+    $run = { param($i, $o) [string](& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $f -Action Aff -Ids $i -Opt $o | Where-Object { $_ -match '"t":"(result|error)"' } | Select-Object -Last 1) }
+    $l = & $run 'set' 'explorer|1'; $l = & $run 'boot' '1'
+    if ($l -notmatch '"task":true') { throw "startup task not created: $l" }
+    $bs = Join-Path $env:ProgramData 'ZanBooster\aff-boot.ps1'; $t2 = $null; $e2 = $null
+    [void][Management.Automation.Language.Parser]::ParseInput([IO.File]::ReadAllText($bs), [ref]$t2, [ref]$e2); if ($e2.Count) { throw "aff-boot.ps1: $($e2[0])" }
+    $l = & $run 'del' 'explorer'
+    if ($l -notmatch '"task":false' -or (Test-Path $bs)) { throw "startup task not removed: $l" }
+    'cpu-core startup task ok'
+}
+
 # 2) ui.html scripts have no syntax error, changelog is valid JSON
 $ui = [IO.File]::ReadAllText((Join-Path $root 'recovered\ui.html'), $utf8)
 $cl = [regex]::Match($ui, 'id="changelog">(.*?)</script>', 'Singleline').Groups[1].Value
