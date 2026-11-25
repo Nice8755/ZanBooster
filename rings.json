@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.83",
-    "sha256": "7b5ed30cc1198582543f24bc29befbecd25728f612f6c46a7babd8c1bf98e550",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/f99865f2d5a9e37a4eef91abddc6a0a7d18a089f/ZanBooster.exe",
-    "notes": "เพลงเบาลง เปิดโปรแกรมไม่เด้ง ลากเครื่องเล่นเพลงได้"
+    "version": "4.11.84",
+    "sha256": "81435d189e7ecd3387aa8e2e2d149889c29612b297d0fe8d551e5026f44f44ce",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/dd0ba14c16682b674e366a47a3925714b1e92812/ZanBooster.exe",
+    "notes": "ค้นหาเพลงจาก YouTube ในเครื่องเล่นได้"
   },
   "vip": {
     "version": "4.11.80",
