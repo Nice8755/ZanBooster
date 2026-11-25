@@ -9,9 +9,9 @@
     "notes": "เล่นเพลงต่อตอนปิดโปรแกรมได้จริง (เปิดในเบราว์เซอร์)"
   },
   "vip": {
-    "version": "4.11.87",
-    "sha256": "262b9f02535517413c4eaaab0023fdcd64434965fb2a55e4a30b96b4bf641fbc",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/e087a6f4ec848430b09c040e16ca64b1508cc6b7/ZanBooster.exe",
-    "notes": "ฟังเพลงในโปรแกรม ค้นหาเพลงจาก YouTube ได้ เพิ่มเพลงของตัวเอง เพลงหยุดเองตอนเข้าเกม"
+    "version": "4.11.89",
+    "sha256": "2f56ccfb00ca126bf6216dabb86dcd9d70b586a1dc866530b59f527f6d231fa5",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/db35674da2d2df63eb356fbab3401ab5606e4462/ZanBooster.exe",
+    "notes": "เพลงเริ่ม 1% ค่อย ๆ ดังขึ้น, เล่นเพลงต่อตอนปิดโปรแกรมได้ (เปิดในเบราว์เซอร์)"
   }
 }
