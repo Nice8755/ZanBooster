@@ -1998,7 +1998,7 @@ function Do-Dup {
         if ($o -and -not $o.HasExited) {
             $h = [int64]$o.MainWindowHandle; if (-not $h) { $h = [int64]$tp[1] }
             Add-Type -Name W -Namespace Z -MemberDefinition $ZW
-            if ([Z.W]::IsWindow([IntPtr]$h)) { [void][Z.W]::ShowWindow([IntPtr]$h, 9); [void][Z.W]::SetForegroundWindow([IntPtr]$h); $f = $true }
+            if ([Z.W]::IsWindow([IntPtr]$h)) { if (-not [Z.W]::IsWindowVisible([IntPtr]$h)) { [void][Z.W]::ShowWindow([IntPtr]$h, 6) }; [void][Z.W]::ShowWindow([IntPtr]$h, 9); [void][Z.W]::SetForegroundWindow([IntPtr]$h); $f = $true }
         }
     } catch { }
     Emit @{ t = 'result'; action = 'Dup'; ok = $true; found = $f }
