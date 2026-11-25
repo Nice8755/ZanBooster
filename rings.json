@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.01",
-    "sha256": "a155c35e170a027f6fe45679d587405196a65baa32cd93a2ece03b1b9859230d",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/42752511a8c4f0e252cef237ee807d202056f9b7/ZanBooster.exe",
-    "notes": "แก้เปิดโปรแกรม (โดยเฉพาะหลังอัปเดต) แล้วขึ้นจอดำ"
+    "version": "4.12.02",
+    "sha256": "628929af7e40b193e4ea77284d9c66987d3a6ad8bce99198cd8b64261d46fe96",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/b46a26015ddc5808557a79d5a191fe3645fedca9/ZanBooster.exe",
+    "notes": "แก้เปิดโปรแกรมแล้วค้างหน้าโลโก้หรือจอดำ"
   },
   "vip": {
     "version": "4.12.00",
