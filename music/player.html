@@ -13,5 +13,8 @@ addEventListener('message', e => {
   if (e.source === parent && e.source !== window) y.contentWindow.postMessage(e.data, 'https://www.youtube.com');
   else if (e.source === y.contentWindow && e.origin === 'https://www.youtube.com') parent.postMessage(e.data, '*');
 });
-y.onload = () => y.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'zb', channel: 'widget' }), 'https://www.youtube.com');
+const send = (f, a) => y.contentWindow.postMessage(JSON.stringify({ event: 'command', func: f, args: a || [] }), 'https://www.youtube.com');
+y.onload = () => { y.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'zb', channel: 'widget' }), 'https://www.youtube.com');
+  // เปิดในเบราว์เซอร์ (ไม่มีโปรแกรมคุมเสียง): ตั้งเสียงตาม vol ที่โปรแกรมส่งมา
+  const vol = +q.get('vol'); if (parent === window && vol >= 0 && vol <= 100) [1500, 3000, 6000].forEach(t => setTimeout(() => send('setVolume', [vol]), t)); };
 </script></body></html>
