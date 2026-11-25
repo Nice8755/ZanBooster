@@ -9,9 +9,9 @@
     "notes": "แก้ตัวเลือกในกล่องเลือก (Low / Medium / High) ตัวหนังสือมองไม่เห็น"
   },
   "vip": {
-    "version": "4.11.74",
-    "sha256": "4fc1200b2169329af58af3786d2ddf5dd38cd0814cc6d95202720ad90c121692",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/4567af17384c005c9a0a127e27ca147ad06488d0/ZanBooster.exe",
-    "notes": "สร้างธีมเองและแชร์โค้ดได้, มาสคอต Zan, เสียงตามธีม, กราฟิกเกมปรับแต่งเองมีแถบเลื่อนเหมือนในเกม"
+    "version": "4.11.75",
+    "sha256": "d6d9304877ef201c1921c52f78f42eafc0cc647dbfc4eeca567c1d0f7a8240d7",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/f03e56341c0bbf3362119c0c1b078a664da3365c/ZanBooster.exe",
+    "notes": "แก้ตัวเลือกในกล่องเลือก (Low / Medium / High) ตัวหนังสือมองไม่เห็น"
   }
 }
