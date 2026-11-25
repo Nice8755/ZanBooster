@@ -9,9 +9,9 @@
     "notes": "พรีเซ็ต Zan เลือกได้ 3 ระดับ Low Medium High"
   },
   "vip": {
-    "version": "4.11.58",
-    "sha256": "0870ae04d3380c41780bf9082222c45885a86fda29b1d28b24b2fc57cf1d1c10",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/aa27287758c25b8fef7ee7a5884703f172ba6f9e/ZanBooster.exe",
-    "notes": "ซ่อมเสียงหาเจอง่ายขึ้นในหน้าตรวจเครื่อง"
+    "version": "4.11.60",
+    "sha256": "80dacb54dd581749a6076315d6b2f5f6d5355654ec69b9f097ffee5fdd75c268",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2b277fdc60903ced4df2c46ab95d8dd959094dda/ZanBooster.exe",
+    "notes": "พรีเซ็ต Zan เลือกได้ 3 ระดับ Low Medium High, ปรับพรีเซ็ต Zan ทั้ง 12 โทนให้สวยขึ้น, แก้ ReShade ขึ้น Error สีแดงตอนเปิดเมนู"
   }
 }
