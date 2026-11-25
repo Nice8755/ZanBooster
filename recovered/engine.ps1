@@ -1898,14 +1898,14 @@ function Do-Aff {
         $X = [Runtime.InteropServices.Marshal]; $z = 0; [void][ZC]::GetLogicalProcessorInformationEx(0, [IntPtr]::Zero, [ref]$z); $b = $X::AllocHGlobal($z)
         if ([ZC]::GetLogicalProcessorInformationEx(0, $b, [ref]$z)) { for ($o = 0; $o -lt $z; $o += $X::ReadInt32($b, $o + 4)) { if ($X::ReadInt16($b, $o + 40) -eq 0) { $cores.Add(@{ e = $X::ReadByte($b, $o + 9); m = [string]$X::ReadInt64($b, $o + 32) }) } } }
         $X::FreeHGlobal($b)
-    } catch { }
+    } catch { $ce = "$_" }
     $seen = @{}; $list = [Collections.Generic.List[object]]::new()
     foreach ($p in @(Get-Process -EA 0)) {
         $k = $p.ProcessName
         if ($seen[$k] -or ($p.MainWindowHandle -eq 0 -and -not $r[$k] -and $k -ne 'audiodg') -or $p.Id -eq $PID) { continue }
         try { $list.Add(@{ n = $k; d = [string]$p.Description; a = [string][int64]$p.ProcessorAffinity }); $seen[$k] = 1 } catch { if ($k -eq 'audiodg') { $list.Add(@{ n = $k; a = '' }); $seen[$k] = 1 } }
     }
-    Emit @{ t = 'result'; action = 'Aff'; ok = $true; hit = $script:hit; fail = $fail; all = "$all"; cores = $cores.ToArray(); apps = $list.ToArray(); rules = $r }
+    Emit @{ t = 'result'; action = 'Aff'; ok = $true; hit = $script:hit; fail = $fail; ce = $ce; all = "$all"; cores = $cores.ToArray(); apps = $list.ToArray(); rules = $r }
 }
 
 # ระหว่างเล่น: CPU ถูกจำกัดความเร็วกี่ % (100 = ไม่โดน) และอุณหภูมิ/ลดความเร็วเพราะร้อนของการ์ด NVIDIA

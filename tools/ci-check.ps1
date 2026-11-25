@@ -12,11 +12,12 @@ $t = $null; $e = $null
 if ($e.Count) { throw "engine.ps1: $($e[0])" }
 $f = Join-Path $work 'engine.ps1'
 [IO.File]::WriteAllText($f, $eng, [Text.UTF8Encoding]::new($true))
-foreach ($a in 'Status', 'SysInfo', 'Health', 'FpsScan', 'GfxPlan', 'GfxStatus') {
+foreach ($a in 'Status', 'SysInfo', 'Health', 'FpsScan', 'GfxPlan', 'GfxStatus', 'Aff', 'Heat') {
     $o = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $f -Action $a
     $l = [string]($o | Where-Object { $_ -match '"t":"(result|error)"' } | Select-Object -Last 1)
     if (-not $l -or $l -match '"t":"error"') { throw "engine action $a failed: $l" }
     "engine $a ok"
+    if ($a -in 'Aff', 'Heat') { "  $($l.Substring(0, [math]::Min(400, $l.Length)))" }
 }
 
 # 2) ui.html scripts have no syntax error, changelog is valid JSON

@@ -57,7 +57,8 @@ for ($i = $tk.Count - 2; $i -ge 1; $i--) {
     $e = $t.Extent.EndOffset; $n = 0; while ($e + $n -lt $sq.Length -and $sq[$e + $n] -eq ' ') { $n++ }
     if ($n -and -not $tk[$i + 1].Text.StartsWith('-')) { [void]$sq.Remove($e, $n) }
     $s = $t.Extent.StartOffset; $n = 0; while ($s - $n -gt 0 -and $sq[$s - $n - 1] -eq ' ') { $n++ }
-    if ($n -and -not $tk[$i - 1].Text.StartsWith('-')) { [void]$sq.Remove($s - $n, $n) }
+    $pv = $tk[$i - 1]; $glue = "$($t.Kind)" -in 'LCurly', 'AtCurly' -and "$($pv.Kind)" -notin 'RParen', 'Equals', 'Semi', 'Pipe', 'Comma', 'LCurly', 'RCurly', 'AtCurly' -and -not ($pv.TokenFlags -band [Management.Automation.Language.TokenFlags]::Keyword)
+    if ($n -and -not $glue -and -not $pv.Text.StartsWith('-')) { [void]$sq.Remove($s - $n, $n) }
 }
 $min = $sq.ToString()
 "engine release size: {0:N0} bytes (slot 117,970)" -f $utf8.GetByteCount($min)
