@@ -1992,11 +1992,11 @@ function Do-Dup {
     $f = $false
     try {
         $me = Get-Process -Id (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId
-        $t = "$env:TEMP\zbtray"; $tp = if (Test-Path $t) { [IO.File]::ReadAllText($t) -split ':' } else { @(0, 0) }
-        $o = Get-Process $me.ProcessName -EA 0 | Where-Object { $_.Id -ne $me.Id -and $_.StartTime -lt $me.StartTime.AddSeconds(-5) -and ($_.MainWindowHandle -ne 0 -or "$($_.Id)" -eq $tp[0]) } | Select-Object -First 1
+        $t = "$env:TEMP\zbtray"; $tp = @(0, 0); $tw = [datetime]0; if (Test-Path $t) { $tp = [IO.File]::ReadAllText($t) -split ':'; $tw = (Get-Item $t).LastWriteTime }
+        $o = Get-Process $me.ProcessName -EA 0 | Where-Object { $_.Id -ne $me.Id -and $_.StartTime -lt $me.StartTime.AddSeconds(-5) -and ($_.MainWindowHandle -ne 0 -or ("$($_.Id)" -eq $tp[0] -and $tw -gt $_.StartTime)) } | Select-Object -First 1
         if ($o) { Start-Sleep 1; $o.Refresh() }
         if ($o -and -not $o.HasExited) {
-            $h = [int64]$o.MainWindowHandle; if (-not $h) { $h = [int64]$tp[1] }
+            $h = [int64]$o.MainWindowHandle; if (-not $h -and "$($o.Id)" -eq $tp[0]) { $h = [int64]$tp[1] }
             Add-Type -Name W -Namespace Z -MemberDefinition $ZW
             if ([Z.W]::IsWindow([IntPtr]$h) -and $o.Responding -and (-not [Z.W]::IsWindowVisible([IntPtr]$h) -or [Z.W]::IsIconic([IntPtr]$h))) { if (-not [Z.W]::IsWindowVisible([IntPtr]$h)) { [void][Z.W]::ShowWindowAsync([IntPtr]$h, 6) }; [void][Z.W]::ShowWindowAsync([IntPtr]$h, 9); [void][Z.W]::SetForegroundWindow([IntPtr]$h); $f = $true }
         }
