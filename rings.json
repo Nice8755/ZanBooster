@@ -9,9 +9,9 @@
     "notes": "กราฟิกเกมปรับแต่งเองได้, ReShade ปรับภาพเองพร้อมแบบสมจริง, ปรับความทึบของกล่องได้"
   },
   "vip": {
-    "version": "4.11.68",
-    "sha256": "62aca49c5a8749ebc13dd7e77a9b09f2515178ce2b433e2a434458a0f19586a1",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/997bc1898236155c5aca5841b419a030ca6889e2/ZanBooster.exe",
-    "notes": "ธีมการ์ตูนใหม่ 6 แบบ (POP, KAWAII, TOON, MANGA, SLIME, PIXEL) เปลี่ยนลาย เอฟเฟกต์ และอนิเมชันตามธีม สีพรีเมียมเปลี่ยนตามธีม, ตั้งแกน CPU ตั้งแต่เปิดเครื่องได้"
+    "version": "4.11.71",
+    "sha256": "bb00c2f8f7b1bc0cac0d328e5191537069e2168b52fe2f61f8cd5a343b139a42",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ea3de47ef8873f047d160da2b0aafe0e25343101/ZanBooster.exe",
+    "notes": "กราฟิกเกมปรับแต่งเองได้, ReShade ปรับภาพเองพร้อมแบบสมจริง, ธีมการ์ตูนมีรูปพื้นหลังขยับได้ ปรับความทึบของกล่องได้"
   }
 }
