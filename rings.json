@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.82",
-    "sha256": "c8cd61908ce7d2194f165c05a7930766cf941338459e2e272aadcaf4669eb6c2",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/fbb22aff8349cc1dae5e6e15d9f1b2f31aa45088/ZanBooster.exe",
-    "notes": "เครื่องเล่นเพลง: เอาปุ่มปิดออก กดปุ่มโน้ตเพลงเพื่อพับ/กาง"
+    "version": "4.11.83",
+    "sha256": "7b5ed30cc1198582543f24bc29befbecd25728f612f6c46a7babd8c1bf98e550",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/f99865f2d5a9e37a4eef91abddc6a0a7d18a089f/ZanBooster.exe",
+    "notes": "เพลงเบาลง เปิดโปรแกรมไม่เด้ง ลากเครื่องเล่นเพลงได้"
   },
   "vip": {
     "version": "4.11.80",
