@@ -38,39 +38,41 @@ if ($env:GITHUB_ACTIONS) {
     "  yt search: $($l.Substring(0, [math]::Min(300, $l.Length)))"
 }
 
-# 1d) tray helper (Tray action): hides a real window, puts an icon in the tray, quits when the window comes back
+# 1d) tray helper + Dup on real windows (notepad stands in for the app window)
 if ($env:GITHUB_ACTIONS) {
     $ast = [Management.Automation.Language.Parser]::ParseFile($f, [ref]$null, [ref]$null)
-    $str = $ast.FindAll({ $args[0] -is [Management.Automation.Language.StringConstantExpressionAst] -and $args[0].Value -like 'Add-Type -AssemblyName System.Windows.Forms*' }, $true) | Select-Object -First 1
-    if (-not $str) { throw 'tray script not found in engine' }
-    Add-Type -Name V -Namespace CiTray -MemberDefinition '[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool ShowWindow(IntPtr h,int c);'
+    $cs = { param($w) ($ast.FindAll({ $args[0] -is [Management.Automation.Language.StringConstantExpressionAst] -and $args[0].Value -like $w }, $true) | Select-Object -First 1).Value }
+    $tray = & $cs 'Add-Type -AssemblyName System.Windows.Forms*'; $zw = & $cs '`[DllImport("user32")`]public static extern bool ShowWindowAsync*'
+    if (-not $tray -or -not $zw) { throw 'tray script not found in engine' }
+    Add-Type -Name W -Namespace Z -MemberDefinition $zw
+    $vis = { param($h) [Z.W]::IsWindowVisible([IntPtr]$h) }; $ico = { param($h) [Z.W]::IsIconic([IntPtr]$h) }
     $np = Start-Process notepad.exe -PassThru; Start-Sleep 3; $np.Refresh(); $h = [int64]$np.MainWindowHandle
     if (-not $h) { '  tray: no test window on this runner, skipped' } else {
-        $zw = ($ast.FindAll({ $args[0] -is [Management.Automation.Language.StringConstantExpressionAst] -and $args[0].Value -like '`[DllImport("user32")`]public static extern bool ShowWindow*' }, $true) | Select-Object -First 1).Value
-        $s = $str.Value.Replace('ZBW', $zw).Replace('ZBH', "$h").Replace('ZBE', $np.Path.Replace("'", "''"))
+        $s = $tray.Replace('ZBW', $zw).Replace('ZBH', "$h").Replace('ZBE', $np.Path.Replace("'", "''"))
         $tp = Start-Process powershell.exe -PassThru -WindowStyle Hidden -ArgumentList '-NoProfile', '-STA', '-EncodedCommand', ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($s)))
-        $hid = $false; for ($i = 0; $i -lt 40 -and -not $hid; $i++) { Start-Sleep -Milliseconds 250; $hid = -not [CiTray.V]::IsWindowVisible([IntPtr]$h) }
-        $alive = -not $tp.HasExited
-        "  tray: window hidden=$hid, helper running=$alive"
-        [void][CiTray.V]::ShowWindow([IntPtr]$h, 9); $gone = $tp.WaitForExit(6000)
-        "  tray: window shown again, helper quit by itself=$gone"
+        $min = $false; for ($i = 0; $i -lt 40 -and -not $min; $i++) { Start-Sleep -Milliseconds 250; $min = & $ico $h }
+        Start-Sleep 1; $alive = -not $tp.HasExited; $stillVis = & $vis $h
+        "  tray: minimized=$min, window not hidden=$stillVis, helper running=$alive"
+        [void][Z.W]::ShowWindowAsync([IntPtr]$h, 9); $gone = $tp.WaitForExit(6000)
+        "  tray: window restored, helper quit by itself=$gone"
         if (-not $gone) { try { $tp.Kill() } catch { } }
         try { $np.Kill() } catch { }
-        if (-not ($hid -and $alive -and $gone)) { throw 'tray helper test failed' }
-        # Dup: a second copy (same process name, started later) must bring the hidden first copy back
-        $np = Start-Process notepad.exe -PassThru; Start-Sleep 6; $np.Refresh(); $h = [int64]$np.MainWindowHandle
-        [void][CiTray.V]::ShowWindow([IntPtr]$h, 0); [IO.File]::WriteAllText("$env:TEMP\zbtray", "$($np.Id):$h")
+        if (-not ($min -and $stillVis -and $alive -and $gone)) { throw 'tray helper test failed' }
         $fake = Join-Path $work 'notepad.exe'; Copy-Item "$env:WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" $fake
-        $l = [string](& $fake -NoProfile -Command "& powershell.exe -NoProfile -ExecutionPolicy Bypass -File '$f' -Action Dup" | Where-Object { $_ -match '"t":"result"' } | Select-Object -Last 1)
-        $back = [CiTray.V]::IsWindowVisible([IntPtr]$h); try { $np.Kill() } catch { }; Remove-Item "$env:TEMP\zbtray" -EA 0
-        "  dup: $l, first copy shown again=$back"
-        if ($l -notmatch '"found":true' -or -not $back) { throw 'dup test failed' }
-        # a copy that is open on screen (e.g. the old one closing during an update) must be left alone
-        $np = Start-Process notepad.exe -PassThru; Start-Sleep 6; Remove-Item "$env:TEMP\zbtray" -EA 0
-        $l = [string](& $fake -NoProfile -Command "& powershell.exe -NoProfile -ExecutionPolicy Bypass -File '$f' -Action Dup" | Where-Object { $_ -match '"t":"result"' } | Select-Object -Last 1)
-        try { $np.Kill() } catch { }
-        "  dup (other copy on screen): $l"
-        if ($l -notmatch '"found":false') { throw 'dup must ignore a copy that is on screen' }
+        $dup = { $l = [string](& $fake -NoProfile -Command "& powershell.exe -NoProfile -ExecutionPolicy Bypass -File '$f' -Action Dup" | Where-Object { $_ -match '"t":"result"' } | Select-Object -Last 1); $l }
+        # minimized copy -> brought back
+        $np = Start-Process notepad.exe -PassThru; Start-Sleep 6; $np.Refresh(); $h = [int64]$np.MainWindowHandle; [void][Z.W]::ShowWindowAsync([IntPtr]$h, 6); Start-Sleep 1
+        $l = & $dup; Start-Sleep 1; $back = -not (& $ico $h); try { $np.Kill() } catch { }
+        "  dup (minimized copy): $l, restored=$back"; if ($l -notmatch '"found":true' -or -not $back) { throw 'dup minimized test failed' }
+        # copy hidden by an older version -> closed so the new one can open
+        $np = Start-Process notepad.exe -PassThru; Start-Sleep 6; $np.Refresh(); $h = [int64]$np.MainWindowHandle; [void][Z.W]::ShowWindowAsync([IntPtr]$h, 0); Start-Sleep 1
+        [IO.File]::WriteAllText("$env:TEMP\zbtray", "$($np.Id):$h")
+        $l = & $dup; $closed = $np.WaitForExit(3000); Remove-Item "$env:TEMP\zbtray" -EA 0
+        "  dup (old hidden copy): $l, closed=$closed"; if ($l -notmatch '"found":false' -or -not $closed) { throw 'dup hidden test failed' }
+        # copy open on screen -> left alone
+        $np = Start-Process notepad.exe -PassThru; Start-Sleep 6
+        $l = & $dup; $kept = -not $np.HasExited; try { $np.Kill() } catch { }
+        "  dup (copy on screen): $l, left running=$kept"; if ($l -notmatch '"found":false' -or -not $kept) { throw 'dup on-screen test failed' }
     }
 }
 
