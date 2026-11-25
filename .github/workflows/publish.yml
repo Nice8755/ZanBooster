@@ -67,6 +67,7 @@ jobs:
             $age = ([datetime]::UtcNow - $at).TotalMinutes
             if ($age -gt 30 -or $age -lt -5) { throw "order is $([math]::Round($age)) minutes old, ask the owner again" }
             $s = "$($o.stage)"; $v = "$($o.version)"; $n = "$($o.notes)"; $c = "$($o.confirm)"
+            [IO.File]::WriteAllText("$env:RUNNER_TEMP/discord.txt", "$($o.discord)", [Text.UTF8Encoding]::new($false))
           } else { $s = $env:I_STAGE; $v = $env:I_VERSION; $n = $env:I_NOTES; $c = $env:I_CONFIRM }
           if ($s -notin 'test', 'owner', 'premium', 'everyone') { throw "bad stage" }
           $n = ($n -replace '[\r\n]+', ' ').Trim(); if ($n.Length -gt 500) { $n = $n.Substring(0, 500) }
@@ -154,6 +155,22 @@ jobs:
           }
           git -C main add -A; git -C main commit -m "v${env:VERSION}: release to everyone (binary release)"; git -C main push; if ($LASTEXITCODE) { throw 'push' }
           gh workflow run release.yml --repo $env:REPO --ref main
+
+      # premium / everyone: announce in Discord through the DISCORD_WEBHOOK repository secret (never put the link in the repo)
+      # text = "discord" from publish-request.json, else a short line made from the notes. No @everyone pings.
+      - name: Discord
+        if: steps.q.outputs.stage == 'premium' || steps.q.outputs.stage == 'everyone'
+        continue-on-error: true
+        env:
+          DC_HOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          if (-not $env:DC_HOOK) { 'DISCORD_WEBHOOK secret is not set, nothing posted'; exit 0 }
+          $f = "$env:RUNNER_TEMP/discord.txt"; $t = if (Test-Path $f) { [IO.File]::ReadAllText($f).Trim() } else { '' }
+          if (-not $t) { $who = if ($env:STAGE -eq 'everyone') { 'everyone' } else { 'Premium' }; $t = "**Zan Booster $env:VERSION** ($who)`n$env:NOTES" }
+          if ($t.Length -gt 1900) { $t = $t.Substring(0, 1900) }
+          $b = @{ content = $t; allowed_mentions = @{ parse = @() } } | ConvertTo-Json -Depth 3
+          Invoke-RestMethod -Uri $env:DC_HOOK -Method Post -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($b)) | Out-Null
+          'posted to Discord'
 
       - name: Result
         run: |

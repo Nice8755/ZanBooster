@@ -26,6 +26,7 @@
    - เริ่มงาน: `git fetch origin rebuild-4x` แล้ว merge/reset สาขา `claude/...` ของเซสชันให้ต่อจาก `origin/rebuild-4x`
    - เขียน `publish-request.json` ที่รากของสาขา `claude/...` แล้ว push: `{"stage":"owner","version":"4.11.30","notes":"ข้อความให้ลูกค้าอ่าน","confirm":"","at":"เวลา UTC ตอนนี้ เช่น 2026-11-24T10:00:00Z"}`
    - ขั้น `everyone` ใส่ `"confirm":"YES"` เมื่อเจ้าของสั่งแล้วเท่านั้น `stage":"test"` = ตรวจและสร้างอย่างเดียว
+   - ขั้น `premium` / `everyone` ประกาศลง Discord เองผ่าน secret `DISCORD_WEBHOOK` ใส่ `"discord":"ข้อความประกาศ"` ได้ (ไม่ใส่ = ใช้ notes) ห้ามใส่ลิงก์ webhook ในที่เก็บ
    - GitHub Actions ชื่อ Publish จะตรวจ สร้าง และปล่อยเอง ขั้น owner เอางานเข้า `rebuild-4x` ให้ด้วย รอผลแล้วรายงานตามจริง คำสั่งหมดอายุใน 30 นาที
    - ตรวจผล: อ่าน `rings.json` สาขา rings และ `latest.json` สาขา main
 5. บนคอม: ก่อนเริ่มงาน `git pull` สาขา rebuild-4x ก่อนเสมอ เพราะคลาวด์อาจทำไว้
