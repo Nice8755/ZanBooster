@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.78",
-    "sha256": "bc18f6b47b9c62e9840d041b016dfcc50ad7b9685e5028c9b0cd2f0e747bb536",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/83169ed90ea566b6ae5a4152d5696053e73c30d6/ZanBooster.exe",
-    "notes": "ฟังเพลงในโปรแกรมได้ เล่นจาก YouTube"
+    "version": "4.11.79",
+    "sha256": "a949202ef0759116f8f1fedbf5f5ba278ff13d377ec5572ac1a745517639bc54",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/c5b3b8d33be50c74e58e584e1b26b43d81475032/ZanBooster.exe",
+    "notes": "เพลงเปิดเองตอนเปิดโปรแกรม เล่นวนซ้ำ"
   },
   "vip": {
     "version": "4.11.76",
