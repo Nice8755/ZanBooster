@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.93",
-    "sha256": "2e499c0c222802bb0c3ab44541c3e6d7abede6b5e40fdc22a7b5be384b40db20",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/c6cbe10f690a68a3d2f531b858c81060fb95d1cb/ZanBooster.exe",
-    "notes": "เพลงเล่นต่อตอนเปิดเกมและตอนพับโปรแกรม จนกว่าจะกดหยุดเอง · เอาล็อกเสียงเพลงออก"
+    "version": "4.11.94",
+    "sha256": "804f7e2b2a1fdb7d3c2b7631934a30b4e68bdf0c29244f71ef1b1b4086b8e4fc",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ed202b2af1b2ae34653acec3d5cdb9fad1b9c01f/ZanBooster.exe",
+    "notes": "กดปิดโปรแกรมตอนเพลงเล่นอยู่ เพลงย้ายไปเล่นต่อในเบราว์เซอร์เอง"
   },
   "vip": {
     "version": "4.11.93",
