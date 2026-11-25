@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.60",
-    "sha256": "80dacb54dd581749a6076315d6b2f5f6d5355654ec69b9f097ffee5fdd75c268",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2b277fdc60903ced4df2c46ab95d8dd959094dda/ZanBooster.exe",
-    "notes": "พรีเซ็ต Zan เลือกได้ 3 ระดับ Low Medium High"
+    "version": "4.11.61",
+    "sha256": "f846540655eed78ded72bdd507114ca1fe0b9648e721928385fde12f2a8543bc",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/7f8da365cf6497176c35bc44b88fdfcf62e3e268/ZanBooster.exe",
+    "notes": "เพิ่มแบ่งแกน CPU ในหน้าเครื่องมือ เลือกได้ว่าแต่ละโปรแกรมใช้ P core E core หรือแกนไหนบ้าง"
   },
   "vip": {
     "version": "4.11.60",
