@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.91",
-    "sha256": "a2d2e3c38bd0c55eb474c8ff845f30725f5c5a2fd4f84c58daf904722a2a88fc",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/995ab6710bb2ee9d2b2ab7991f78a13dca564179/ZanBooster.exe",
-    "notes": "เข้าแล้วปิดโปรแกรมเอง รอจนเข้าเซิร์ฟสำเร็จจริงก่อนปิด · ปุ่มลบธีมที่สร้างเองเห็นชัดขึ้น ถามก่อนลบ"
+    "version": "4.11.92",
+    "sha256": "244d87d4974a54f86366e6116f4a2a115628f47fcf59bc95d4ecf11fab96dfa8",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9824199127e7ef8e98a4fa6f01d36e15ed956ff0/ZanBooster.exe",
+    "notes": "เพลงเริ่มที่เสียง 1 ทันที และล็อกเสียงไว้ตลอด ทั้งตอนเพลงและโฆษณา"
   },
   "vip": {
     "version": "4.11.91",
