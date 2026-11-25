@@ -965,6 +965,12 @@ function Do-GfxTune {
 function Do-GfxApply {
     $preset = $Opt
     $GfxPresets = (Get-GfxPlan).presets
+    # ปรับแต่งเอง: รับเฉพาะชื่อค่าที่มีในชุดลื่นสุด และค่าเป็นตัวเลขหรือ true/false
+    if ($preset -eq 'custom') {
+        $c = [ordered]@{}; $pf = $GfxPresets.performance
+        foreach ($kv in $Ids -split ';') { $k, $v = $kv -split '=', 2; if ($pf.Contains($k) -and $v -match '^(\d+(\.\d+)?|true|false)$') { $c[$k] = $(if ($pf[$k] -is [double]) { [double]::Parse($v, [Globalization.CultureInfo]::InvariantCulture) } elseif ($v -match '^\d+$') { [int]$v } else { $v }) } }
+        if ($c.Count) { $GfxPresets.custom = $c }
+    }
     if (-not $GfxPresets.ContainsKey($preset)) { Emit @{ t = 'result'; action = 'GfxApply'; ok = $false; m = 'ไม่รู้จัก preset นี้' }; return }
     if (Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*' }) {
         Emit @{ t = 'result'; action = 'GfxApply'; ok = $false; m = 'ปิด FiveM ก่อน เกมจะเขียนทับไฟล์ตอนปิด' }; return
@@ -1054,6 +1060,31 @@ function Do-RsFix {
     Emit @{ t = 'result'; action = 'RsFix'; ok = $true; n = $n }
 }
 # ระดับพรีเซ็ต Zan: ใส่ ZAN_LEVEL ใน ReShade.ini (ปิดเกมก่อน ReShade เขียนทับตอนปิด)
+# ปรับภาพเอง: เขียนพรีเซ็ต Zan_Custom.ini (ค่าของ ZanGrade) แล้วชี้ ReShade.ini ไปที่ไฟล์นี้ เก็บพรีเซ็ตเดิมไว้คืน
+# Ids set (Opt = Name=ค่า;Name=a/b/c) หรือ off (กลับไปพรีเซ็ตเดิม) · ต้องปิดเกมก่อน
+function Do-RsCustom {
+    $m = ''; $fd = Get-FiveMData; $pl = if ($fd) { Join-Path (Split-Path $fd) 'plugins' }; $ini = if ($pl) { Join-Path $pl 'ReShade.ini' }
+    if (-not $ini -or -not (Test-Path $ini)) { $m = 'noreshade' }
+    elseif (Get-Process FiveM* -EA 0) { $m = 'running' }
+    elseif (-not (Get-ChildItem $pl -Recurse -Filter ZanGrade.fx -EA 0 | Select-Object -First 1)) { $m = 'nozan' }
+    else {
+        $c = Get-Config; $x = [IO.File]::ReadAllText($ini); $f = Join-Path $pl 'Zan_Custom.ini'
+        $cur = [regex]::Match($x, '(?m)^PresetPath=(.*)$').Groups[1].Value.Trim()
+        if ($Ids -eq 'set') {
+            $l = foreach ($kv in $Opt -split ';') { $k, $v = $kv -split '=', 2; if ($k -match '^[A-Za-z]+$' -and $v -match '^-?[\d.]+(/-?[\d.]+){0,2}$') { "$k=$($v.Replace('/', ','))" } }
+            [IO.File]::WriteAllText($f, "Techniques=ZanGrade@ZanGrade.fx`r`nTechniqueSorting=ZanGrade@ZanGrade.fx`r`n`r`n[ZanGrade.fx]`r`n" + ($l -join "`r`n") + "`r`n")
+            if ($cur -notlike '*Zan_Custom.ini') { $c | Add-Member rsPrev $cur -Force; Save-Config $c }
+            $to = $f
+        } else { $to = [string]$c.rsPrev }
+        if ($to -or $Ids -eq 'set' -or $cur -like '*Zan_Custom.ini') {
+            $x = $(if ($x -match '(?m)^PresetPath=') { [regex]::Replace($x, '(?m)^PresetPath=.*$', "PresetPath=$($to.Replace('$', '$$'))") } else { $x -replace '(?m)^\[GENERAL\]\s*$', "[GENERAL]`r`nPresetPath=$to" })
+            [IO.File]::WriteAllText($ini, $x); Write-Log "ReShade preset -> $to"
+        }
+        $m = 'ok'
+    }
+    Emit @{ t = 'result'; action = 'RsCustom'; ok = ($m -eq 'ok'); m = $m }
+}
+
 function Do-RsLevel {
     $ok = $false; $fd = Get-FiveMData; $p = if ($fd) { Join-Path (Split-Path $fd) 'plugins\ReShade.ini' }
     if ($p -and (Test-Path $p) -and -not (Get-Process FiveM*)) {
@@ -1965,6 +1996,7 @@ try {
     'OvOff'      { Do-OvOff }
     'RsFix'      { Do-RsFix }
     'RsLevel'    { Do-RsLevel }
+    'RsCustom'   { Do-RsCustom }
     'AudioFix'   { Do-AudioFix }
     'TestRole'   { Do-TestRole }
     'BoostNow'   { Do-BoostNow }
