@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.89",
-    "sha256": "2f56ccfb00ca126bf6216dabb86dcd9d70b586a1dc866530b59f527f6d231fa5",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/db35674da2d2df63eb356fbab3401ab5606e4462/ZanBooster.exe",
-    "notes": "เล่นเพลงต่อตอนปิดโปรแกรมได้จริง (เปิดในเบราว์เซอร์)"
+    "version": "4.11.90",
+    "sha256": "cc9d116ef9d5ac474c1e8980ac2f3864a6f88f2b2d31f438c1c7889a481d5570",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/305e08cc09aa2c1816c2e17340b5cfba0ca9aaa2/ZanBooster.exe",
+    "notes": "แก้บูสต์ไม่ถึง 100% ติดข้อ priority FiveM"
   },
   "vip": {
     "version": "4.11.89",
