@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.79",
-    "sha256": "a949202ef0759116f8f1fedbf5f5ba278ff13d377ec5572ac1a745517639bc54",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/c5b3b8d33be50c74e58e584e1b26b43d81475032/ZanBooster.exe",
-    "notes": "เพลงเปิดเองตอนเปิดโปรแกรม เล่นวนซ้ำ"
+    "version": "4.11.80",
+    "sha256": "33453a840c5d58fd50e4f8eab44963f6d12562370efe526a173742736b511a75",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/1e1a08dbd9913a13f4ca5e7937bec3e53a9145dc/ZanBooster.exe",
+    "notes": "เพิ่มเพลงของตัวเองได้ วนเฉพาะเพลงของคุณ, ธีม PIXEL เด้งลื่นขึ้น"
   },
   "vip": {
     "version": "4.11.76",
