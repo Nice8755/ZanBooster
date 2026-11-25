@@ -989,5 +989,12 @@
 "ควัน/ประกายไฟ": "Particles",
 "คน/รถในเมือง": "City density",
 "เลือกแบบเริ่มต้นแล้วเลื่อนปรับได้ตามชอบ ยังไม่มีผลจนกด": "Pick a starting look, then adjust. Nothing changes until you press",
-"· ปิดเกมก่อนกด · ต้องเคยกดพรีเซ็ต Zan สักครั้ง": "· close the game first · press any Zan preset once before"
+"· ปิดเกมก่อนกด · ต้องเคยกดพรีเซ็ต Zan สักครั้ง": "· close the game first · press any Zan preset once before",
+"กด ▶ เพื่อเล่นเพลงจาก YouTube": "Press ▶ to play music from YouTube",
+"วางลิงก์ YouTube หรือเพลย์ลิสต์": "Paste a YouTube link or playlist",
+"เล่นจาก YouTube · หยุดเองตอนเกมเปิด ·": "Plays from YouTube · pauses when the game starts ·",
+"เปิดใน YouTube": "Open in YouTube",
+"ลิงก์นี้ไม่ใช่ลิงก์ YouTube": "This is not a YouTube link",
+"คลิปนี้เจ้าของไม่ให้เล่นนอก YouTube ·": "The owner doesn't allow this video outside YouTube ·",
+"ปิดและหยุดเพลง": "Close and stop music"
 }
