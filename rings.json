@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.87",
-    "sha256": "262b9f02535517413c4eaaab0023fdcd64434965fb2a55e4a30b96b4bf641fbc",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/e087a6f4ec848430b09c040e16ca64b1508cc6b7/ZanBooster.exe",
-    "notes": "ค้นหาเพลงจาก YouTube, เพลงเสียงเบาลง"
+    "version": "4.11.88",
+    "sha256": "c14e15b0d28c8f5fdd1ef9da8b8d22d8960b7f65abd99a2d89960c282afcc316",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/17705855c6365306c7aef2b648daf5dfb471e27c/ZanBooster.exe",
+    "notes": "เพลงเริ่ม 1% ค่อย ๆ ดังขึ้น, เลือกเล่นต่อตอนปิดหน้าโปรแกรมได้"
   },
   "vip": {
     "version": "4.11.87",
