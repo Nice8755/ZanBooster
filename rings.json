@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.03",
-    "sha256": "59464d7238fa2a26f18dd57c24a046937d90ee21659a96c7afd39d079f7cec53",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/20a30491f4c1be36dca3a48cd22c674b1dd70f17/ZanBooster.exe",
-    "notes": "หน้าเปิดโปรแกรมใหม่ สีเดียวกับไอคอนโปรแกรม"
+    "version": "4.12.04",
+    "sha256": "8fde8ef2a921436425bfd650f2e0813f3c20429b8457514220b422d18b495c5a",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/00942fee8671f171f6ef41666438bb4cb4a1d802/ZanBooster.exe",
+    "notes": "แก้เปิดโปรแกรมแล้วค้างหน้าโลโก้"
   },
   "vip": {
     "version": "4.12.02",
