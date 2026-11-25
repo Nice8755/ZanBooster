@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.76",
-    "sha256": "b8c3cce3a8c0fdaa7445d90db0c2de15432ae4661e1ea1c20f0f077edafa7853",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/dca772f22d2f20f591a9dc3ef520aa8bae7b18ac/ZanBooster.exe",
-    "notes": "หน้าหลักมีการ์ดพร้อมเล่น เก็บรายละเอียดหน้าตาทั้งโปรแกรม"
+    "version": "4.11.77",
+    "sha256": "77b15905f8d90fc89c7c462032ff55e0a97a169aa02c9f8b108cec6f0d1d845f",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/4067db18ca3a0df93f363218d2cb0e2008eb5393/ZanBooster.exe",
+    "notes": "หน้าหลักพอดีจอ ไม่ต้องเลื่อน"
   },
   "vip": {
     "version": "4.11.76",
