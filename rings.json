@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.63",
-    "sha256": "14b8cb10f51f9d4a9fcff53daa13793226e045f0d3646cdf8db2b7f36bc09240",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/afa07ff0c7ad2016ea932d2c18e9e2a8d06dec2b/ZanBooster.exe",
-    "notes": "ตรวจเครื่องบอกถ้าการ์ดจอวิ่งไม่เต็มเลน, โหมดเล่นเกมเตือนถ้า CPU หรือการ์ดจอร้อนจนลดความเร็ว"
+    "version": "4.11.64",
+    "sha256": "4560af481b5b4b4fd28379e9b9c36e4ef77f108ee23edc15e07cb926b63414c0",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9546ef4da647f050ec2d0bc38eaec77279f1280a/ZanBooster.exe",
+    "notes": "หน้าแกน CPU ปุ่มเลขแกนขึ้นทุกเครื่อง และวัด FPS ในเกมเทียบแกนแบบเดิมกับแบบใหม่ได้, ตรวจเครื่องบอกถ้าการ์ดจอวิ่งไม่เต็มเลน, โหมดเล่นเกมเตือนเมื่อร้อนจนลดความเร็ว"
   },
   "vip": {
     "version": "4.11.61",
