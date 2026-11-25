@@ -9,9 +9,9 @@
     "notes": "ธีมการ์ตูนใหม่ 6 แบบ เปลี่ยนลาย เอฟเฟกต์ และอนิเมชันตามธีม สีพรีเมียมเปลี่ยนตามธีมด้วย"
   },
   "vip": {
-    "version": "4.11.64",
-    "sha256": "4560af481b5b4b4fd28379e9b9c36e4ef77f108ee23edc15e07cb926b63414c0",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9546ef4da647f050ec2d0bc38eaec77279f1280a/ZanBooster.exe",
-    "notes": "เพิ่มหน้าแกน CPU เลือกแกนให้แต่ละโปรแกรมได้ (รวมเสียง Windows แก้ไมค์กระตุก) วัด FPS เทียบได้, ตรวจเครื่องบอกถ้าการ์ดจอวิ่งไม่เต็มเลน, โหมดเล่นเกมเตือนเมื่อร้อนจนลดความเร็ว"
+    "version": "4.11.68",
+    "sha256": "62aca49c5a8749ebc13dd7e77a9b09f2515178ce2b433e2a434458a0f19586a1",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/997bc1898236155c5aca5841b419a030ca6889e2/ZanBooster.exe",
+    "notes": "ธีมการ์ตูนใหม่ 6 แบบ (POP, KAWAII, TOON, MANGA, SLIME, PIXEL) เปลี่ยนลาย เอฟเฟกต์ และอนิเมชันตามธีม สีพรีเมียมเปลี่ยนตามธีม, ตั้งแกน CPU ตั้งแต่เปิดเครื่องได้"
   }
 }
