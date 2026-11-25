@@ -158,3 +158,101 @@ heart = ['.XX.XX.', 'XXXXXXX', 'XXXXXXX', '.XXXXX.', '..XXX..', '...X...']
 b += '<g class="hb">' + px(heart, 140, 560, {'X': '#ff3d6b'}, 14) + '</g>'
 save('pixel.svg', svg(b, '', css, ' shape-rendering="crispEdges"'))
 print('ok')
+
+# ================= ธีมเทศกาล (ขึ้นเองตามช่วงวันที่ใน themes/themes.json) =================
+# ยังไม่เปิดใช้: สร้างเฉพาะตอนสั่ง python3 tools/make-theme-art.py --season แล้วเพิ่มใน themes.json เอง
+import sys
+if '--season' not in sys.argv: raise SystemExit
+random.seed(11)
+# ---- SONGKRAN: water splashes, elephant spraying water, flowers
+d = '<linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d3b66"/><stop offset="1" stop-color="#1aa7ec"/></linearGradient>'
+css = '.drop{animation:drop 2.2s ease-in infinite}@keyframes drop{0%{transform:translate(0,0);opacity:0}10%{opacity:1}100%{transform:translate(-260px,260px);opacity:0}}.trunk{transform-origin:1290px 640px;animation:trunk 1.8s ease-in-out infinite alternate}@keyframes trunk{to{transform:rotate(-8deg)}}.fl{transform-box:fill-box;transform-origin:center;animation:fl 6s linear infinite}@keyframes fl{to{transform:rotate(360deg)}}.wave{animation:wave 3s ease-in-out infinite alternate}@keyframes wave{to{transform:translateX(-60px)}}'
+b = '<rect width="1600" height="1000" fill="url(#s)"/>' + stars(40, '#bdf2ff', 2, 0, 500)
+for i in range(4):
+    b += f'<path class="wave" style="animation-delay:-{i*.7:.1f}s" d="M-100,{820 + i*45} q100,-40 200,0 t200,0 t200,0 t200,0 t200,0 t200,0 t200,0 t200,0 t200,0 V1000 H-100Z" fill="{["#1fb6ff","#22c8ff","#5fd6ff","#9be7ff"][i]}" opacity="{.5 + i*.12:.2f}"/>'
+b += '''<g fill="#9aa6b8" stroke="#2b3445" stroke-width="7"><ellipse cx="1380" cy="700" rx="200" ry="140"/><circle cx="1240" cy="600" r="110"/>
+<rect x="1290" y="780" width="50" height="90" rx="18"/><rect x="1430" y="780" width="50" height="90" rx="18"/><path d="M1180,560 q-80,20 -60,140 q20,60 70,30" fill="#c9d2e0"/></g>
+<g class="trunk"><path d="M1170,650 q-90,30 -110,-60 q-10,-50 30,-70" fill="none" stroke="#2b3445" stroke-width="44" stroke-linecap="round"/><path d="M1170,650 q-90,30 -110,-60 q-10,-50 30,-70" fill="none" stroke="#9aa6b8" stroke-width="30" stroke-linecap="round"/></g>
+<circle cx="1215" cy="575" r="14" fill="#2b3445"/><circle cx="1220" cy="570" r="5" fill="#fff"/><path d="M1250,520 q30,-30 60,0" fill="none" stroke="#ff6fb5" stroke-width="10"/>'''
+for i in range(18):
+    x = 1080 + random.randint(-40, 40); y = 500 + random.randint(-40, 40)
+    b += f'<g transform="translate({x} {y})"><circle class="drop" style="animation-delay:-{random.uniform(0,2.2):.2f}s" r="{random.randint(7,14)}" fill="#e6fbff"/></g>'
+for i in range(9):
+    x, y = random.randint(60, 900), random.randint(80, 700)
+    pet = ''.join(f'<ellipse cx="0" cy="-22" rx="11" ry="20" fill="{random.choice(["#ffd84d","#ff6fb5","#fff"])}" transform="rotate({a})"/>' for a in range(0, 360, 60))
+    b += f'<g transform="translate({x} {y}) scale({random.uniform(.6,1.2):.2f})"><g class="fl" style="animation-delay:-{random.uniform(0,6):.1f}s">{pet}<circle r="10" fill="#ffb02e"/></g></g>'
+b += '<text x="120" y="900" font-family="Leelawadee UI,Tahoma,sans-serif" font-weight="900" font-size="120" fill="#fff" stroke="#0d3b66" stroke-width="8" paint-order="stroke">สุขสันต์วันสงกรานต์</text>'
+save('songkran.svg', svg(b, d, css))
+
+# ---- LOY KRATHONG: full moon, river, krathongs floating, lanterns rising
+d = '<linearGradient id="n" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070b24"/><stop offset=".62" stop-color="#1a1f5a"/><stop offset=".63" stop-color="#0b1440"/><stop offset="1" stop-color="#050a26"/></linearGradient><radialGradient id="mg"><stop offset="0" stop-color="#fff7d6"/><stop offset=".7" stop-color="#ffe9a3"/><stop offset="1" stop-color="#ffd76a" stop-opacity="0"/></radialGradient><radialGradient id="fl"><stop offset="0" stop-color="#fff2b0"/><stop offset="1" stop-color="#ff9d2e" stop-opacity="0"/></radialGradient>'
+css = '.kr{animation:kr 22s linear infinite}@keyframes kr{from{transform:translateX(-200px)}to{transform:translateX(1900px)}}.bob{animation:bob 2s ease-in-out infinite alternate}@keyframes bob{to{transform:translateY(-8px)}}.ln{animation:ln 14s linear infinite}@keyframes ln{0%{transform:translateY(0);opacity:0}8%{opacity:1}100%{transform:translateY(-760px);opacity:0}}.fk{animation:fk .5s steps(2) infinite}@keyframes fk{50%{opacity:.6}}.rf{animation:rf 4s ease-in-out infinite alternate}@keyframes rf{to{opacity:.35;transform:scaleX(1.2)}}'
+b = '<rect width="1600" height="1000" fill="url(#n)"/>' + stars(110, '#fff', 2, 0, 560)
+b += '<circle cx="1200" cy="230" r="190" fill="url(#mg)"/><circle cx="1200" cy="230" r="120" fill="#fff7d6"/>'
+b += '<g class="rf" style="transform-origin:1200px 760px">' + ''.join(f'<rect x="{1200 - w // 2}" y="{640 + i * 26}" width="{w}" height="6" rx="3" fill="#ffe9a3" opacity=".35"/>' for i, w in enumerate([170, 120, 150, 90, 130, 70, 100, 50, 80, 40, 60, 30])) + '</g>'
+for i in range(6):
+    b += f'<path d="M0,{690+i*55} q400,-14 800,0 t800,0" stroke="#5b6cff" stroke-width="2" opacity=".25" fill="none"/>'
+def krathong(s):
+    return f'''<g transform="scale({s})"><g class="bob"><path d="M-70,0 q70,40 140,0 l-12,-26 h-116z" fill="#3fae5a" stroke="#1d5b2e" stroke-width="4"/>
+{''.join(f'<path d="M{x},-26 q8,-34 16,0z" fill="#ff8fc7" stroke="#b33b7a" stroke-width="2"/>' for x in range(-56, 56, 16))}
+<rect x="-3" y="-80" width="6" height="40" fill="#fff2cc"/><circle class="fk" cx="0" cy="-86" r="9" fill="#ffd34d"/><circle cx="0" cy="-86" r="30" fill="url(#fl)"/></g></g>'''
+for i, (y, s, dl_) in enumerate([(760, 1, 0), (830, .8, 7), (900, 1.15, 14), (720, .6, 18)]):
+    b += f'<g transform="translate(0 {y})"><g class="kr" style="animation-delay:-{dl_}s">{krathong(s)}</g></g>'
+for i in range(10):
+    x = random.randint(80, 1520); y = random.randint(500, 900)
+    b += f'<g transform="translate({x} {y}) scale({random.uniform(.5,1):.2f})"><g class="ln" style="animation-delay:-{random.uniform(0,14):.1f}s"><circle r="40" fill="url(#fl)"/><path d="M-16,-22 h32 l6,40 h-44z" fill="#ffb347" opacity=".95"/><rect x="-10" y="18" width="20" height="5" fill="#ffd76a"/></g></g>'
+b += '<text x="110" y="200" font-family="Leelawadee UI,Tahoma,sans-serif" font-weight="900" font-size="110" fill="#ffe9a3" opacity=".9">ลอยกระทง</text>'
+save('loykrathong.svg', svg(b, d, css))
+
+# ---- HALLOWEEN
+d = '<radialGradient id="h" cx=".75" cy=".25" r=".9"><stop offset="0" stop-color="#ff8a1f"/><stop offset=".35" stop-color="#5a1d6e"/><stop offset="1" stop-color="#12061f"/></radialGradient>'
+css = '.bat{animation:bat 9s linear infinite}@keyframes bat{from{transform:translate(-200px,0)}50%{transform:translate(900px,-80px)}to{transform:translate(1900px,20px)}}.wing{transform-box:fill-box;transform-origin:center;animation:wing .25s steps(2) infinite}@keyframes wing{50%{transform:scaleY(.4)}}.glow{animation:glow 1.2s ease-in-out infinite alternate}@keyframes glow{to{opacity:.55}}.gh{animation:gh 3s ease-in-out infinite alternate}@keyframes gh{to{transform:translateY(-30px)}}'
+b = '<rect width="1600" height="1000" fill="url(#h)"/>' + stars(60, '#ffd9b0', 2, 0, 500)
+b += '<circle cx="1220" cy="240" r="150" fill="#ffd29a"/><circle cx="1260" cy="220" r="150" fill="#ff9a3c" opacity=".25"/>'
+b += '<path d="M0,1000 V800 Q200,700 400,820 T800,790 T1200,830 T1600,780 V1000Z" fill="#0b0414"/>'
+b += '<path d="M150,820 l20,-260 l-60,-40 m60,40 l70,-60 m-70,60 l10,-120 m-10,120 l-90,-10" stroke="#0b0414" stroke-width="18" fill="none" stroke-linecap="round"/>'
+def pumpkin(x, y, s):
+    return f'''<g transform="translate({x} {y}) scale({s})"><ellipse cx="-50" cy="0" rx="60" ry="70" fill="#ff7a1a" stroke="#5a2a00" stroke-width="6"/><ellipse cx="50" cy="0" rx="60" ry="70" fill="#ff7a1a" stroke="#5a2a00" stroke-width="6"/><ellipse cx="0" cy="0" rx="62" ry="78" fill="#ff8c2a" stroke="#5a2a00" stroke-width="6"/>
+<rect x="-8" y="-100" width="16" height="30" fill="#3d6b1e"/><g class="glow"><path d="M-50,-20 l20,-25 l20,25z M10,-20 l20,-25 l20,25z" fill="#ffe14d"/><path d="M-55,20 q55,45 110,0 l-15,10 l-12,-10 l-12,12 l-14,-12 l-14,12 l-12,-12 l-13,10z" fill="#ffe14d"/></g></g>'''
+b += pumpkin(1180, 850, 1.3) + pumpkin(1420, 880, .9) + pumpkin(900, 900, .7)
+for i in range(5):
+    y = random.randint(150, 500)
+    b += f'<g transform="translate(0 {y}) scale({random.uniform(.6,1.1):.2f})"><g class="bat" style="animation-delay:-{random.uniform(0,9):.1f}s"><path class="wing" d="M0,0 q-30,-30 -60,-10 q20,0 20,15 q-10,0 -20,10 q30,-5 60,5 q30,-10 60,-5 q-10,-10 -20,-10 q0,-15 20,-15 q-30,-20 -60,10z" fill="#0b0414"/></g></g>'
+b += '<g class="gh"><path d="M560,600 q0,-120 90,-120 q90,0 90,120 v90 l-30,-20 l-30,20 l-30,-20 l-30,20 l-30,-20 l-30,20z" fill="#f4f0ff" opacity=".9"/><circle cx="620" cy="560" r="12" fill="#12061f"/><circle cx="680" cy="560" r="12" fill="#12061f"/><ellipse cx="650" cy="600" rx="12" ry="16" fill="#12061f"/></g>'
+save('halloween.svg', svg(b, d, css))
+
+# ---- CHRISTMAS
+d = '<linearGradient id="x" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a1a3a"/><stop offset="1" stop-color="#1f3f73"/></linearGradient>'
+css = '.sn{animation:sn 8s linear infinite}@keyframes sn{from{transform:translateY(-60px)}to{transform:translateY(1060px)}}.bl{animation:bl 1.4s steps(2) infinite}@keyframes bl{50%{opacity:.25}}.star{transform-box:fill-box;transform-origin:center;animation:star 3s ease-in-out infinite alternate}@keyframes star{to{transform:scale(1.2) rotate(15deg)}}'
+b = '<rect width="1600" height="1000" fill="url(#x)"/>' + stars(50, '#fff', 1.8, 0, 600)
+b += '<path d="M0,1000 V840 Q400,760 800,840 T1600,820 V1000Z" fill="#eef5ff"/><path d="M0,1000 V900 Q500,830 1000,900 T1600,890 V1000Z" fill="#dbe8fb"/>'
+b += '<g transform="translate(1250 860)"><rect x="-26" y="-30" width="52" height="60" fill="#6b3d1e"/>' + ''.join(f'<path d="M{-w},{-y} L0,{-y-170} L{w},{-y}Z" fill="#1f8a4c" stroke="#0e5a2e" stroke-width="6"/>' for w, y in [(220, 30), (180, 150), (140, 270)]) + '<path class="star" d="M0,-515 l18,36 40,6 -29,28 7,40 -36,-19 -36,19 7,-40 -29,-28 40,-6z" fill="#ffd34d" stroke="#b8860b" stroke-width="4"/>'
+for i in range(26):
+    a = random.uniform(-1, 1); yy = random.randint(60, 420); xx = a * (220 - yy * .4)
+    b += f'<circle class="bl" style="animation-delay:-{random.uniform(0,1.4):.2f}s" cx="{xx:.0f}" cy="{-yy}" r="11" fill="{random.choice(["#ff3b3b","#ffd34d","#4dd2ff","#ff6fb5"])}"/>'
+b += '</g>'
+b += '<g transform="translate(300 860)"><circle r="80" fill="#fff" stroke="#c9d8ee" stroke-width="5"/><circle cy="-120" r="55" fill="#fff" stroke="#c9d8ee" stroke-width="5"/><circle cx="-18" cy="-130" r="7" fill="#1a1a2e"/><circle cx="18" cy="-130" r="7" fill="#1a1a2e"/><path d="M0,-118 l40,8 l-40,6z" fill="#ff7a1a"/><path d="M-50,-160 h100 l-20,-60 h-60z" fill="#1a1a2e"/><path d="M-60,-80 q60,30 120,0 l-10,20 q-50,20 -100,0z" fill="#ff3b3b"/></g>'
+for i in range(70):
+    b += f'<circle class="sn" style="animation-delay:-{random.uniform(0,8):.2f}s;animation-duration:{random.uniform(6,12):.1f}s" cx="{random.randint(0,1600)}" cy="0" r="{random.uniform(2,6):.1f}" fill="#fff" opacity="{random.uniform(.5,1):.2f}"/>'
+b += '<text x="560" y="200" font-family="Georgia,serif" font-style="italic" font-weight="700" font-size="110" fill="#ffd34d">Merry Christmas</text>'
+save('christmas.svg', svg(b, d, css))
+
+# ---- NEW YEAR: fireworks over city
+d = '<linearGradient id="y" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05030f"/><stop offset="1" stop-color="#241047"/></linearGradient>'
+css = '.fw{transform-box:fill-box;transform-origin:center;animation:fw 2.6s ease-out infinite}@keyframes fw{0%{transform:scale(.05);opacity:0}10%{opacity:1}70%{opacity:1}100%{transform:scale(1.1);opacity:0}}.win{animation:win 4s steps(1) infinite}@keyframes win{60%{opacity:.2}}'
+b = '<rect width="1600" height="1000" fill="url(#y)"/>' + stars(80, '#fff', 1.8, 0, 600)
+for i, (x, y, c, r) in enumerate([(300, 260, '#ffd34d', 170), (800, 180, '#ff4dd2', 210), (1300, 280, '#4dd2ff', 180), (560, 420, '#7bff5c', 120), (1080, 470, '#ff7a3d', 130)]):
+    rays = ''.join(f'<line x1="0" y1="0" x2="{r*math.cos(a):.0f}" y2="{r*math.sin(a):.0f}" stroke="{c}" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 14"/>' for a in [k*2*math.pi/28 for k in range(28)])
+    b += f'<g transform="translate({x} {y})"><g class="fw" style="animation-delay:-{i*0.55:.2f}s">{rays}<circle r="10" fill="#fff"/></g></g>'
+x = 0; sky = ''; win = ''
+while x < 1600:
+    w = random.randint(60, 130); h = random.randint(140, 340)
+    sky += f'<rect x="{x}" y="{1000-h}" width="{w}" height="{h}" fill="#0b0618"/>'
+    for wy in range(1000 - h + 20, 990, 32):
+        for wx in range(x + 12, x + w - 14, 26):
+            if random.random() < .35: win += f'<rect{" class=\"win\"" + dl() if random.random() < .15 else ""} x="{wx}" y="{wy}" width="10" height="14" fill="#ffd76a"/>'
+    x += w + 4
+b += sky + win
+b += '<text x="800" y="680" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="150" fill="#fff" stroke="#ff4dd2" stroke-width="6" paint-order="stroke">HAPPY NEW YEAR</text>'
+save('newyear.svg', svg(b, d, css))
+print('season ok')
