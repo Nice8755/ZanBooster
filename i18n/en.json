@@ -1004,5 +1004,6 @@
 "ยังไม่มีเพลงของคุณ ตอนนี้เล่นเพลงของโปรแกรม": "No songs of yours yet, playing the app's songs",
 "กลับไปใช้เพลงของโปรแกรม": "Back to the app's songs",
 "เล่นอัตโนมัติตอนเปิดโปรแกรม": "Play automatically when the app opens",
-"เพิ่มเพลงแล้ว ตอนนี้เล่นเฉพาะเพลงของคุณ": "Song added, only your songs play now"
+"เพิ่มเพลงแล้ว ตอนนี้เล่นเฉพาะเพลงของคุณ": "Song added, only your songs play now",
+"เล่นต่อตอนปิดหน้าโปรแกรม": "Keep playing when the window is closed"
 }
