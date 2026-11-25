@@ -14,7 +14,7 @@ $ui = $ui.Substring(0, $a) + "if (!NATIVE) {" + $ui.Substring($b + 1)
 $ui = ($ui.Split("`n") | ForEach-Object { $_.TrimStart(' ') } | Where-Object { $_ -ne '' -and $_ -notmatch '^//' -and $_ -notmatch '^/\*[^*]*\*/$' }) -join "`n"
 # drop Thai comments at the end of script lines after ; { } ) , when the code part has no open quote (release copy only, node checks it below)
 $ui = ($ui.Split("`n") | ForEach-Object {
-    $m = [regex]::Match($_, '^(.*[;{}),])\s+// [^\n]*[฀-๿][^\n]*$')
+    $m = [regex]::Match($_, '^(.*[;{}),])\s+// [^\n]*[\u0E00-\u0E7F][^\n]*$')
     if ($m.Success -and -not ((@($m.Groups[1].Value.ToCharArray() | Where-Object { $_ -in [char]39, [char]34, [char]96 } | Group-Object | Where-Object { $_.Count % 2 }).Count))) { $m.Groups[1].Value } else { $_ }
 }) -join "`n"
 # compact the stylesheet: comments, line breaks, spaces around braces (release copy only)
