@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.98",
-    "sha256": "7e42f81bf439b3c7638321622a4cf625c9b368d3ca9afda7082a28a3fbb5aee3",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6ee7fd0f26134458de3602180dd1bc7625e0d04c/ZanBooster.exe",
-    "notes": "เปิดโปรแกรมซ้ำไม่ได้แล้ว ถ้าซ่อนอยู่ที่ถาดหรือพับอยู่ กดเปิดอีกครั้งจะดึงตัวเดิมขึ้นมา"
+    "version": "4.11.99",
+    "sha256": "c7ee52a09a2d9a2eeec1c7d7403ebb4183c75c0a2f5b39b833ce03f79484f046",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/cf5a9412efe0ffc3a41cf5531a2a8d25fb38b3b0/ZanBooster.exe",
+    "notes": "แก้หน้าต่างดำว่างเปล่าตอนเปิดกลับมาจากถาดข้างนาฬิกา"
   },
   "vip": {
     "version": "4.11.98",
