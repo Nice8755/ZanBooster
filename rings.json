@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.71",
-    "sha256": "bb00c2f8f7b1bc0cac0d328e5191537069e2168b52fe2f61f8cd5a343b139a42",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ea3de47ef8873f047d160da2b0aafe0e25343101/ZanBooster.exe",
-    "notes": "กราฟิกเกมปรับแต่งเองได้, ReShade ปรับภาพเองพร้อมแบบสมจริง, ปรับความทึบของกล่องได้"
+    "version": "4.11.72",
+    "sha256": "7bb181e35cd91c403eedad2184b666b2306c0d5450ca71921ae3e1616f207347",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/867a43b2c77f8f570292ef5d5ac501b285c84e47/ZanBooster.exe",
+    "notes": "กราฟิกเกมปรับแต่งเอง มีชื่อภาษาอังกฤษตามเมนูในเกม"
   },
   "vip": {
     "version": "4.11.71",
