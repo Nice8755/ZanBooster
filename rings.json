@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.67",
-    "sha256": "7ef26ed1485b45cf284bf8c158f5fc548ba4e3f07caa6d82177a57ca7c08cc28",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/d2b1eb89b46829a995cb9c4bf219eee0b9a80c40/ZanBooster.exe",
-    "notes": "ธีมการ์ตูนใหม่ 6 แบบ: POP, KAWAII, TOON, MANGA, SLIME, PIXEL เปลี่ยนลาย เอฟเฟกต์ตอนกด และอนิเมชันตามธีม"
+    "version": "4.11.68",
+    "sha256": "62aca49c5a8749ebc13dd7e77a9b09f2515178ce2b433e2a434458a0f19586a1",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/997bc1898236155c5aca5841b419a030ca6889e2/ZanBooster.exe",
+    "notes": "ธีมการ์ตูนใหม่ 6 แบบ เปลี่ยนลาย เอฟเฟกต์ และอนิเมชันตามธีม สีพรีเมียมเปลี่ยนตามธีมด้วย"
   },
   "vip": {
     "version": "4.11.64",
