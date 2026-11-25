@@ -1006,5 +1006,9 @@
 "เล่นอัตโนมัติตอนเปิดโปรแกรม": "Play automatically when the app opens",
 "เพิ่มเพลงแล้ว ตอนนี้เล่นเฉพาะเพลงของคุณ": "Song added, only your songs play now",
 "เล่นต่อตอนปิดโปรแกรม (เปิดในเบราว์เซอร์)": "Keep playing after closing the app (opens in your browser)",
-"เปิดเพลงในเบราว์เซอร์แล้ว ปิดโปรแกรมได้ เพลงเล่นต่อ (ปิดแท็บนั้นเพื่อหยุด)": "Music opened in your browser. You can close the app, it keeps playing (close that tab to stop)"
+"เปิดเพลงในเบราว์เซอร์แล้ว ปิดโปรแกรมได้ เพลงเล่นต่อ (ปิดแท็บนั้นเพื่อหยุด)": "Music opened in your browser. You can close the app, it keeps playing (close that tab to stop)",
+"ลบธีมนี้": "Delete this theme",
+"ลบธีม": "Delete theme",
+"ลบเลย": "Delete",
+"✓ เข้าเซิร์ฟสำเร็จ ปิดโปรแกรมตามที่ตั้งไว้": "✓ Joined the server, closing the app as set"
 }

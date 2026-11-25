@@ -1984,6 +1984,21 @@ function Do-YtSearch {
     Emit @{ t = 'result'; action = 'YtSearch'; ok = ($o.Count -gt 0); items = $o.ToArray(); m = $e }
 }
 
+# เข้าแล้วปิดโปรแกรม: ดูว่า FiveM เข้าเซิร์ฟสำเร็จหรือยัง (บรรทัด connectOK ใน log หลังผ่านหน้ายืนยันของเซิร์ฟ) อ่านอย่างเดียว ไม่แตะเกม
+# Opt = ตำแหน่งในไฟล์ที่อ่านไปแล้ว คืน n = ขนาดไฟล์ตอนนี้, f = ชื่อไฟล์ log ล่าสุด, hit = เจอ connectOK หลังตำแหน่งนั้น
+function Do-JoinWait {
+    $n = -1; $hit = $false; $nm = ''
+    try {
+        $lg = Get-ChildItem (Join-Path (Split-Path (Get-FiveMData)) 'logs') -Filter 'CitizenFX_log*' -EA 0 | Sort-Object LastWriteTime | Select-Object -Last 1
+        if ($lg) {
+            $fs = [IO.File]::Open($lg.FullName, 'Open', 'Read', 'ReadWrite'); $n = $fs.Length; $nm = $lg.Name
+            if ($Opt -match '^\d+$' -and [int64]$Opt -lt $n) { $fs.Position = [int64]$Opt; $hit = [IO.StreamReader]::new($fs).ReadToEnd() -match '(?i)connectOK' }
+            $fs.Close()
+        }
+    } catch { }
+    Emit @{ t = 'result'; action = 'JoinWait'; ok = ($n -ge 0); n = $n; f = $nm; hit = $hit }
+}
+
 function Do-BoostNow {
     $procs = @(Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*GTAProcess' })
     if ($procs.Count -eq 0) { Emit @{ t = 'result'; action = 'BoostNow'; ok = $false; m = 'ยังไม่ได้เปิดเกม FiveM' }; return }
@@ -2025,6 +2040,7 @@ try {
     'Aff'        { Do-Aff }
     'Heat'       { Do-Heat }
     'YtSearch'   { Do-YtSearch }
+    'JoinWait'   { Do-JoinWait }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -EA 0)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
         'Health'     { Do-Health }
