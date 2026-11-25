@@ -1968,15 +1968,15 @@ function Do-YtSearch {
     try {
         [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor 3072
         $h = (Invoke-WebRequest "https://www.youtube.com/results?search_query=$([uri]::EscapeDataString($Opt))&sp=EgIQAQ%3D%3D" -UseBasicParsing -TimeoutSec 15 -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36' -Headers @{ 'Accept-Language' = 'th,en;q=0.8' }).Content
-        $seen = @{}
+        $seen = @{}; $lr = [regex]'"lengthText":\{.{0,400}?"simpleText":"([\d:.]+)"'
         foreach ($m in [regex]::Matches($h, '"videoRenderer":\{"videoId":"([\w-]{11})"(.{0,3000}?)"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"(.{0,3000}?)"(?:longBylineText|ownerText)":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"')) {
             $v = $m.Groups[1].Value; if ($seen[$v]) { continue }; $seen[$v] = 1
-            $d = [regex]::Match($h.Substring($m.Index, [math]::Min(9000, $h.Length - $m.Index)), '"lengthText":\{.{0,400}?"simpleText":"([\d:.]+)"').Groups[1].Value
+            $d = ''; try { $d = $lr.Match($h, $m.Index).Groups[1].Value } catch { }
             $o.Add(@{ v = $v; t = [regex]::Unescape($m.Groups[3].Value); c = [regex]::Unescape($m.Groups[5].Value); d = $d })
             if ($o.Count -ge 12) { break }
         }
-    } catch { }
-    Emit @{ t = 'result'; action = 'YtSearch'; ok = ($o.Count -gt 0); items = $o.ToArray() }
+    } catch { $e = "$_" }
+    Emit @{ t = 'result'; action = 'YtSearch'; ok = ($o.Count -gt 0); items = $o.ToArray(); m = $e }
 }
 
 function Do-BoostNow {
