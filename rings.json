@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.72",
-    "sha256": "7bb181e35cd91c403eedad2184b666b2306c0d5450ca71921ae3e1616f207347",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/867a43b2c77f8f570292ef5d5ac501b285c84e47/ZanBooster.exe",
-    "notes": "กราฟิกเกมปรับแต่งเอง มีชื่อภาษาอังกฤษตามเมนูในเกม"
+    "version": "4.11.73",
+    "sha256": "ae7fb3de3fe9b335206312539114a58eb2a73b3e72c8ee16184cd3f6e4320284",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/bb037d3ea345605f084f601637c0e8d739cf817a/ZanBooster.exe",
+    "notes": "กราฟิกเกมปรับแต่งเอง: ค่าที่ในเกมเป็นแถบเลื่อน เป็นแถบเลื่อนเหมือนในเกม"
   },
   "vip": {
     "version": "4.11.71",
