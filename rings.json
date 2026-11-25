@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.97",
-    "sha256": "feb6d22b1614bf3f451ab6f776de8e416d68350c3882c5c4afb6fe7d3c981eda",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/5f0013a6547b1f8f43858ab476ea0cb32cad81e1/ZanBooster.exe",
-    "notes": "กด ✕ ตอนเพลงเล่นอยู่ โปรแกรมไปอยู่ที่ถาดข้างนาฬิกา เพลงเล่นต่อ"
+    "version": "4.11.98",
+    "sha256": "7e42f81bf439b3c7638321622a4cf625c9b368d3ca9afda7082a28a3fbb5aee3",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6ee7fd0f26134458de3602180dd1bc7625e0d04c/ZanBooster.exe",
+    "notes": "เปิดโปรแกรมซ้ำไม่ได้แล้ว ถ้าซ่อนอยู่ที่ถาดหรือพับอยู่ กดเปิดอีกครั้งจะดึงตัวเดิมขึ้นมา"
   },
   "vip": {
     "version": "4.11.96",
