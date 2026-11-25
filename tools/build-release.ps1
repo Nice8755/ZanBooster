@@ -80,6 +80,15 @@ $sig = { param($t) ($t | Where-Object { $_.Kind -notin 'NewLine', 'Comment' } | 
 if ((& $sig $ta) -cne (& $sig $tb)) { throw 'engine: stripping indentation changed the code' }
 $engTmp = Join-Path $env:TEMP 'zb-release-engine.ps1'
 [IO.File]::WriteAllText($engTmp, $min, $utf8)
+# the squeezed copy must still answer the read-only actions on Windows PowerShell
+if (Get-Command powershell.exe -EA 0) {
+    $engRun = Join-Path $env:TEMP 'zb-release-engine-run.ps1'; [IO.File]::WriteAllText($engRun, $min, [Text.UTF8Encoding]::new($true))
+    foreach ($a in 'Status', 'SysInfo', 'Health', 'FpsScan', 'GfxPlan', 'GfxStatus', 'Aff', 'Heat') {
+        $l = [string](& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $engRun -Action $a | Where-Object { $_ -match '"t":"(result|error)"' } | Select-Object -Last 1)
+        if (-not $l -or $l -match '"t":"error"') { throw "release engine action $a failed: $l" }
+    }
+    'release engine actions ok'
+}
 $base = Join-Path $root 'beta\ZanBooster.exe'
 if ((Get-FileHash $base).Hash -ne '34CBF139FB3D8811FD8AFD8A363B5E7DC86781067AC4F8DEB0FA8EEC8EB7F6F8') { throw 'beta\ZanBooster.exe on this branch must be the original v4.11.15 binary' }
 $fxTmp = Join-Path $env:TEMP 'zb-release-shader.fx'
