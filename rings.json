@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.61",
-    "sha256": "f846540655eed78ded72bdd507114ca1fe0b9648e721928385fde12f2a8543bc",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/7f8da365cf6497176c35bc44b88fdfcf62e3e268/ZanBooster.exe",
-    "notes": "เพิ่มแบ่งแกน CPU ในหน้าเครื่องมือ เลือกได้ว่าแต่ละโปรแกรมใช้ P core E core หรือแกนไหนบ้าง"
+    "version": "4.11.62",
+    "sha256": "e91203cfde8c06a4dc7d92f49235ee6daec67e567aeb5bfcdc482b1ff81ee1de",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/bc15ecb2bfd154f2751d43064dec198cfa033b49/ZanBooster.exe",
+    "notes": "หน้าแกน CPU เลือกแกนให้เสียง Windows (audiodg) ได้ ช่วยแก้เสียงไมค์กระตุก"
   },
   "vip": {
     "version": "4.11.61",
