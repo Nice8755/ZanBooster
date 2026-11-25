@@ -1014,5 +1014,9 @@
 "เล่นจาก YouTube · เล่นต่อตอนเกมเปิดและตอนพับโปรแกรม ·": "Plays from YouTube · keeps playing while the game runs or the app is minimized ·",
 "ปิดโปรแกรมแล้วเพลงเล่นต่อ (ย้ายไปเล่นในเบราว์เซอร์)": "Keep music playing after closing the app (moves to your browser)",
 "เล่นจาก YouTube · กด ✕ ตอนเพลงเล่น โปรแกรมพับลงแถบงาน เพลงเล่นต่อ (หยุดเพลงก่อนถ้าจะปิดจริง) ·": "Plays from YouTube · pressing ✕ while music plays minimizes the app and the music keeps going (stop the music first to really close) ·",
-"เล่นจาก YouTube · กด ✕ ตอนเพลงเล่น โปรแกรมไปอยู่ที่ถาดข้างนาฬิกา เพลงเล่นต่อ (หยุดเพลงก่อนถ้าจะปิดจริง) ·": "Plays from YouTube · pressing ✕ while music plays sends the app to the tray by the clock and the music keeps going (stop the music first to really close) ·"
+"เล่นจาก YouTube · กด ✕ ตอนเพลงเล่น โปรแกรมไปอยู่ที่ถาดข้างนาฬิกา เพลงเล่นต่อ (หยุดเพลงก่อนถ้าจะปิดจริง) ·": "Plays from YouTube · pressing ✕ while music plays sends the app to the tray by the clock and the music keeps going (stop the music first to really close) ·",
+"เพลงยังเล่นอยู่": "Music is still playing",
+"ปิดโปรแกรมเลย": "Close the app",
+"ซ่อนไว้ที่ถาด": "Hide in the tray",
+"โปรแกรมจะไปซ่อนที่ถาดข้างนาฬิกา (มุมขวาล่าง กดลูกศร ^ ถ้าไม่เห็น) เพลงเล่นต่อ\nคลิกไอคอนเพื่อเปิดกลับ · คลิกขวาเพื่อปิดโปรแกรม": "The app will hide in the tray by the clock (bottom right, press the ^ arrow if you can't see it) and the music keeps playing\nClick the icon to open it again · right-click to close the app"
 }
