@@ -1986,7 +1986,7 @@ function Do-YtSearch {
 
 # เข้าแล้วปิดโปรแกรม: ดูว่า FiveM เข้าเซิร์ฟสำเร็จหรือยัง (บรรทัด connectOK ใน log หลังผ่านหน้ายืนยันของเซิร์ฟ) อ่านอย่างเดียว ไม่แตะเกม
 # Opt = ตำแหน่งในไฟล์ที่อ่านไปแล้ว คืน n = ขนาดไฟล์ตอนนี้, f = ชื่อไฟล์ log ล่าสุด, hit = เจอ connectOK หลังตำแหน่งนั้น
-$ZW = '[DllImport("user32")]public static extern bool ShowWindow(IntPtr h,int c);[DllImport("user32")]public static extern bool IsIconic(IntPtr h);[DllImport("user32")]public static extern bool SetForegroundWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool PostMessage(IntPtr h,int m,IntPtr w,IntPtr l);'
+$ZW = '[DllImport("user32")]public static extern bool ShowWindowAsync(IntPtr h,int c);[DllImport("user32")]public static extern bool IsIconic(IntPtr h);[DllImport("user32")]public static extern bool SetForegroundWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool PostMessage(IntPtr h,int m,IntPtr w,IntPtr l);'
 # เปิดโปรแกรมซ้ำ: ถ้ามีตัวเดิมซ่อนที่ถาดหรือพับอยู่ (ไม่แตะตัวที่เปิดโชว์อยู่ เช่นตัวเก่าที่กำลังปิดตอนอัปเดต) ดึงตัวเดิมขึ้นมา หน้าจอจะปิดตัวใหม่เอง
 function Do-Dup {
     $f = $false
@@ -1998,7 +1998,7 @@ function Do-Dup {
         if ($o -and -not $o.HasExited) {
             $h = [int64]$o.MainWindowHandle; if (-not $h) { $h = [int64]$tp[1] }
             Add-Type -Name W -Namespace Z -MemberDefinition $ZW
-            if ([Z.W]::IsWindow([IntPtr]$h) -and $o.Responding -and (-not [Z.W]::IsWindowVisible([IntPtr]$h) -or [Z.W]::IsIconic([IntPtr]$h))) { if (-not [Z.W]::IsWindowVisible([IntPtr]$h)) { [void][Z.W]::ShowWindow([IntPtr]$h, 6) }; [void][Z.W]::ShowWindow([IntPtr]$h, 9); [void][Z.W]::SetForegroundWindow([IntPtr]$h); $f = $true }
+            if ([Z.W]::IsWindow([IntPtr]$h) -and $o.Responding -and (-not [Z.W]::IsWindowVisible([IntPtr]$h) -or [Z.W]::IsIconic([IntPtr]$h))) { if (-not [Z.W]::IsWindowVisible([IntPtr]$h)) { [void][Z.W]::ShowWindowAsync([IntPtr]$h, 6) }; [void][Z.W]::ShowWindowAsync([IntPtr]$h, 9); [void][Z.W]::SetForegroundWindow([IntPtr]$h); $f = $true }
         }
     } catch { }
     Emit @{ t = 'result'; action = 'Dup'; ok = $true; found = $f }
@@ -2010,7 +2010,7 @@ function Do-Tray {
     try {
         $pp = (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId; $p = Get-Process -Id $pp; $h = [int64]$p.MainWindowHandle
         if ($h) {
-            $s = 'Add-Type -AssemblyName System.Windows.Forms,System.Drawing;Add-Type -Name W -Namespace Z -MemberDefinition ''ZBW'';$h=[IntPtr]ZBH;$x=0;$n=New-Object Windows.Forms.NotifyIcon;$n.Icon=[Drawing.Icon]::ExtractAssociatedIcon(''ZBE'');$n.Text=''Zan Booster'';$n.Visible=1;$q={$n.Visible=0;[Windows.Forms.Application]::Exit()};$o={[void][Z.W]::ShowWindow($h,9);[void][Z.W]::SetForegroundWindow($h);&$q};$n.add_MouseClick({if($_.Button -eq ''Left''){&$o}});$m=New-Object Windows.Forms.ContextMenuStrip;[void]$m.Items.Add(''เปิด Zan Booster'',$null,{&$o});[void]$m.Items.Add(''ปิดโปรแกรม'',$null,{$global:x=1;[void][Z.W]::PostMessage($h,16,[IntPtr]::Zero,[IntPtr]::Zero);&$q});$n.ContextMenuStrip=$m;[void][Z.W]::ShowWindow($h,6);[void][Z.W]::ShowWindow($h,0);$t=New-Object Windows.Forms.Timer;$t.Interval=2000;$t.add_Tick({if(-not [Z.W]::IsWindow($h) -or [Z.W]::IsWindowVisible($h)){&$q}});$t.Start();try{[Windows.Forms.Application]::Run()}finally{$n.Dispose();if(-not $x -and [Z.W]::IsWindow($h) -and -not [Z.W]::IsWindowVisible($h)){[void][Z.W]::ShowWindow($h,9)}}'.Replace('ZBW', $ZW).Replace('ZBH', "$h").Replace('ZBE', $p.Path.Replace("'", "''"))
+            $s = 'Add-Type -AssemblyName System.Windows.Forms,System.Drawing;Add-Type -Name W -Namespace Z -MemberDefinition ''ZBW'';$h=[IntPtr]ZBH;$x=0;$n=New-Object Windows.Forms.NotifyIcon;$n.Icon=[Drawing.Icon]::ExtractAssociatedIcon(''ZBE'');$n.Text=''Zan Booster'';$n.Visible=1;$q={$n.Visible=0;[Windows.Forms.Application]::Exit()};$o={[void][Z.W]::ShowWindowAsync($h,9);[void][Z.W]::SetForegroundWindow($h);&$q};$n.add_MouseClick({if($_.Button -eq ''Left''){&$o}});$m=New-Object Windows.Forms.ContextMenuStrip;[void]$m.Items.Add(''เปิด Zan Booster'',$null,{&$o});[void]$m.Items.Add(''ปิดโปรแกรม'',$null,{$global:x=1;[void][Z.W]::PostMessage($h,16,[IntPtr]::Zero,[IntPtr]::Zero);&$q});$n.ContextMenuStrip=$m;[void][Z.W]::ShowWindowAsync($h,6);[void][Z.W]::ShowWindowAsync($h,0);$t=New-Object Windows.Forms.Timer;$t.Interval=2000;$t.add_Tick({if(-not [Z.W]::IsWindow($h) -or [Z.W]::IsWindowVisible($h)){&$q}});$t.Start();try{[Windows.Forms.Application]::Run()}finally{$n.Dispose();if(-not $x -and [Z.W]::IsWindow($h) -and -not [Z.W]::IsWindowVisible($h)){[void][Z.W]::ShowWindowAsync($h,9)}}'.Replace('ZBW', $ZW).Replace('ZBH', "$h").Replace('ZBE', $p.Path.Replace("'", "''"))
             Start-Process powershell.exe -WindowStyle Hidden -ArgumentList '-NoProfile', '-STA', '-EncodedCommand', ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($s)))
             for ($i = 0; $i -lt 40 -and -not $ok; $i++) { Start-Sleep -Milliseconds 250; $p.Refresh(); $ok = $p.MainWindowHandle -eq 0 }
             if ($ok) { [IO.File]::WriteAllText("$env:TEMP\zbtray", "$pp`:$h") }
