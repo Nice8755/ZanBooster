@@ -1879,9 +1879,10 @@ function Do-Aff {
     $script:hit = 0
     $set = { param($k, $m) foreach ($p in @(Get-Process -Name $k -EA 0)) { try { $p.ProcessorAffinity = [IntPtr][int64]$m; $script:hit++ } catch { } } }
     if ($Ids -eq 'set') {
-        $k, $m = $Opt -split '\|'; $o = "$all"
+        $k, $m = $Opt -split '\|'; $o = "$all"; $old = $r[$k]
         if ($r[$k]) { $o = ($r[$k] -split '\|')[1] } else { try { $o = [string][int64](Get-Process -Name $k -EA 0 | Select-Object -First 1).ProcessorAffinity } catch { } }
         $r[$k] = "$m|$o"; & $set $k $m
+        if (-not $script:hit -and (Get-Process -Name $k -EA 0)) { $r.Remove($k); if ($old) { $r[$k] = $old }; $fail = 1 }
     } elseif ($Ids -eq 'del' -and $r[$Opt]) { & $set $Opt ($r[$Opt] -split '\|')[1]; $r.Remove($Opt) }
     elseif ($Ids -eq 'apply') { foreach ($k in @($r.Keys)) { & $set $k ($r[$k] -split '\|')[0] } }
     if ($Ids -in 'set', 'del') { $c | Add-Member aff ([pscustomobject]$r) -Force; Save-Config $c; Write-Log "CPU affinity $Ids $Opt" }
@@ -1895,10 +1896,10 @@ function Do-Aff {
     $seen = @{}; $list = New-Object System.Collections.Generic.List[object]
     foreach ($p in @(Get-Process -EA 0)) {
         $k = $p.ProcessName
-        if ($seen[$k] -or ($p.MainWindowHandle -eq 0 -and -not $r[$k]) -or $p.Id -eq $PID) { continue }
-        try { $list.Add(@{ n = $k; d = [string]$p.Description; a = [string][int64]$p.ProcessorAffinity }); $seen[$k] = 1 } catch { }
+        if ($seen[$k] -or ($p.MainWindowHandle -eq 0 -and -not $r[$k] -and $k -ne 'audiodg') -or $p.Id -eq $PID) { continue }
+        try { $list.Add(@{ n = $k; d = [string]$p.Description; a = [string][int64]$p.ProcessorAffinity }); $seen[$k] = 1 } catch { if ($k -eq 'audiodg') { $list.Add(@{ n = $k; a = '' }); $seen[$k] = 1 } }
     }
-    Emit @{ t = 'result'; action = 'Aff'; ok = $true; hit = $script:hit; all = "$all"; cores = $cores.ToArray(); apps = $list.ToArray(); rules = $r }
+    Emit @{ t = 'result'; action = 'Aff'; ok = $true; hit = $script:hit; fail = $fail; all = "$all"; cores = $cores.ToArray(); apps = $list.ToArray(); rules = $r }
 }
 
 function Do-BoostNow {
