@@ -9,9 +9,9 @@
     "notes": "แก้เปิดโปรแกรมแล้วค้างหน้าโลโก้หรือจอดำ"
   },
   "vip": {
-    "version": "4.12.00",
-    "sha256": "0bd348c2ffeaddecad650fe982a33a69771201b3c31258427329b158440ff054",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/a51d6274f97886e46e7e3016077b8bd7506ea0ef/ZanBooster.exe",
-    "notes": "แก้เปิดโปรแกรมแล้วขึ้นจอดำหรือค้างหน้าโลโก้ · กด ✕ ตอนเพลงเล่นครั้งแรก ถามก่อนว่าจะซ่อนไว้ที่ถาดหรือปิดเลย"
+    "version": "4.12.02",
+    "sha256": "628929af7e40b193e4ea77284d9c66987d3a6ad8bce99198cd8b64261d46fe96",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/b46a26015ddc5808557a79d5a191fe3645fedca9/ZanBooster.exe",
+    "notes": "แก้เปิดโปรแกรมแล้วค้างหน้าโลโก้หรือจอดำ"
   }
 }
