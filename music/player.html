@@ -15,6 +15,6 @@ addEventListener('message', e => {
 });
 const send = (f, a) => y.contentWindow.postMessage(JSON.stringify({ event: 'command', func: f, args: a || [] }), 'https://www.youtube.com');
 y.onload = () => { y.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'zb', channel: 'widget' }), 'https://www.youtube.com');
-  // เปิดในเบราว์เซอร์ (ไม่มีโปรแกรมคุมเสียง): ตั้งเสียงตาม vol ที่โปรแกรมส่งมา
-  const vol = +q.get('vol'); if (parent === window && vol >= 0 && vol <= 100) [1500, 3000, 6000].forEach(t => setTimeout(() => send('setVolume', [vol]), t)); };
+  // เปิดในเบราว์เซอร์ (ไม่มีโปรแกรมคุมเสียง): ล็อกเสียงตาม vol ที่โปรแกรมส่งมา ทั้งเพลงและโฆษณา
+  const vol = +q.get('vol'); if (parent === window && q.has('vol') && vol >= 0 && vol <= 100) { [300, 800, 1500].forEach(t => setTimeout(() => send('setVolume', [vol]), t)); setInterval(() => send('setVolume', [vol]), 2000); } };
 </script></body></html>
