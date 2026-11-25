@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.62",
-    "sha256": "e91203cfde8c06a4dc7d92f49235ee6daec67e567aeb5bfcdc482b1ff81ee1de",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/bc15ecb2bfd154f2751d43064dec198cfa033b49/ZanBooster.exe",
-    "notes": "หน้าแกน CPU เลือกแกนให้เสียง Windows (audiodg) ได้ ช่วยแก้เสียงไมค์กระตุก"
+    "version": "4.11.63",
+    "sha256": "14b8cb10f51f9d4a9fcff53daa13793226e045f0d3646cdf8db2b7f36bc09240",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/afa07ff0c7ad2016ea932d2c18e9e2a8d06dec2b/ZanBooster.exe",
+    "notes": "ตรวจเครื่องบอกถ้าการ์ดจอวิ่งไม่เต็มเลน, โหมดเล่นเกมเตือนถ้า CPU หรือการ์ดจอร้อนจนลดความเร็ว"
   },
   "vip": {
     "version": "4.11.61",
