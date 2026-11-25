@@ -1986,19 +1986,19 @@ function Do-YtSearch {
 
 # เข้าแล้วปิดโปรแกรม: ดูว่า FiveM เข้าเซิร์ฟสำเร็จหรือยัง (บรรทัด connectOK ใน log หลังผ่านหน้ายืนยันของเซิร์ฟ) อ่านอย่างเดียว ไม่แตะเกม
 # Opt = ตำแหน่งในไฟล์ที่อ่านไปแล้ว คืน n = ขนาดไฟล์ตอนนี้, f = ชื่อไฟล์ log ล่าสุด, hit = เจอ connectOK หลังตำแหน่งนั้น
-$ZW = '[DllImport("user32")]public static extern bool ShowWindow(IntPtr h,int c);[DllImport("user32")]public static extern bool SetForegroundWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool PostMessage(IntPtr h,int m,IntPtr w,IntPtr l);'
-# เปิดโปรแกรมซ้ำ: ถ้ามีตัวเดิมเปิดอยู่ (ซ่อนที่ถาด/พับ/อยู่หลังหน้าต่างอื่น) ดึงตัวเดิมขึ้นมา หน้าจอจะปิดตัวใหม่เอง
+$ZW = '[DllImport("user32")]public static extern bool ShowWindow(IntPtr h,int c);[DllImport("user32")]public static extern bool IsIconic(IntPtr h);[DllImport("user32")]public static extern bool SetForegroundWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool PostMessage(IntPtr h,int m,IntPtr w,IntPtr l);'
+# เปิดโปรแกรมซ้ำ: ถ้ามีตัวเดิมซ่อนที่ถาดหรือพับอยู่ (ไม่แตะตัวที่เปิดโชว์อยู่ เช่นตัวเก่าที่กำลังปิดตอนอัปเดต) ดึงตัวเดิมขึ้นมา หน้าจอจะปิดตัวใหม่เอง
 function Do-Dup {
     $f = $false
     try {
         $me = Get-Process -Id (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId
         $t = "$env:TEMP\zbtray"; $tp = if (Test-Path $t) { [IO.File]::ReadAllText($t) -split ':' } else { @(0, 0) }
-        $o = Get-Process $me.ProcessName -EA 0 | Where-Object { $_.Id -ne $me.Id -and $_.StartTime -lt $me.StartTime -and ($_.MainWindowHandle -ne 0 -or "$($_.Id)" -eq $tp[0]) } | Select-Object -First 1
+        $o = Get-Process $me.ProcessName -EA 0 | Where-Object { $_.Id -ne $me.Id -and $_.StartTime -lt $me.StartTime.AddSeconds(-5) -and ($_.MainWindowHandle -ne 0 -or "$($_.Id)" -eq $tp[0]) } | Select-Object -First 1
         if ($o) { Start-Sleep 1; $o.Refresh() }
         if ($o -and -not $o.HasExited) {
             $h = [int64]$o.MainWindowHandle; if (-not $h) { $h = [int64]$tp[1] }
             Add-Type -Name W -Namespace Z -MemberDefinition $ZW
-            if ([Z.W]::IsWindow([IntPtr]$h)) { if (-not [Z.W]::IsWindowVisible([IntPtr]$h)) { [void][Z.W]::ShowWindow([IntPtr]$h, 6) }; [void][Z.W]::ShowWindow([IntPtr]$h, 9); [void][Z.W]::SetForegroundWindow([IntPtr]$h); $f = $true }
+            if ([Z.W]::IsWindow([IntPtr]$h) -and $o.Responding -and (-not [Z.W]::IsWindowVisible([IntPtr]$h) -or [Z.W]::IsIconic([IntPtr]$h))) { if (-not [Z.W]::IsWindowVisible([IntPtr]$h)) { [void][Z.W]::ShowWindow([IntPtr]$h, 6) }; [void][Z.W]::ShowWindow([IntPtr]$h, 9); [void][Z.W]::SetForegroundWindow([IntPtr]$h); $f = $true }
         }
     } catch { }
     Emit @{ t = 'result'; action = 'Dup'; ok = $true; found = $f }

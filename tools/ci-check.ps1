@@ -58,13 +58,19 @@ if ($env:GITHUB_ACTIONS) {
         try { $np.Kill() } catch { }
         if (-not ($hid -and $alive -and $gone)) { throw 'tray helper test failed' }
         # Dup: a second copy (same process name, started later) must bring the hidden first copy back
-        $np = Start-Process notepad.exe -PassThru; Start-Sleep 3; $np.Refresh(); $h = [int64]$np.MainWindowHandle
+        $np = Start-Process notepad.exe -PassThru; Start-Sleep 6; $np.Refresh(); $h = [int64]$np.MainWindowHandle
         [void][CiTray.V]::ShowWindow([IntPtr]$h, 0); [IO.File]::WriteAllText("$env:TEMP\zbtray", "$($np.Id):$h")
         $fake = Join-Path $work 'notepad.exe'; Copy-Item "$env:WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" $fake
         $l = [string](& $fake -NoProfile -Command "& powershell.exe -NoProfile -ExecutionPolicy Bypass -File '$f' -Action Dup" | Where-Object { $_ -match '"t":"result"' } | Select-Object -Last 1)
         $back = [CiTray.V]::IsWindowVisible([IntPtr]$h); try { $np.Kill() } catch { }; Remove-Item "$env:TEMP\zbtray" -EA 0
         "  dup: $l, first copy shown again=$back"
         if ($l -notmatch '"found":true' -or -not $back) { throw 'dup test failed' }
+        # a copy that is open on screen (e.g. the old one closing during an update) must be left alone
+        $np = Start-Process notepad.exe -PassThru; Start-Sleep 6; Remove-Item "$env:TEMP\zbtray" -EA 0
+        $l = [string](& $fake -NoProfile -Command "& powershell.exe -NoProfile -ExecutionPolicy Bypass -File '$f' -Action Dup" | Where-Object { $_ -match '"t":"result"' } | Select-Object -Last 1)
+        try { $np.Kill() } catch { }
+        "  dup (other copy on screen): $l"
+        if ($l -notmatch '"found":false') { throw 'dup must ignore a copy that is on screen' }
     }
 }
 
