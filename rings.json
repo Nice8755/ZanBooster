@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.96",
-    "sha256": "6dcd59bf725f6aadb7c15484b3a289bdf0c050d96fc965706e8beb7b71d341c6",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9eed909bcfd480e462bc29bc542fbaa6c248e096/ZanBooster.exe",
-    "notes": "กด ✕ ตอนเพลงเล่นอยู่ โปรแกรมพับลงแถบงาน เพลงเล่นต่อ"
+    "version": "4.11.97",
+    "sha256": "feb6d22b1614bf3f451ab6f776de8e416d68350c3882c5c4afb6fe7d3c981eda",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/5f0013a6547b1f8f43858ab476ea0cb32cad81e1/ZanBooster.exe",
+    "notes": "กด ✕ ตอนเพลงเล่นอยู่ โปรแกรมไปอยู่ที่ถาดข้างนาฬิกา เพลงเล่นต่อ"
   },
   "vip": {
     "version": "4.11.96",
