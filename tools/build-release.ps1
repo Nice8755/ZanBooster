@@ -12,6 +12,11 @@ if ($a -lt 0 -or $b -lt $a) { throw 'mock block markers not found' }
 $ui = $ui.Substring(0, $a) + "if (!NATIVE) {" + $ui.Substring($b + 1)
 # strip indentation and comment-only lines (release copy only)
 $ui = ($ui.Split("`n") | ForEach-Object { $_.TrimStart(' ') } | Where-Object { $_ -ne '' -and $_ -notmatch '^//' -and $_ -notmatch '^/\*[^*]*\*/$' }) -join "`n"
+# drop Thai comments at the end of script lines after ; { } ) , when the code part has no open quote (release copy only, node checks it below)
+$ui = ($ui.Split("`n") | ForEach-Object {
+    $m = [regex]::Match($_, '^(.*[;{}),])\s+// [^\n]*[฀-๿][^\n]*$')
+    if ($m.Success -and -not ((@($m.Groups[1].Value.ToCharArray() | Where-Object { $_ -in [char]39, [char]34, [char]96 } | Group-Object | Where-Object { $_.Count % 2 }).Count))) { $m.Groups[1].Value } else { $_ }
+}) -join "`n"
 # compact the stylesheet: comments, line breaks, spaces around braces (release copy only)
 $s1 = $ui.IndexOf('<style>') + 7; $s2 = $ui.IndexOf('</style>', $s1); if ($s1 -lt 7 -or $s2 -lt $s1) { throw 'style block not found' }
 $css = [regex]::Replace($ui.Substring($s1, $s2 - $s1), '(?s)/\*.*?\*/', '')
@@ -39,6 +44,12 @@ $ui = $ui.Substring(0, $p1) + $dec + $sb.ToString() + $ui.Substring($at)
 $cut = 0
 while ($utf8.GetByteCount($ui) -gt 1054600) { $end = $ui.IndexOf(']</script>', $ui.IndexOf('id="changelog"')); $st = $ui.LastIndexOf(', {"v": "', $end); if ($st -lt 0) { throw 'cannot fit' }; $ui = $ui.Remove($st, $end - $st); $cut++ }
 "changelog entries dropped: $cut"
+if (Get-Command node -EA 0) {
+    $k = 0
+    foreach ($sm in [regex]::Matches($ui, '<script>(.*?)</script>', 'Singleline')) { $k++; $js = Join-Path $env:TEMP "zb-release-s$k.js"; [IO.File]::WriteAllText($js, $sm.Groups[1].Value, $utf8); & node --check $js; if ($LASTEXITCODE) { throw "release ui script $k has a syntax error" } }
+    if ($k -lt 1) { throw 'no script found in release ui' }
+    "release ui scripts ok ($k)"
+}
 $tmp = Join-Path $env:TEMP 'zb-release-ui.html'
 [IO.File]::WriteAllText($tmp, $ui, $utf8)
 "ui.html release size: {0:N0} bytes (slot 1,055,130)" -f $utf8.GetByteCount($ui)
