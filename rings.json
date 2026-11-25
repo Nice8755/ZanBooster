@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.65",
-    "sha256": "4a29a1222db0434b8c9e9566f95c56cd4ae516cae2153e7a34ecfc316244c67b",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/afea25daaa72a571760ab82eb4d88c9da7d7f296/ZanBooster.exe",
-    "notes": "หน้าแกน CPU ติ๊กให้ตั้งแกนตั้งแต่เปิดเครื่องได้ ไม่ต้องเปิด Zan Booster"
+    "version": "4.11.66",
+    "sha256": "0eb2420fa2a7ea4980ff516c996093d1b0d86a5bd14a0bfdaa91eb8f00585d98",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/7ee94fdf7aa20c7c70f0297272707212898c85ce/ZanBooster.exe",
+    "notes": "ธีมการ์ตูนใหม่ 6 แบบ: POP, KAWAII, TOON, MANGA, SLIME, PIXEL เปลี่ยนลาย เอฟเฟกต์ตอนกด และอนิเมชันตามธีม"
   },
   "vip": {
     "version": "4.11.64",
