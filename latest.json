@@ -1,6 +1,6 @@
 {
-  "version": "4.11.60",
-  "sha256": "80dacb54dd581749a6076315d6b2f5f6d5355654ec69b9f097ffee5fdd75c268",
+  "version": "4.11.61",
+  "sha256": "f846540655eed78ded72bdd507114ca1fe0b9648e721928385fde12f2a8543bc",
   "file": "release/ZanBooster.exe",
-  "notes": "พรีเซ็ต Zan เลือกได้ 3 ระดับ Low Medium High, ปรับพรีเซ็ต Zan ทั้ง 12 โทนให้สวยขึ้น, แก้ ReShade ขึ้น Error สีแดงตอนเปิดเมนู"
+  "notes": "เพิ่มแบ่งแกน CPU ในหน้าเครื่องมือ เลือกได้ว่าแต่ละโปรแกรมใช้ P core E core หรือแกนไหนบ้าง"
 }
