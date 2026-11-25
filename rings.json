@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.94",
-    "sha256": "804f7e2b2a1fdb7d3c2b7631934a30b4e68bdf0c29244f71ef1b1b4086b8e4fc",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ed202b2af1b2ae34653acec3d5cdb9fad1b9c01f/ZanBooster.exe",
-    "notes": "กดปิดโปรแกรมตอนเพลงเล่นอยู่ เพลงย้ายไปเล่นต่อในเบราว์เซอร์เอง"
+    "version": "4.11.95",
+    "sha256": "7b28c2494c74af0b9a2a699670e1e7c06a6fe52d7e04164c758d9c3158c3a33f",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/d32f4b6310262f161cb97b77aac91a109ebabe1a/ZanBooster.exe",
+    "notes": "ปิดโปรแกรมแล้วไม่เด้งเปิดเว็บเบราว์เซอร์อีก"
   },
   "vip": {
     "version": "4.11.93",
