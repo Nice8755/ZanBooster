@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.00",
-    "sha256": "0bd348c2ffeaddecad650fe982a33a69771201b3c31258427329b158440ff054",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/a51d6274f97886e46e7e3016077b8bd7506ea0ef/ZanBooster.exe",
-    "notes": "แก้เปิดโปรแกรมแล้วขึ้นจอดำหรือค้างหน้าโลโก้ · กด ✕ ตอนเพลงเล่นครั้งแรก ถามก่อนว่าจะซ่อนไว้ที่ถาดหรือปิดเลย"
+    "version": "4.12.01",
+    "sha256": "a155c35e170a027f6fe45679d587405196a65baa32cd93a2ece03b1b9859230d",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/42752511a8c4f0e252cef237ee807d202056f9b7/ZanBooster.exe",
+    "notes": "แก้เปิดโปรแกรม (โดยเฉพาะหลังอัปเดต) แล้วขึ้นจอดำ"
   },
   "vip": {
     "version": "4.12.00",
