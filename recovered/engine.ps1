@@ -22,6 +22,7 @@ $HKMM       = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\Sys
 $VIDEO_SUB = '7516b95f-f776-4464-8c53-06167f40cc99'; $VIDEO_IDLE = '3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e'
 $USB_SUB    = '2a737441-1930-4402-8d77-b2bebba308a3'
 $USB_SET    = '48e6b7a6-50f5-4782-a5d4-53bb8f07e226'
+$KHV = 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity'; $KGC = 'HKCU:\System\GameConfigStore'; $KDV = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR'
 New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
 
 # ------------------------------------------------------------- output ----
@@ -197,7 +198,7 @@ function Remove-RegValue([string]$Path, [string]$Name) {
 }
 
 $DXPrefs  = 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences'
-$GCS      = 'HKCU:\System\GameConfigStore'
+$GCS      = $KGC
 $GameExeRx = '(?i)\\(GTA5|GTA5_Enhanced|PlayGTAV|FiveM[^\\]*)\.exe$'
 function Get-OsBuild { try { [int](Get-CimInstance Win32_OperatingSystem).BuildNumber } catch { 0 } }
 
@@ -278,11 +279,11 @@ $Tweaks = [ordered]@{
     }
     GameDVR = @{
         Apply = {
-            Set-RegValue 'HKCU:\System\GameConfigStore' 'GameDVR_Enabled' 0
-            Set-RegValue 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled' 0
+            Set-RegValue $KGC 'GameDVR_Enabled' 0
+            Set-RegValue $KDV 'AppCaptureEnabled' 0
             Set-RegValue 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR' 'AllowGameDVR' 0
         }
-        Check = { (Get-Reg 'HKCU:\System\GameConfigStore' 'GameDVR_Enabled') -eq 0 }
+        Check = { (Get-Reg $KGC 'GameDVR_Enabled') -eq 0 }
     }
     MMCSS = @{
         Apply = {
@@ -333,10 +334,10 @@ $Tweaks = [ordered]@{
     }
     FSO = @{
         Apply = {
-            Set-RegValue 'HKCU:\System\GameConfigStore' 'GameDVR_FSEBehaviorMode' 2
-            Set-RegValue 'HKCU:\System\GameConfigStore' 'GameDVR_FSEBehavior' 2
-            Set-RegValue 'HKCU:\System\GameConfigStore' 'GameDVR_HonorUserFSEBehaviorMode' 1
-            Set-RegValue 'HKCU:\System\GameConfigStore' 'GameDVR_DXGIHonorFSEWindowsCompatible' 1
+            Set-RegValue $KGC 'GameDVR_FSEBehaviorMode' 2
+            Set-RegValue $KGC 'GameDVR_FSEBehavior' 2
+            Set-RegValue $KGC 'GameDVR_HonorUserFSEBehaviorMode' 1
+            Set-RegValue $KGC 'GameDVR_DXGIHonorFSEWindowsCompatible' 1
         }
         Check = { (Get-Reg $GCS 'GameDVR_HonorUserFSEBehaviorMode') -eq 1 }
     }
@@ -420,8 +421,8 @@ $Tweaks = [ordered]@{
     }
     HVCI = @{
         # Memory Integrity (Core Isolation) บางเครื่องกิน FPS 5-15% ต้องรีสตาร์ทถึงมีผล
-        Apply = { Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Enabled' 0 }
-        Check = { (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Enabled') -ne 1 }
+        Apply = { Set-RegValue $KHV 'Enabled' 0 }
+        Check = { (Get-Reg $KHV 'Enabled') -ne 1 }
     }
     TimerRes = @{
         Apply = { Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel' 'GlobalTimerResolutionRequests' 1 }
@@ -519,8 +520,8 @@ $Tweaks = [ordered]@{
         Apply = {
             Set-RegValue 'HKCU:\Software\Microsoft\GameBar' 'UseNexusForGameBarEnabled' 0
             Set-RegValue 'HKCU:\Software\Microsoft\GameBar' 'ShowStartupPanel' 0
-            Set-RegValue 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled' 0
-            Set-RegValue 'HKCU:\System\GameConfigStore' 'GameDVR_Enabled' 0
+            Set-RegValue $KDV 'AppCaptureEnabled' 0
+            Set-RegValue $KGC 'GameDVR_Enabled' 0
             Set-RegValue 'HKLM:\SOFTWARE\Microsoft\PolicyManager\default\ApplicationManagement\AllowGameDVR' 'value' 0
         }
         Check = { (Get-Reg 'HKCU:\Software\Microsoft\GameBar' 'UseNexusForGameBarEnabled') -eq 0 }
@@ -1160,7 +1161,7 @@ function Do-Health {
     try {
         $dg = Get-CimInstance -Namespace root\Microsoft\Windows\DeviceGuard -ClassName Win32_DeviceGuard -ErrorAction Stop
         $hvci = @($dg.SecurityServicesRunning) -contains 2
-        $locked = (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Locked') -eq 1
+        $locked = (Get-Reg $KHV 'Locked') -eq 1
         if ($hvci) { Add 'hvci' 'Memory Integrity (Core Isolation)' 'warn' 'เปิดอยู่ บางเครื่องเสีย FPS 5-15%' $(if ($locked) { 'ถูกล็อกไว้จาก UEFI/องค์กร ต้องปิดใน Windows Security > Device security > Core isolation' } else { 'ปิดได้ในหน้าปรับแต่ง "ปิด Memory Integrity" แล้วรีสตาร์ท (ความปลอดภัยของเครื่องจะลดลงเล็กน้อย)' }) }
         else { Add 'hvci' 'Memory Integrity (Core Isolation)' 'ok' 'ปิดอยู่ ไม่กิน FPS' '' }
     } catch { }
@@ -1174,7 +1175,7 @@ function Do-Health {
         if (@($vf | Where-Object { (Get-OvVal $_) -ne '0' }).Count) { $au += 'Steam' }
         $au | ForEach-Object { $ov.Add($_) }
         if ($names -contains 'radeonsoftware' -or $names -contains 'amdrsserv') { $ov.Add('AMD Adrenalin'); $tips.Add('Adrenalin > Preferences > ปิด In-Game Overlay') }
-        if ((Get-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled') -ne 0) { $ov.Add('Xbox Game Bar'); $tips.Add('หน้าปรับแต่ง > ปิดการอัดคลิปของ Xbox Game Bar') }
+        if ((Get-Reg $KDV 'AppCaptureEnabled') -ne 0) { $ov.Add('Xbox Game Bar'); $tips.Add('หน้าปรับแต่ง > ปิดการอัดคลิปของ Xbox Game Bar') }
         if ($ov.Count) { Add 'overlay' 'Overlay ในเกม' 'info' ($ov -join ', ') (($tips -join ' · ') + ' (ปิดแค่ overlay ที่ขึ้นทับในเกม ตัวโปรแกรมยังเปิดคุยและแชร์จอได้ตามปกติ)'); if ($au.Count) { $r[$r.Count - 1].act = 'ovoff'; $r[$r.Count - 1].actTxt = 'ปิดให้เลย' } }
         $oz = @($od | Where-Object { $_.off.Count -and -not $_.on.Count } | ForEach-Object { $_.n }); if ((Test-Path $OvBak) -and $au -notcontains 'Steam') { $oz += 'Steam' }
         if (-not $ov.Count -and -not $oz.Count) { Add 'overlay' 'Overlay' 'ok' 'ไม่เจอ overlay ที่เปิดอยู่' '' }
@@ -1366,7 +1367,7 @@ function Do-FpsScan {
         if ($names -contains 'nvidia overlay' -or $names -contains 'nvidia share') { $ov += 'NVIDIA'; $tips += 'NVIDIA App > Settings > ปิด NVIDIA Overlay' }
         if ($names -contains 'radeonsoftware' -or $names -contains 'amdrsserv') { $ov += 'AMD'; $tips += 'Adrenalin > Settings > Preferences > ปิด In-Game Overlay' }
         if ($names -contains 'rtss') { $ov += 'RivaTuner (RTSS)'; $tips += 'ปิด RTSS ถ้าไม่ได้ใช้ล็อกเฟรม' }
-        $gb = (Get-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR' 'AppCaptureEnabled') -ne 0
+        $gb = (Get-Reg $KDV 'AppCaptureEnabled') -ne 0
         if ($gb) { $ov += 'Xbox Game Bar' }
         if ($ov.Count) { Add 'sys' 'overlay' 'Overlay ที่ทับในเกม' 'warn' ($ov -join ', ') (($tips -join ' · ') + $(if ($gb) { ' · Game Bar กดแก้ให้ได้' } else { '' }) + ' (ปิดแค่ overlay ตัวโปรแกรมยังใช้คุย/แชร์จอได้)') $(if ($au.Count) { 'ovoff' } elseif ($gb) { 'gamebar' } else { '' }) $(if ($au.Count) { 'ปิดให้เลย' } else { 'ปิด Game Bar' }) }
         else { Add 'sys' 'overlay' 'Overlay ที่ทับในเกม' 'ok' 'ไม่เจอ' '' }
@@ -1375,7 +1376,7 @@ function Do-FpsScan {
     try {
         $dg = Get-CimInstance -Namespace root\Microsoft\Windows\DeviceGuard -ClassName Win32_DeviceGuard -ErrorAction Stop
         $hvci = @($dg.SecurityServicesRunning) -contains 2
-        $locked = (Get-Reg 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity' 'Locked') -eq 1
+        $locked = (Get-Reg $KHV 'Locked') -eq 1
         if ($hvci) { Add 'sys' 'vbs' 'Memory Integrity (VBS) เปิดอยู่' 'warn' 'บางเครื่องเสีย FPS 5-15%' $(if ($locked) { 'ถูกล็อกจาก UEFI ต้องปิดเองใน Windows Security > Device security > Core isolation' } else { 'ปิดแล้วต้องรีสตาร์ท ความปลอดภัยจากไดรเวอร์อันตรายจะลดลง' }) $(if ($locked) { '' } else { 'vbs' }) 'ปิดให้' '' $true }
         else { Add 'sys' 'vbs' 'Memory Integrity (VBS)' 'ok' 'ปิดอยู่' '' }
     } catch { Unknown 'sys' 'vbs' 'Memory Integrity (VBS)' }
@@ -1449,7 +1450,7 @@ function Do-FpsFix {
             $m = 'ให้ Windows จัดการ Pagefile เองแล้ว'; $restart = $true
         }
         'vbs' {
-            $p = 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity'
+            $p = $KHV
             Save-FpsBackup 'vbs' @{ enabled = (Get-Reg $p 'Enabled') }
             Set-RegValue $p 'Enabled' 0
             $m = 'ปิด Memory Integrity แล้ว'; $restart = $true
@@ -1468,7 +1469,7 @@ function Do-FpsFix {
             $m = 'ให้ CPU วิ่งได้ 100% แล้ว (ตอนเสียบปลั๊ก)'
         }
         'gamebar' {
-            $p = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR'; $p2 = 'HKCU:\System\GameConfigStore'
+            $p = $KDV; $p2 = $KGC
             Save-FpsBackup 'gamebar' @{ cap = (Get-Reg $p 'AppCaptureEnabled'); dvr = (Get-Reg $p2 'GameDVR_Enabled') }
             Set-RegValue $p 'AppCaptureEnabled' 0; Set-RegValue $p2 'GameDVR_Enabled' 0
             $m = 'ปิดการอัด/overlay ของ Xbox Game Bar แล้ว'
@@ -1506,11 +1507,11 @@ function Do-FpsUndo {
             if (-not $v.auto) { Set-ItemProperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management' -Name PagingFiles -Value @($v.files) -Type MultiString }
             $restart = $true
         }
-        'vbs' { $p = 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity'; if ($v.enabled -ne $null) { Set-RegValue $p 'Enabled' ([int]$v.enabled) } else { Remove-ItemProperty $p -Name Enabled -EA 0 }; $restart = $true }
+        'vbs' { $p = $KHV; if ($v.enabled -ne $null) { Set-RegValue $p 'Enabled' ([int]$v.enabled) } else { Remove-ItemProperty $p -Name Enabled -EA 0 }; $restart = $true }
         'plan' { if ($v.guid) { & powercfg.exe /setactive $v.guid | Out-Null } }
         'cpumax' { & powercfg.exe /setacvalueindex $v.guid SUB_PROCESSOR PROCTHROTTLEMAX ([int]$v.ac) | Out-Null; & powercfg.exe /setactive SCHEME_CURRENT | Out-Null }
         'gamebar' {
-            $p = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR'; $p2 = 'HKCU:\System\GameConfigStore'
+            $p = $KDV; $p2 = $KGC
             if ($v.cap -ne $null) { Set-RegValue $p 'AppCaptureEnabled' ([int]$v.cap) } else { Remove-ItemProperty $p -Name AppCaptureEnabled -EA 0 }
             if ($v.dvr -ne $null) { Set-RegValue $p2 'GameDVR_Enabled' ([int]$v.dvr) } else { Remove-ItemProperty $p2 -Name GameDVR_Enabled -EA 0 }
         }
@@ -1870,6 +1871,36 @@ function Do-TestRole {
     Emit @{ t = 'result'; action = 'TestRole'; ok = ($code -eq 'ok'); code = $code; name = $name }
 }
 
+# เลือกแกน CPU ให้แต่ละโปรแกรม: Ids '' = ดูอย่างเดียว, set (Opt ชื่อ|mask), del (Opt ชื่อ คืนค่าเดิม), apply (ใช้กฎทั้งหมดอีกครั้ง)
+# กฎเก็บใน config.json เป็น "mask|ค่าเดิม" ค่าเดิมคือ affinity ตอนตั้งกฎครั้งแรก
+function Do-Aff {
+    $c = Get-Config; $r = @{}; if ($c.aff) { $c.aff.PSObject.Properties | ForEach-Object { $r[$_.Name] = [string]$_.Value } }
+    $n = [Environment]::ProcessorCount; $all = $(if ($n -ge 64) { -1 } else { ([int64]1 -shl $n) - 1 })
+    $script:hit = 0
+    $set = { param($k, $m) foreach ($p in @(Get-Process -Name $k -EA 0)) { try { $p.ProcessorAffinity = [IntPtr][int64]$m; $script:hit++ } catch { } } }
+    if ($Ids -eq 'set') {
+        $k, $m = $Opt -split '\|'; $o = "$all"
+        if ($r[$k]) { $o = ($r[$k] -split '\|')[1] } else { try { $o = [string][int64](Get-Process -Name $k -EA 0 | Select-Object -First 1).ProcessorAffinity } catch { } }
+        $r[$k] = "$m|$o"; & $set $k $m
+    } elseif ($Ids -eq 'del' -and $r[$Opt]) { & $set $Opt ($r[$Opt] -split '\|')[1]; $r.Remove($Opt) }
+    elseif ($Ids -eq 'apply') { foreach ($k in @($r.Keys)) { & $set $k ($r[$k] -split '\|')[0] } }
+    if ($Ids -in 'set', 'del') { $c | Add-Member aff ([pscustomobject]$r) -Force; Save-Config $c; Write-Log "CPU affinity $Ids $Opt" }
+    $cores = New-Object System.Collections.Generic.List[object]
+    try {
+        if (-not ('ZC' -as [type])) { Add-Type 'using System;using System.Runtime.InteropServices;public class ZC{[DllImport("kernel32")]public static extern bool GetLogicalProcessorInformationEx(int r,IntPtr b,ref int n);}' }
+        $X = [Runtime.InteropServices.Marshal]; $z = 0; [void][ZC]::GetLogicalProcessorInformationEx(0, [IntPtr]::Zero, [ref]$z); $b = $X::AllocHGlobal($z)
+        if ([ZC]::GetLogicalProcessorInformationEx(0, $b, [ref]$z)) { for ($o = 0; $o -lt $z; $o += $X::ReadInt32($b, $o + 4)) { if ($X::ReadInt16($b, $o + 40) -eq 0) { $cores.Add(@{ e = $X::ReadByte($b, $o + 9); m = [string]$X::ReadInt64($b, $o + 32) }) } } }
+        $X::FreeHGlobal($b)
+    } catch { }
+    $seen = @{}; $list = New-Object System.Collections.Generic.List[object]
+    foreach ($p in @(Get-Process -EA 0)) {
+        $k = $p.ProcessName
+        if ($seen[$k] -or ($p.MainWindowHandle -eq 0 -and -not $r[$k]) -or $p.Id -eq $PID) { continue }
+        try { $list.Add(@{ n = $k; d = [string]$p.Description; a = [string][int64]$p.ProcessorAffinity }); $seen[$k] = 1 } catch { }
+    }
+    Emit @{ t = 'result'; action = 'Aff'; ok = $true; hit = $script:hit; all = "$all"; cores = $cores.ToArray(); apps = $list.ToArray(); rules = $r }
+}
+
 function Do-BoostNow {
     $procs = @(Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*GTAProcess' })
     if ($procs.Count -eq 0) { Emit @{ t = 'result'; action = 'BoostNow'; ok = $false; m = 'ยังไม่ได้เปิดเกม FiveM' }; return }
@@ -1907,6 +1938,7 @@ try {
     'AudioFix'   { Do-AudioFix }
     'TestRole'   { Do-TestRole }
     'BoostNow'   { Do-BoostNow }
+    'Aff'        { Do-Aff }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -EA 0)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
         'Health'     { Do-Health }
