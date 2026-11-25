@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.80",
-    "sha256": "33453a840c5d58fd50e4f8eab44963f6d12562370efe526a173742736b511a75",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/1e1a08dbd9913a13f4ca5e7937bec3e53a9145dc/ZanBooster.exe",
-    "notes": "เพิ่มเพลงของตัวเองได้ วนเฉพาะเพลงของคุณ, ธีม PIXEL เด้งลื่นขึ้น"
+    "version": "4.11.81",
+    "sha256": "a2c30b0a1544b865a2f0174646731888c092322d0d61f78a475af5cadc2c5622",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/fcbe7983072e069d85eed1ef36ba60735055dd5c/ZanBooster.exe",
+    "notes": "แก้เพลงขึ้น Error 153, พับเครื่องเล่นเพลงเก็บได้"
   },
   "vip": {
     "version": "4.11.80",
