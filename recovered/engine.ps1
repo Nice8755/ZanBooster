@@ -22,7 +22,7 @@ $HKMM       = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\Sys
 $VIDEO_SUB = '7516b95f-f776-4464-8c53-06167f40cc99'; $VIDEO_IDLE = '3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e'
 $USB_SUB    = '2a737441-1930-4402-8d77-b2bebba308a3'
 $USB_SET    = '48e6b7a6-50f5-4782-a5d4-53bb8f07e226'
-$KHV = 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity'; $KGC = 'HKCU:\System\GameConfigStore'; $KDV = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR'
+$KHV = 'HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity'; $KGC = 'HKCU:\System\GameConfigStore'; $KGB = 'HKCU:\Software\Microsoft\GameBar'; $KUP = 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences'; $KMS = 'HKCU:\Control Panel\Mouse'; $KBA = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications'; $KDV = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR'
 New-Item -ItemType Directory -Path $DataDir -Force | Out-Null
 
 # ------------------------------------------------------------- output ----
@@ -59,7 +59,7 @@ function Resolve-FiveMApp([string]$p) {
 }
 
 function Find-FiveM {
-    $cands = New-Object System.Collections.Generic.List[string]
+    $cands = [Collections.Generic.List[string]]::new()
     $cfg = Get-Config
     if ($cfg.FiveMPath) { $cands.Add([string]$cfg.FiveMPath) }
     # 1) เกมที่กำลังเปิดอยู่
@@ -127,7 +127,7 @@ function Get-FiveMData {
 function New-EmptyBackup { @{ Registry = @{}; CreatedKeys = @(); PrevScheme = $null; Powercfg = @{}; Adapters = @{}; Defender = @(); Applied = @() } }
 $Script:AppliedKnown = $false
 $Script:DryRun = $false
-$Script:DryKeys = New-Object System.Collections.Generic.List[string]
+$Script:DryKeys = [Collections.Generic.List[string]]::new()
 function Load-Backup {
     $b = New-EmptyBackup
     if (Test-Path $BackupFile) {
@@ -197,7 +197,7 @@ function Remove-RegValue([string]$Path, [string]$Name) {
     Remove-ItemProperty -LiteralPath $Path -Name $Name
 }
 
-$DXPrefs  = 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences'
+$DXPrefs  = $KUP
 $GCS      = $KGC
 $GameExeRx = '(?i)\\(GTA5|GTA5_Enhanced|PlayGTAV|FiveM[^\\]*)\.exe$'
 function Get-OsBuild { try { [int](Get-CimInstance Win32_OperatingSystem).BuildNumber } catch { 0 } }
@@ -272,10 +272,10 @@ $Tweaks = [ordered]@{
     }
     GameMode = @{
         Apply = {
-            Set-RegValue 'HKCU:\Software\Microsoft\GameBar' 'AutoGameModeEnabled' 1
-            Set-RegValue 'HKCU:\Software\Microsoft\GameBar' 'AllowAutoGameMode' 1
+            Set-RegValue $KGB 'AutoGameModeEnabled' 1
+            Set-RegValue $KGB 'AllowAutoGameMode' 1
         }
-        Check = { (Get-Reg 'HKCU:\Software\Microsoft\GameBar' 'AutoGameModeEnabled') -eq 1 }
+        Check = { (Get-Reg $KGB 'AutoGameModeEnabled') -eq 1 }
     }
     GameDVR = @{
         Apply = {
@@ -313,8 +313,8 @@ $Tweaks = [ordered]@{
         Check = { (Get-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects' 'VisualFXSetting') -eq 2 }
     }
     BgApps = @{
-        Apply = { Set-RegValue 'HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications' 'GlobalUserDisabled' 1 }
-        Check = { (Get-Reg 'HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications' 'GlobalUserDisabled') -eq 1 }
+        Apply = { Set-RegValue $KBA 'GlobalUserDisabled' 1 }
+        Check = { (Get-Reg $KBA 'GlobalUserDisabled') -eq 1 }
     }
     PrioSep = @{
         Apply = { Set-RegValue 'HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl' 'Win32PrioritySeparation' 38 }
@@ -322,11 +322,11 @@ $Tweaks = [ordered]@{
     }
     MouseAccel = @{
         Apply = {
-            Set-RegValue 'HKCU:\Control Panel\Mouse' 'MouseSpeed' '0' 'String'
-            Set-RegValue 'HKCU:\Control Panel\Mouse' 'MouseThreshold1' '0' 'String'
-            Set-RegValue 'HKCU:\Control Panel\Mouse' 'MouseThreshold2' '0' 'String'
+            Set-RegValue $KMS 'MouseSpeed' '0' 'String'
+            Set-RegValue $KMS 'MouseThreshold1' '0' 'String'
+            Set-RegValue $KMS 'MouseThreshold2' '0' 'String'
         }
-        Check = { [string](Get-Reg 'HKCU:\Control Panel\Mouse' 'MouseSpeed') -eq '0' }
+        Check = { [string](Get-Reg $KMS 'MouseSpeed') -eq '0' }
     }
     UsbSuspend = @{
         Apply = { Set-PowercfgIndex $USB_SUB $USB_SET 0 }
@@ -468,13 +468,13 @@ $Tweaks = [ordered]@{
     }
     GpuPref = @{
         Apply = {
-            $key = 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences'
+            $key = $KUP
             $n = 0
             foreach ($exe in Get-FiveMExes) { Set-RegValue $key $exe 'GpuPreference=2;' 'String'; $n++ }
             Write-Log "ตั้งการ์ดจอแยกให้ $n ไฟล์"
         }
         Check = {
-            $key = 'HKCU:\Software\Microsoft\DirectX\UserGpuPreferences'
+            $key = $KUP
             $exes = @(Get-FiveMExes)
             $exes.Count -gt 0 -and @($exes | Where-Object { (Get-Reg $key $_) -ne 'GpuPreference=2;' }).Count -eq 0
         }
@@ -518,13 +518,13 @@ $Tweaks = [ordered]@{
     # ปิด Xbox Game Bar ทั้งหมด (ไม่ใช่แค่อัดคลิป) ไม่ให้แฝงตัวในเกม
     GameBarOff = @{
         Apply = {
-            Set-RegValue 'HKCU:\Software\Microsoft\GameBar' 'UseNexusForGameBarEnabled' 0
-            Set-RegValue 'HKCU:\Software\Microsoft\GameBar' 'ShowStartupPanel' 0
+            Set-RegValue $KGB 'UseNexusForGameBarEnabled' 0
+            Set-RegValue $KGB 'ShowStartupPanel' 0
             Set-RegValue $KDV 'AppCaptureEnabled' 0
             Set-RegValue $KGC 'GameDVR_Enabled' 0
             Set-RegValue 'HKLM:\SOFTWARE\Microsoft\PolicyManager\default\ApplicationManagement\AllowGameDVR' 'value' 0
         }
-        Check = { (Get-Reg 'HKCU:\Software\Microsoft\GameBar' 'UseNexusForGameBarEnabled') -eq 0 }
+        Check = { (Get-Reg $KGB 'UseNexusForGameBarEnabled') -eq 0 }
     }
 }
 
@@ -1021,7 +1021,7 @@ function Get-DriveMedia([string]$path) {
 
 # ไฟล์ exe ของ FiveM ที่ควรใช้การ์ดจอแยก (FiveM.exe + ตัวเกมทุก build ใน cache\subprocess + GTA5.exe)
 function Get-FiveMExes {
-    $out = New-Object System.Collections.Generic.List[string]
+    $out = [Collections.Generic.List[string]]::new()
     $fd = Get-FiveMData
     if ($fd) {
         $root = Split-Path (Split-Path $fd -Parent) -Parent
@@ -1083,7 +1083,7 @@ function Do-AudioFix {
     Emit @{ t = 'result'; action = 'AudioFix'; ok = (-not $er -and -not $a.sv.Count); m = $er; out = ($a.out -join ', ') }
 }
 function Do-Health {
-    $r = New-Object System.Collections.Generic.List[object]
+    $r = [Collections.Generic.List[object]]::new()
     function Add($id, $title, $status, $detail, $fix) { $r.Add([ordered]@{ id = $id; title = $title; status = $status; detail = $detail; fix = $fix }) }
 
     # RAM speed / XMP
@@ -1109,6 +1109,9 @@ function Do-Health {
         else { Add 'chan' 'แรมแบบ Dual Channel' 'ok' "$($mods.Count) แผง ($txt GB)" '' }
         if ($total -lt 16) { Add 'ramsize' 'ขนาดแรม' 'warn' "แรมรวม $total GB" 'FiveM กับเซิร์ฟที่มี mod เยอะควรมี 16 GB ขึ้นไป' }
     } catch { }
+
+    # การ์ดจอวิ่งกี่เลน PCIe (ตอนนี้/สูงสุด) ข้อความภาษาไทยอยู่ใน ui.html
+    try { foreach ($g in @(Get-CimInstance Win32_VideoController | Where-Object { $_.Name -match 'NVIDIA|AMD|Radeon|Arc' })) { $w = foreach ($i in 10, 12) { [int](Get-PnpDeviceProperty -InstanceId $g.PNPDeviceID -KeyName "{3ab22e31-8264-4b4e-9af5-a8d2d8e33e62} $i").Data }; if ($w[0]) { Add 'pcie' $g.Name $(if ($w[0] -lt $w[1]) { 'warn' } else { 'ok' }) "$($w[0])/$($w[1])" '' } } } catch { }
 
     # รีเฟรชเรตจอ ตรวจในตัวโปรแกรม (ทุกจอ + ปุ่มแก้)
     try {
@@ -1169,7 +1172,7 @@ function Do-Health {
     # overlay ที่ทำให้เฟรมสะดุด
     try {
         $names = @(Get-Process -EA 0 | ForEach-Object { $_.ProcessName.ToLower() })
-        $ov = New-Object System.Collections.Generic.List[string]; $tips = New-Object System.Collections.Generic.List[string]
+        $ov = [Collections.Generic.List[string]]::new(); $tips = [Collections.Generic.List[string]]::new()
         if ($names -contains 'nvidia overlay' -or $names -contains 'nvidia share') { $ov.Add('NVIDIA Overlay'); $tips.Add('NVIDIA app/GeForce Experience > ปิด In-game overlay') }
         $od = @(Get-OvDisc); $au = @($od | Where-Object { $_.on.Count } | ForEach-Object { $_.n }); $vf = @(Get-OvVdf)
         if (@($vf | Where-Object { (Get-OvVal $_) -ne '0' }).Count) { $au += 'Steam' }
@@ -1228,7 +1231,10 @@ $Script:FpsProtect = @('idle','system','registry','smss','csrss','wininit','winl
 function Test-FpsProtected([string]$n) { $l = $n.ToLower(); if ($Script:FpsProtect -contains $l) { return $true }; return ($l -like 'fivem*' -or $l -like 'gta5*' -or $l -like 'zanbooster*') }
 
 function Do-FpsScan {
-    $r = New-Object System.Collections.Generic.List[object]
+    $tHDD = 'เกมอยู่บน SSD หรือ HDD'
+    $tMAX = 'ความเร็ว CPU สูงสุด'
+    $tCPU = 'โปรแกรมเบื้องหลังแย่ง CPU'
+    $r = [Collections.Generic.List[object]]::new()
     $bk = Get-FpsBackup
     function Add($cat, $id, $title, $status, $detail, $fix, $act = '', $actTxt = '', $guide = '', $restart = $false, $extra = $null) {
         $it = [ordered]@{ cat = $cat; id = $id; title = $title; status = $status; detail = $detail; fix = $fix; act = $act; actTxt = $actTxt; guide = $guide; restart = $restart; undo = [bool]($bk -and $bk.PSObject.Properties[$id]) }
@@ -1354,9 +1360,9 @@ function Do-FpsScan {
         if ($hogs.Count) {
             $txt = ($hogs | ForEach-Object { $k = $known[$_.name.ToLower()]; "$(if ($k) { $k } else { $_.name }) $($_.pct)%" }) -join ', '
             $sum = ($hogs | Measure-Object pct -Sum).Sum
-            Add 'sys' 'cpuhog' 'โปรแกรมเบื้องหลังแย่ง CPU' $(if ($sum -ge 25) { 'heavy' } else { 'warn' }) $txt 'ถ้าเป็น Windows Update / Defender รอให้เสร็จก่อนเล่น ถ้าเป็นโปรแกรมอื่นปิดก่อนเข้าเกม'
-        } else { Add 'sys' 'cpuhog' 'โปรแกรมเบื้องหลังแย่ง CPU' 'ok' 'ไม่มีอะไรแย่ง CPU ตอนนี้' '' }
-    } catch { Unknown 'sys' 'cpuhog' 'โปรแกรมเบื้องหลังแย่ง CPU' }
+            Add 'sys' 'cpuhog' $tCPU $(if ($sum -ge 25) { 'heavy' } else { 'warn' }) $txt 'ถ้าเป็น Windows Update / Defender รอให้เสร็จก่อนเล่น ถ้าเป็นโปรแกรมอื่นปิดก่อนเข้าเกม'
+        } else { Add 'sys' 'cpuhog' $tCPU 'ok' 'ไม่มีอะไรแย่ง CPU ตอนนี้' '' }
+    } catch { Unknown 'sys' 'cpuhog' $tCPU }
 
     try {
         $names = @(Get-Process -EA 0 | ForEach-Object { $_.ProcessName.ToLower() })
@@ -1396,9 +1402,9 @@ function Do-FpsScan {
         if ($hex.Count -ge 2) {
             $ac = $hex[$hex.Count - 2]
             if ($ac -lt 100) { Add 'sys' 'cpumax' 'จำกัดความเร็ว CPU ไว้' 'heavy' "แผนพลังงานจำกัด CPU ไว้ที่ $ac%" 'กดแก้ให้ CPU วิ่งได้ 100%' 'cpumax' 'แก้ให้เลย' }
-            else { Add 'sys' 'cpumax' 'ความเร็ว CPU สูงสุด' 'ok' 'ไม่ได้จำกัด (100%)' 'ถ้า FPS ตกกลางเกมทั้งที่ข้อนี้ผ่าน อาจเป็นเพราะร้อนเกิน ดูข้อความร้อนด้านล่าง' }
-        } else { Unknown 'sys' 'cpumax' 'ความเร็ว CPU สูงสุด' }
-    } catch { Unknown 'sys' 'cpumax' 'ความเร็ว CPU สูงสุด' }
+            else { Add 'sys' 'cpumax' $tMAX 'ok' 'ไม่ได้จำกัด (100%)' 'ถ้า FPS ตกกลางเกมทั้งที่ข้อนี้ผ่าน อาจเป็นเพราะร้อนเกิน ดูข้อความร้อนด้านล่าง' }
+        } else { Unknown 'sys' 'cpumax' $tMAX }
+    } catch { Unknown 'sys' 'cpumax' $tMAX }
 
     try {
         $st = @(Get-CimInstance Win32_StartupCommand -ErrorAction Stop | Where-Object { $_.Command -notmatch 'SecurityHealth|ZanBooster' })
@@ -1417,7 +1423,7 @@ function Do-FpsScan {
         $hdd = @(); $unk = $false
         foreach ($x in $paths) { $m = Get-DriveMedia $x.p; if ($m -eq 'HDD') { $hdd += "$($x.n) ($([IO.Path]::GetPathRoot($x.p).TrimEnd('\')))" } elseif ($m -eq 'ไม่ทราบ') { $unk = $true } }
         if ($hdd.Count) { Add 'disk' 'hdd' 'เกมอยู่บนฮาร์ดดิสก์ (HDD)' 'heavy' ($hdd -join ', ') 'ย้ายไปลง SSD แมพโหลดเร็วขึ้น กระตุกตอนขับรถเร็วน้อยลงมาก' }
-        elseif ($unk) { Unknown 'disk' 'hdd' 'เกมอยู่บน SSD หรือ HDD' }
+        elseif ($unk) { Unknown 'disk' 'hdd' $tHDD }
         else { Add 'disk' 'hdd' 'เกมอยู่บน SSD' 'ok' (($paths | ForEach-Object { $_.n }) -join ' + ') '' }
         $low = @()
         foreach ($root in @($paths | ForEach-Object { [IO.Path]::GetPathRoot($_.p) } | Select-Object -Unique)) {
@@ -1425,9 +1431,9 @@ function Do-FpsScan {
         }
         if ($low.Count) { Add 'disk' 'space' 'ไดรฟ์ที่ลงเกมพื้นที่ใกล้เต็ม' 'warn' ($low -join ', ') 'ลบไฟล์ที่ไม่ใช้ หรือกดล้างไฟล์ขยะในหน้าเครื่องมือ ให้เหลือเกิน 10%' }
         else { Add 'disk' 'space' 'พื้นที่ไดรฟ์ที่ลงเกม' 'ok' 'เหลือเกิน 10%' '' }
-    } else { Unknown 'disk' 'hdd' 'เกมอยู่บน SSD หรือ HDD'; Unknown 'disk' 'space' 'พื้นที่ไดรฟ์ที่ลงเกม' }
+    } else { Unknown 'disk' 'hdd' $tHDD; Unknown 'disk' 'space' 'พื้นที่ไดรฟ์ที่ลงเกม' }
 
-    } catch { Unknown 'disk' 'hdd' 'เกมอยู่บน SSD หรือ HDD' }
+    } catch { Unknown 'disk' 'hdd' $tHDD }
 
     Emit @{ t = 'result'; action = 'FpsScan'; items = $r.ToArray(); lostGB = $lostGB }
 }
@@ -1556,10 +1562,10 @@ function Do-Report {
     $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
     $tmp = Join-Path $env:TEMP "ZanBooster-report-$stamp"
     New-Item -ItemType Directory -Path $tmp -Force | Out-Null
-    $errs = New-Object System.Collections.Generic.List[string]
+    $errs = [Collections.Generic.List[string]]::new()
     $send = ($Ids -eq 'send') # ส่งเข้า Discord: เก็บเฉพาะที่จำเป็น ไฟล์เล็ก
     try {
-        $Script:Capture = New-Object System.Collections.Generic.List[object]
+        $Script:Capture = [Collections.Generic.List[object]]::new()
         foreach ($fn in 'Do-SysInfo', 'Do-Status', 'Do-Health', 'Do-GfxPlan', 'Do-GfxStatus') { try { & $fn } catch { $errs.Add("$fn : $($_.Exception.Message)") } }
         $data = $Script:Capture.ToArray(); $Script:Capture = $null
         $osName = ''; try { $os = Get-CimInstance Win32_OperatingSystem; $osName = "$($os.Caption) $($os.Version)" } catch { }
@@ -1886,20 +1892,28 @@ function Do-Aff {
     } elseif ($Ids -eq 'del' -and $r[$Opt]) { & $set $Opt ($r[$Opt] -split '\|')[1]; $r.Remove($Opt) }
     elseif ($Ids -eq 'apply') { foreach ($k in @($r.Keys)) { & $set $k ($r[$k] -split '\|')[0] } }
     if ($Ids -in 'set', 'del') { $c | Add-Member aff ([pscustomobject]$r) -Force; Save-Config $c; Write-Log "CPU affinity $Ids $Opt" }
-    $cores = New-Object System.Collections.Generic.List[object]
+    $cores = [Collections.Generic.List[object]]::new()
     try {
         if (-not ('ZC' -as [type])) { Add-Type 'using System;using System.Runtime.InteropServices;public class ZC{[DllImport("kernel32")]public static extern bool GetLogicalProcessorInformationEx(int r,IntPtr b,ref int n);}' }
         $X = [Runtime.InteropServices.Marshal]; $z = 0; [void][ZC]::GetLogicalProcessorInformationEx(0, [IntPtr]::Zero, [ref]$z); $b = $X::AllocHGlobal($z)
         if ([ZC]::GetLogicalProcessorInformationEx(0, $b, [ref]$z)) { for ($o = 0; $o -lt $z; $o += $X::ReadInt32($b, $o + 4)) { if ($X::ReadInt16($b, $o + 40) -eq 0) { $cores.Add(@{ e = $X::ReadByte($b, $o + 9); m = [string]$X::ReadInt64($b, $o + 32) }) } } }
         $X::FreeHGlobal($b)
     } catch { }
-    $seen = @{}; $list = New-Object System.Collections.Generic.List[object]
+    $seen = @{}; $list = [Collections.Generic.List[object]]::new()
     foreach ($p in @(Get-Process -EA 0)) {
         $k = $p.ProcessName
         if ($seen[$k] -or ($p.MainWindowHandle -eq 0 -and -not $r[$k] -and $k -ne 'audiodg') -or $p.Id -eq $PID) { continue }
         try { $list.Add(@{ n = $k; d = [string]$p.Description; a = [string][int64]$p.ProcessorAffinity }); $seen[$k] = 1 } catch { if ($k -eq 'audiodg') { $list.Add(@{ n = $k; a = '' }); $seen[$k] = 1 } }
     }
     Emit @{ t = 'result'; action = 'Aff'; ok = $true; hit = $script:hit; fail = $fail; all = "$all"; cores = $cores.ToArray(); apps = $list.ToArray(); rules = $r }
+}
+
+# ระหว่างเล่น: CPU ถูกจำกัดความเร็วกี่ % (100 = ไม่โดน) และอุณหภูมิ/ลดความเร็วเพราะร้อนของการ์ด NVIDIA
+function Do-Heat {
+    $h = @{ t = 'result'; action = 'Heat'; ok = $true }
+    try { $h.cpu = [int](Get-CimInstance Win32_PerfFormattedData_Counters_ProcessorInformation -Filter "Name='_Total'").PercentPerformanceLimit } catch { }
+    try { $h.gpu = [string](nvidia-smi --query-gpu=temperature.gpu,clocks_throttle_reasons.hw_thermal_slowdown,clocks_throttle_reasons.sw_thermal_slowdown --format=csv,noheader,nounits | Select-Object -First 1) } catch { }
+    Emit $h
 }
 
 function Do-BoostNow {
@@ -1940,6 +1954,7 @@ try {
     'TestRole'   { Do-TestRole }
     'BoostNow'   { Do-BoostNow }
     'Aff'        { Do-Aff }
+    'Heat'       { Do-Heat }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -EA 0)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
         'Health'     { Do-Health }
