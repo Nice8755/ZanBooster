@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.70",
-    "sha256": "23e1254ac497e90964f7c6c9ae827f49ab9057d107d6aa1ad6421b8ec310b575",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/814dcc0e32ea53f7e8bb3962d28f5e20e3f032ea/ZanBooster.exe",
-    "notes": "รูปพื้นหลังของธีมการ์ตูนขยับได้ หยุดเองตอนไม่ได้ใช้หน้าโปรแกรมหรือตอนเล่นเกม"
+    "version": "4.11.71",
+    "sha256": "bb00c2f8f7b1bc0cac0d328e5191537069e2168b52fe2f61f8cd5a343b139a42",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ea3de47ef8873f047d160da2b0aafe0e25343101/ZanBooster.exe",
+    "notes": "กราฟิกเกมปรับแต่งเองได้, ReShade ปรับภาพเองพร้อมแบบสมจริง, ปรับความทึบของกล่องได้"
   },
   "vip": {
     "version": "4.11.68",
