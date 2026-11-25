@@ -9,9 +9,9 @@
     "notes": "แก้เปิดโปรแกรมแล้วค้างหน้าโลโก้"
   },
   "vip": {
-    "version": "4.12.02",
-    "sha256": "628929af7e40b193e4ea77284d9c66987d3a6ad8bce99198cd8b64261d46fe96",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/b46a26015ddc5808557a79d5a191fe3645fedca9/ZanBooster.exe",
-    "notes": "แก้เปิดโปรแกรมแล้วค้างหน้าโลโก้หรือจอดำ"
+    "version": "4.12.04",
+    "sha256": "8fde8ef2a921436425bfd650f2e0813f3c20429b8457514220b422d18b495c5a",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/00942fee8671f171f6ef41666438bb4cb4a1d802/ZanBooster.exe",
+    "notes": "แก้เปิดโปรแกรมแล้วค้างหน้าโลโก้ · หน้าเปิดโปรแกรมใหม่"
   }
 }
