@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.73",
-    "sha256": "ae7fb3de3fe9b335206312539114a58eb2a73b3e72c8ee16184cd3f6e4320284",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/bb037d3ea345605f084f601637c0e8d739cf817a/ZanBooster.exe",
-    "notes": "กราฟิกเกมปรับแต่งเอง: ค่าที่ในเกมเป็นแถบเลื่อน เป็นแถบเลื่อนเหมือนในเกม"
+    "version": "4.11.74",
+    "sha256": "4fc1200b2169329af58af3786d2ddf5dd38cd0814cc6d95202720ad90c121692",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/4567af17384c005c9a0a127e27ca147ad06488d0/ZanBooster.exe",
+    "notes": "สร้างธีมเองและแชร์โค้ดได้, เสียงตามธีม, มาสคอต Zan, ลองธีมพรีเมียม 30 วินาที"
   },
   "vip": {
     "version": "4.11.71",
