@@ -32,6 +32,12 @@ if ($env:GITHUB_ACTIONS) {
     'cpu-core startup task ok'
 }
 
+# 1c) YouTube search (needs internet; only reported, never fails the build)
+if ($env:GITHUB_ACTIONS) {
+    $l = [string](& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $f -Action YtSearch -Opt 'ariana grande' | Where-Object { $_ -match '"t":"result"' } | Select-Object -Last 1)
+    "  yt search: $($l.Substring(0, [math]::Min(300, $l.Length)))"
+}
+
 # 2) ui.html scripts have no syntax error, changelog is valid JSON
 $ui = [IO.File]::ReadAllText((Join-Path $root 'recovered\ui.html'), $utf8)
 $cl = [regex]::Match($ui, 'id="changelog">(.*?)</script>', 'Singleline').Groups[1].Value

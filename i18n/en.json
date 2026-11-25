@@ -996,5 +996,13 @@
 "เปิดใน YouTube": "Open in YouTube",
 "ลิงก์นี้ไม่ใช่ลิงก์ YouTube": "This is not a YouTube link",
 "คลิปนี้เจ้าของไม่ให้เล่นนอก YouTube ·": "The owner doesn't allow this video outside YouTube ·",
-"ปิดและหยุดเพลง": "Close and stop music"
+"ปิดและหยุดเพลง": "Close and stop music",
+"ค้นหาชื่อเพลง / ศิลปิน": "Search song / artist",
+"หรือวางลิงก์เพลง YouTube แล้วกดเพิ่ม": "or paste a YouTube link and press Add",
+"ค้นหาไม่เจอ หรือต่อ YouTube ไม่ได้ ลองชื่ออื่น": "Nothing found or YouTube can't be reached, try another name",
+"เพิ่มเข้าเพลงของฉัน": "Add to my songs",
+"ยังไม่มีเพลงของคุณ ตอนนี้เล่นเพลงของโปรแกรม": "No songs of yours yet, playing the app's songs",
+"กลับไปใช้เพลงของโปรแกรม": "Back to the app's songs",
+"เล่นอัตโนมัติตอนเปิดโปรแกรม": "Play automatically when the app opens",
+"เพิ่มเพลงแล้ว ตอนนี้เล่นเฉพาะเพลงของคุณ": "Song added, only your songs play now"
 }

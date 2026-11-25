@@ -1962,6 +1962,23 @@ function Do-Heat {
     Emit $h
 }
 
+# ค้นหาเพลงใน YouTube จากชื่อ (ไม่ต้องใช้กุญแจ API): อ่านหน้าผลค้นหาแล้วดึงรหัสคลิป ชื่อ ช่อง ความยาว สูงสุด 12 รายการ
+function Do-YtSearch {
+    $o = [Collections.Generic.List[object]]::new()
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor 3072
+        $h = (Invoke-WebRequest "https://www.youtube.com/results?search_query=$([uri]::EscapeDataString($Opt))&sp=EgIQAQ%3D%3D" -UseBasicParsing -TimeoutSec 15 -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36' -Headers @{ 'Accept-Language' = 'th,en;q=0.8' }).Content
+        $seen = @{}
+        foreach ($m in [regex]::Matches($h, '"videoRenderer":\{"videoId":"([\w-]{11})"(.{0,3000}?)"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"(.{0,3000}?)"(?:longBylineText|ownerText)":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"')) {
+            $v = $m.Groups[1].Value; if ($seen[$v]) { continue }; $seen[$v] = 1
+            $d = [regex]::Match($m.Groups[2].Value + $m.Groups[4].Value, '"lengthText":\{[^}]*?"simpleText":"([\d:]+)"').Groups[1].Value
+            $o.Add(@{ v = $v; t = [regex]::Unescape($m.Groups[3].Value); c = [regex]::Unescape($m.Groups[5].Value); d = $d })
+            if ($o.Count -ge 12) { break }
+        }
+    } catch { }
+    Emit @{ t = 'result'; action = 'YtSearch'; ok = ($o.Count -gt 0); items = $o.ToArray() }
+}
+
 function Do-BoostNow {
     $procs = @(Get-Process -EA 0 | Where-Object { $_.Name -like 'FiveM*GTAProcess' })
     if ($procs.Count -eq 0) { Emit @{ t = 'result'; action = 'BoostNow'; ok = $false; m = 'ยังไม่ได้เปิดเกม FiveM' }; return }
@@ -2002,6 +2019,7 @@ try {
     'BoostNow'   { Do-BoostNow }
     'Aff'        { Do-Aff }
     'Heat'       { Do-Heat }
+    'YtSearch'   { Do-YtSearch }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -EA 0)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
         'Health'     { Do-Health }
