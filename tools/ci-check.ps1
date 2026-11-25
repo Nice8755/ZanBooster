@@ -46,7 +46,8 @@ if ($env:GITHUB_ACTIONS) {
     Add-Type -Name V -Namespace CiTray -MemberDefinition '[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool ShowWindow(IntPtr h,int c);'
     $np = Start-Process notepad.exe -PassThru; Start-Sleep 3; $np.Refresh(); $h = [int64]$np.MainWindowHandle
     if (-not $h) { '  tray: no test window on this runner, skipped' } else {
-        $s = $str.Value.Replace('ZBH', "$h").Replace('ZBE', $np.Path.Replace("'", "''"))
+        $zw = ($ast.FindAll({ $args[0] -is [Management.Automation.Language.StringConstantExpressionAst] -and $args[0].Value -like '`[DllImport("user32")`]public static extern bool ShowWindow*' }, $true) | Select-Object -First 1).Value
+        $s = $str.Value.Replace('ZBW', $zw).Replace('ZBH', "$h").Replace('ZBE', $np.Path.Replace("'", "''"))
         $tp = Start-Process powershell.exe -PassThru -WindowStyle Hidden -ArgumentList '-NoProfile', '-STA', '-EncodedCommand', ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($s)))
         $hid = $false; for ($i = 0; $i -lt 40 -and -not $hid; $i++) { Start-Sleep -Milliseconds 250; $hid = -not [CiTray.V]::IsWindowVisible([IntPtr]$h) }
         $alive = -not $tp.HasExited
@@ -56,6 +57,14 @@ if ($env:GITHUB_ACTIONS) {
         if (-not $gone) { try { $tp.Kill() } catch { } }
         try { $np.Kill() } catch { }
         if (-not ($hid -and $alive -and $gone)) { throw 'tray helper test failed' }
+        # Dup: a second copy (same process name, started later) must bring the hidden first copy back
+        $np = Start-Process notepad.exe -PassThru; Start-Sleep 3; $np.Refresh(); $h = [int64]$np.MainWindowHandle
+        [void][CiTray.V]::ShowWindow([IntPtr]$h, 0); [IO.File]::WriteAllText("$env:TEMP\zbtray", "$($np.Id):$h")
+        $fake = Join-Path $work 'notepad.exe'; Copy-Item "$env:WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" $fake
+        $l = [string](& $fake -NoProfile -Command "& powershell.exe -NoProfile -ExecutionPolicy Bypass -File '$f' -Action Dup" | Where-Object { $_ -match '"t":"result"' } | Select-Object -Last 1)
+        $back = [CiTray.V]::IsWindowVisible([IntPtr]$h); try { $np.Kill() } catch { }; Remove-Item "$env:TEMP\zbtray" -EA 0
+        "  dup: $l, first copy shown again=$back"
+        if ($l -notmatch '"found":true' -or -not $back) { throw 'dup test failed' }
     }
 }
 

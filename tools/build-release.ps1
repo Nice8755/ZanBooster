@@ -72,11 +72,19 @@ for ($i = $tk.Count - 2; $i -ge 1; $i--) {
     if ($n -and -not $glue -and -not $pv.Text.StartsWith('-')) { [void]$sq.Remove($s - $n, $n) }
 }
 $min = $sq.ToString()
+# long command names -> built-in Windows PowerShell 5.1 aliases (only tokens used as a command; the token check below maps them back)
+$als = @{ 'ForEach-Object' = '%'; 'Where-Object' = '?'; 'Select-Object' = 'select'; 'Measure-Object' = 'measure'; 'Get-ChildItem' = 'gci'; 'Get-Content' = 'gc'; 'Get-Process' = 'gps'; 'Get-ItemProperty' = 'gp'; 'Set-ItemProperty' = 'sp'; 'Remove-Item' = 'ri'; 'Sort-Object' = 'sort'; 'New-Item' = 'ni'; 'Copy-Item' = 'cpi'; 'Start-Sleep' = 'sleep'; 'Get-CimInstance' = 'gcim'; 'Get-Item' = 'gi'; 'Remove-ItemProperty' = 'rp'; 'Start-Process' = 'saps'; 'Get-Service' = 'gsv'; 'Group-Object' = 'group'; 'Add-Content' = 'ac'; 'Invoke-RestMethod' = 'irm'; 'Invoke-WebRequest' = 'iwr' }
+$tk = $null; $pe = $null; [void][Management.Automation.Language.Parser]::ParseInput($min, [ref]$tk, [ref]$pe)
+$sq = [Text.StringBuilder]::new($min)
+foreach ($t in @($tk | Where-Object { ($_.TokenFlags -band [Management.Automation.Language.TokenFlags]::CommandName) -and $als.ContainsKey($_.Text) } | Sort-Object { $_.Extent.StartOffset } -Descending)) {
+    [void]$sq.Remove($t.Extent.StartOffset, $t.Extent.EndOffset - $t.Extent.StartOffset).Insert($t.Extent.StartOffset, $als[$t.Text])
+}
+$min = $sq.ToString(); $back = @{}; foreach ($k in $als.Keys) { $back[$als[$k]] = $k }
 "engine release size: {0:N0} bytes (slot 117,970)" -f $utf8.GetByteCount($min)
 $ta = $null; $tb = $null; $pe = $null
 [void][Management.Automation.Language.Parser]::ParseInput($eng, [ref]$ta, [ref]$pe); if ($pe.Count) { throw "engine: $($pe[0])" }
 [void][Management.Automation.Language.Parser]::ParseInput($min, [ref]$tb, [ref]$pe); if ($pe.Count) { throw "engine min: $($pe[0])" }
-$sig = { param($t) ($t | Where-Object { $_.Kind -notin 'NewLine', 'Comment' } | ForEach-Object { "$($_.Kind):$($_.Text)" }) -join "`n" }
+$sig = { param($t) ($t | Where-Object { $_.Kind -notin 'NewLine', 'Comment' } | ForEach-Object { $x = $_.Text; if (($_.TokenFlags -band [Management.Automation.Language.TokenFlags]::CommandName) -and $back.ContainsKey($x)) { "Cmd:$($back[$x])" } elseif ($_.TokenFlags -band [Management.Automation.Language.TokenFlags]::CommandName -and $als.ContainsKey($x)) { "Cmd:$x" } else { "$($_.Kind):$x" } }) -join "`n" }
 if ((& $sig $ta) -cne (& $sig $tb)) { throw 'engine: stripping indentation changed the code' }
 $engTmp = Join-Path $env:TEMP 'zb-release-engine.ps1'
 [IO.File]::WriteAllText($engTmp, $min, $utf8)
