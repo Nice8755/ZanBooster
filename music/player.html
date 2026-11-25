@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin"><title>Zan Booster music</title>
+<style>html,body{margin:0;height:100%;background:#000}iframe{border:0;width:100%;height:100%;display:block}</style></head>
+<body><iframe id="y" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<script>
+// ตัวกลางให้ Zan Booster เล่นเพลง YouTube: YouTube ต้องรู้ว่าฝังอยู่ในเว็บไหน (ไม่งั้นขึ้น Error 153)
+// หน้านี้รับแค่รหัสคลิป/เพลย์ลิสต์ แล้วส่งต่อคำสั่ง เล่น/หยุด/เสียง ระหว่างโปรแกรมกับตัวเล่น
+const q = new URLSearchParams(location.search), y = document.getElementById('y'), ok = s => /^[\w-]{1,64}$/.test(s || '');
+const v = q.get('v'), l = q.get('l'), p = (q.get('p') || '').split(',').filter(ok).slice(0, 100).join(',');
+y.src = 'https://www.youtube.com/embed/' + (ok(v) ? v : 'videoseries') + '?enablejsapi=1&autoplay=1&playsinline=1&rel=0&origin=' + encodeURIComponent(location.origin) +
+  (ok(l) ? '&list=' + l + '&loop=1' : '&playlist=' + (p || (ok(v) ? v : '')) + '&loop=1');
+addEventListener('message', e => {
+  if (e.source === parent && e.source !== window) y.contentWindow.postMessage(e.data, 'https://www.youtube.com');
+  else if (e.source === y.contentWindow && e.origin === 'https://www.youtube.com') parent.postMessage(e.data, '*');
+});
+y.onload = () => y.contentWindow.postMessage(JSON.stringify({ event: 'listening', id: 'zb', channel: 'widget' }), 'https://www.youtube.com');
+</script></body></html>
