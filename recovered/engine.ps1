@@ -1971,7 +1971,7 @@ function Do-YtSearch {
         $seen = @{}
         foreach ($m in [regex]::Matches($h, '"videoRenderer":\{"videoId":"([\w-]{11})"(.{0,3000}?)"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"(.{0,3000}?)"(?:longBylineText|ownerText)":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"')) {
             $v = $m.Groups[1].Value; if ($seen[$v]) { continue }; $seen[$v] = 1
-            $d = [regex]::Match($m.Groups[2].Value + $m.Groups[4].Value, '"lengthText":\{[^}]*?"simpleText":"([\d:]+)"').Groups[1].Value
+            $d = [regex]::Match($m.Groups[2].Value + $m.Groups[4].Value, '"lengthText":\{.{0,400}?"simpleText":"([\d:.]+)"').Groups[1].Value
             $o.Add(@{ v = $v; t = [regex]::Unescape($m.Groups[3].Value); c = [regex]::Unescape($m.Groups[5].Value); d = $d })
             if ($o.Count -ge 12) { break }
         }
