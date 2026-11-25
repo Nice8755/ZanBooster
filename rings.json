@@ -9,9 +9,9 @@
     "notes": "ธีมใหม่ 10 แบบ ขยับได้ · เคอร์เซอร์ 17 แบบ · หน้าเปิดโปรแกรมใหม่ · แปลอังกฤษครบ"
   },
   "vip": {
-    "version": "4.12.06",
-    "sha256": "fe602d0fc95dded25539a7bb210da071623cae56e00d44c87ce6ea577726071a",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/68622ecc07a752b40da55388ebd78260b446d669/ZanBooster.exe",
-    "notes": "แก้โปรแกรมค้างหน้าโลโก้บนเครื่องที่ใช้ภาษาอังกฤษ · แก้จอดำตอนเปิดจากถาด"
+    "version": "4.12.07",
+    "sha256": "731be77d9a940e6cfc2baa2ab19f75ed5ad64e2c314b93a2732adecabfa82165",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/cc16a026fe4ce19fa5d21f6690a6b0a4dad8ca10/ZanBooster.exe",
+    "notes": "ธีมใหม่ 10 แบบ ขยับได้ · เคอร์เซอร์ 17 แบบ · หน้าเปิดโปรแกรมใหม่ · แปลอังกฤษครบ"
   }
 }
