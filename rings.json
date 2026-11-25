@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.11.99",
-    "sha256": "c7ee52a09a2d9a2eeec1c7d7403ebb4183c75c0a2f5b39b833ce03f79484f046",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/cf5a9412efe0ffc3a41cf5531a2a8d25fb38b3b0/ZanBooster.exe",
-    "notes": "แก้หน้าต่างดำว่างเปล่าตอนเปิดกลับมาจากถาดข้างนาฬิกา"
+    "version": "4.12.00",
+    "sha256": "0bd348c2ffeaddecad650fe982a33a69771201b3c31258427329b158440ff054",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/a51d6274f97886e46e7e3016077b8bd7506ea0ef/ZanBooster.exe",
+    "notes": "แก้เปิดโปรแกรมแล้วขึ้นจอดำหรือค้างหน้าโลโก้ · กด ✕ ตอนเพลงเล่นครั้งแรก ถามก่อนว่าจะซ่อนไว้ที่ถาดหรือปิดเลย"
   },
   "vip": {
     "version": "4.11.98",
