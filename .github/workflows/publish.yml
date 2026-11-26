@@ -120,6 +120,23 @@ jobs:
           "VT result: malicious=$($st.malicious) suspicious=$($st.suspicious) undetected=$($st.undetected) sha256=$($a.meta.file_info.sha256)"
           $a.data.attributes.results.PSObject.Properties | Where-Object { $_.Value.category -in 'malicious', 'suspicious' } | ForEach-Object { "VT flag: $($_.Name) = $($_.Value.result)" }
 
+      - name: VT focus variants (test only)
+        if: steps.q.outputs.stage == 'test'
+        continue-on-error: true
+        shell: powershell
+        working-directory: src
+        env:
+          VT: ${{ secrets.VT_API_KEY }}
+        run: |
+          $ex = @()
+          foreach ($v in Get-ChildItem vtx -Filter *.ps1 | Sort-Object Name) {
+            Copy-Item $v.FullName recovered\engine.ps1 -Force
+            $o = "$env:RUNNER_TEMP\$($v.BaseName).exe"
+            $null = & ./tools/build-release.ps1 -Version 4.12.32 -Out $o 2>&1
+            if (Test-Path $o) { $ex += $o; "built $($v.BaseName)" } else { "build failed $($v.BaseName)" }
+          }
+          ./tools/vt-scan.ps1 -Files $ex
+
       - name: Keep the cloud work on rebuild-4x
         if: steps.q.outputs.stage == 'owner' && github.event_name == 'push'
         run: |
