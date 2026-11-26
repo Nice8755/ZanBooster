@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.21",
-    "sha256": "2fcdaa28aad76906103c31085b8b3c9bdeb289e72fc4c3f1da9217469c6951ed",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/4cce13bac99720bdff397c2ff69063505ecea656/ZanBooster.exe",
-    "notes": "ลดโอกาสโดนแอนติไวรัสเข้าใจผิด"
+    "version": "4.12.22",
+    "sha256": "a039aaf3ce0df624945565b09ba0e5b4fcd98c8903af0c4cf2d64bf631445338",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9aa0f0b02f422eab1567f8b44166f745172b0b28/ZanBooster.exe",
+    "notes": "หน้าเว็บแนะนำโปรแกรม · ลดโอกาสแอนติไวรัสเข้าใจผิด"
   },
   "vip": {
     "version": "4.12.20",
