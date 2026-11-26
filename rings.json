@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.15",
-    "sha256": "1a33e81bc75b4e9b6d60a800d60cd6312be46ecde6720136e897f10928992019",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ef31ff1ab42ef7f1065e354c713895cb89bf2e2a/ZanBooster.exe",
-    "notes": "การ์ดผลวัด FPS มีรูปจอเกมจริง ก่อน/หลัง พร้อมประกายวิบวับ"
+    "version": "4.12.16",
+    "sha256": "c63dd67cb8ca00fb93f263e7ac96d95eb3203ea7af8d69701994663765443e48",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/5229a8737467e6d62cb155dad2d4fbcb9796ba18/ZanBooster.exe",
+    "notes": "การ์ดผลวัด FPS มีรูปจอเกมจริง ก่อน/หลัง ประกายวิบวับ ลายตามธีม"
   },
   "vip": {
     "version": "4.12.14",
