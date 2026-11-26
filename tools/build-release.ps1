@@ -80,12 +80,23 @@ foreach ($t in @($tk | Where-Object { ($_.TokenFlags -band [Management.Automatio
     [void]$sq.Remove($t.Extent.StartOffset, $t.Extent.EndOffset - $t.Extent.StartOffset).Insert($t.Extent.StartOffset, $als[$t.Text])
 }
 $min = $sq.ToString(); $back = @{}; foreach ($k in $als.Keys) { $back[$als[$k]] = $k }
+# the engine's own function names -> short names (definitions + calls only, never inside strings; the token check maps them back)
+$tk = $null; $pe = $null; $fa = [Management.Automation.Language.Parser]::ParseInput($min, [ref]$tk, [ref]$pe)
+$fmap = @{}; $fi = 0; foreach ($fd in $fa.FindAll({ $args[0] -is [Management.Automation.Language.FunctionDefinitionAst] }, $true)) { if (-not $fmap.ContainsKey($fd.Name) -and $fd.Name.Length -gt 3) { $fmap[$fd.Name] = 'z' + $fi; $fi++ } }
+$sq = [Text.StringBuilder]::new($min)
+for ($i = $tk.Count - 1; $i -ge 0; $i--) {
+    $t = $tk[$i]; if (-not $fmap.ContainsKey($t.Text)) { continue }
+    $isDef = $i -gt 0 -and "$($tk[$i - 1].Kind)" -eq 'Function'; $isCall = [bool]($t.TokenFlags -band [Management.Automation.Language.TokenFlags]::CommandName)
+    if ($isDef -or $isCall) { [void]$sq.Remove($t.Extent.StartOffset, $t.Extent.EndOffset - $t.Extent.StartOffset).Insert($t.Extent.StartOffset, $fmap[$t.Text]) }
+}
+$min = $sq.ToString(); $fback = @{}; foreach ($k in $fmap.Keys) { $fback[$fmap[$k]] = $k }
+"engine functions renamed: $fi"
 "engine release size: {0:N0} bytes (slot 117,970)" -f $utf8.GetByteCount($min)
 $ta = $null; $tb = $null; $pe = $null
 [void][Management.Automation.Language.Parser]::ParseInput($eng, [ref]$ta, [ref]$pe); if ($pe.Count) { throw "engine: $($pe[0])" }
 [void][Management.Automation.Language.Parser]::ParseInput($min, [ref]$tb, [ref]$pe); if ($pe.Count) { throw "engine min: $($pe[0])" }
-$sig = { param($t) ($t | Where-Object { $_.Kind -notin 'NewLine', 'Comment' } | ForEach-Object { $x = $_.Text; if (($_.TokenFlags -band [Management.Automation.Language.TokenFlags]::CommandName) -and $back.ContainsKey($x)) { "Cmd:$($back[$x])" } elseif ($_.TokenFlags -band [Management.Automation.Language.TokenFlags]::CommandName -and $als.ContainsKey($x)) { "Cmd:$x" } else { "$($_.Kind):$x" } }) -join "`n" }
-if ((& $sig $ta) -cne (& $sig $tb)) { throw 'engine: stripping indentation changed the code' }
+$sig = { param($t) ($t | Where-Object { $_.Kind -notin 'NewLine', 'Comment' } | ForEach-Object { $x = $_.Text; if ("$($_.Kind)" -notmatch 'String' -and $fback.ContainsKey($x)) { $x = $fback[$x] }; if (($_.TokenFlags -band [Management.Automation.Language.TokenFlags]::CommandName) -and $back.ContainsKey($x)) { "Cmd:$($back[$x])" } elseif ($_.TokenFlags -band [Management.Automation.Language.TokenFlags]::CommandName -and $als.ContainsKey($x)) { "Cmd:$x" } else { "$($_.Kind):$x" } }) -join "`n" }
+if ((& $sig $ta) -ne (& $sig $tb)) { throw 'engine: stripping indentation changed the code' }
 $engTmp = Join-Path $env:TEMP 'zb-release-engine.ps1'
 [IO.File]::WriteAllText($engTmp, $min, $utf8)
 # the squeezed copy must still answer the read-only actions on Windows PowerShell
