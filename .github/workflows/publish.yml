@@ -120,6 +120,23 @@ jobs:
           "VT result: malicious=$($st.malicious) suspicious=$($st.suspicious) undetected=$($st.undetected) sha256=$($a.meta.file_info.sha256)"
           $a.data.attributes.results.PSObject.Properties | Where-Object { $_.Value.category -in 'malicious', 'suspicious' } | ForEach-Object { "VT flag: $($_.Name) = $($_.Value.result)" }
 
+      - name: VT bisect (test only)
+        if: steps.q.outputs.stage == 'test'
+        continue-on-error: true
+        env:
+          VT: ${{ secrets.VT_API_KEY }}
+        run: |
+          $src = [IO.File]::ReadAllText("$PWD\recovered\engine.ps1"); $d = "$env:RUNNER_TEMP\vt"; New-Item -ItemType Directory -Force $d | Out-Null
+          $u = [Text.UTF8Encoding]::new($true)
+          Copy-Item "$env:TEMP\zb-release-engine.ps1" "$d\v1-release.ps1"
+          [IO.File]::WriteAllText("$d\v2-source.ps1", $src, $u)
+          [IO.File]::WriteAllText("$d\v3-noDefender.ps1", (($src -split "`n") | Where-Object { $_ -notmatch 'MpPreference' }) -join "`n", $u)
+          $a = $src.IndexOf("`$ZW = '"); $b = $src.IndexOf("function Do-JoinWait")
+          [IO.File]::WriteAllText("$d\v4-noHelpers.ps1", $src.Remove($a, $b - $a), $u)
+          $a = $src.IndexOf("function Do-Shot"); $b = $src.IndexOf("function Do-JoinWait")
+          [IO.File]::WriteAllText("$d\v5-noShot.ps1", $src.Remove($a, $b - $a), $u)
+          ./tools/vt-scan.ps1 -Files (Get-ChildItem $d -Filter *.ps1 | Sort-Object Name | ForEach-Object FullName)
+
       - name: Keep the cloud work on rebuild-4x
         if: steps.q.outputs.stage == 'owner' && github.event_name == 'push'
         run: |
