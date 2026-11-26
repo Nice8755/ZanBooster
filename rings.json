@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.08",
-    "sha256": "67e856c405f73783d3c35960f1afb7453b3024b87a1546a776aeac5050597d3b",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/85cf7a13266a2f15064642c1db73de6784bed09e/ZanBooster.exe",
-    "notes": "หน้าเปิดโปรแกรมเห็นอนิเมชันครบ โชว์โลโก้นานขึ้น"
+    "version": "4.12.09",
+    "sha256": "366c2d2e3269454f02e5b0dc33164618f84a788cda5ac9691be6292bb2edae71",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2ebffe031112d182e47b14152914e40e94d60690/ZanBooster.exe",
+    "notes": "ธีมขยับเห็นเอฟเฟกต์ชัดขึ้น · หน้าเปิดโปรแกรมเห็นอนิเมชันครบ"
   },
   "vip": {
     "version": "4.12.07",
