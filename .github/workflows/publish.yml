@@ -129,10 +129,16 @@ jobs:
           VT: ${{ secrets.VT_API_KEY }}
         run: |
           New-Item -ItemType Directory -Force vtw | Out-Null
-          Copy-Item "$env:TEMP\zb-release-engine-run.ps1" vtw\a-release-engine.ps1
-          Copy-Item recovered\engine.ps1 vtw\b-src-engine.ps1
-          Copy-Item recovered\ui.html vtw\c-ui.html
-          Copy-Item beta\ZanBooster.exe vtw\d-orig-4.11.15.exe
+          $src = [IO.File]::ReadAllText("$PWD\recovered\engine.ps1"); $u = [Text.UTF8Encoding]::new($true); $L = $src -split "`n"
+          $cut = { param($a, $b) $i = $src.IndexOf($a); $j = $src.IndexOf($b); $src.Remove($i, $j - $i) }
+          $noSH = ($L | ForEach-Object { if ($_ -match "^\s+Start-Process powershell.exe -WindowStyle Hidden") { '    $null' } else { $_ } }) -join "`n"
+          $noAT = ($L | ForEach-Object { if ($_ -match "Register-ScheduledTask -TaskName") { '            $null' } else { $_ } }) -join "`n"
+          [IO.File]::WriteAllText("$PWD\vtw\x1-noStartHelper.ps1", $noSH, $u)
+          [IO.File]::WriteAllText("$PWD\vtw\x2-noAffTask.ps1", $noAT, $u)
+          [IO.File]::WriteAllText("$PWD\vtw\x3-noBoth.ps1", (($noSH -split "`n") | ForEach-Object { if ($_ -match "Register-ScheduledTask -TaskName") { '            $null' } else { $_ } }) -join "`n", $u)
+          [IO.File]::WriteAllText("$PWD\vtw\x4-noRpc.ps1", (& $cut 'function Do-Rpc' '# ตัวช่วยเบื้องหลัง'), $u)
+          [IO.File]::WriteAllText("$PWD\vtw\x5-noTray.ps1", (& $cut 'function Do-Tray' 'function Do-Rpc'), $u)
+          [IO.File]::WriteAllText("$PWD\vtw\x6-noDup.ps1", (& $cut 'function Do-Dup' 'function Do-Tray'), $u)
           ./tools/vt-scan.ps1 -Files (Get-ChildItem vtw | Sort-Object Name | ForEach-Object FullName)
 
       - name: Keep the cloud work on rebuild-4x
