@@ -2027,15 +2027,14 @@ function Do-Tray {
 
 # ถ่ายรูปหน้าจอ (แบบ Print Screen) ตอนวัด FPS เสร็จ ไว้ใส่การ์ดผลวัด · ไม่แตะเกม · ย่อเหลือกว้าง 960 ส่งกลับเป็นรูป JPEG
 function Do-Shot {
-    $u = $null
-    try {
-        Add-Type -AssemblyName System.Drawing, System.Windows.Forms
-        $b = [Windows.Forms.Screen]::PrimaryScreen.Bounds; $bm = New-Object Drawing.Bitmap $b.Width, $b.Height
-        $g = [Drawing.Graphics]::FromImage($bm); $g.CopyFromScreen($b.Location, [Drawing.Point]::Empty, $b.Size); $g.Dispose()
-        $sm = New-Object Drawing.Bitmap $bm, 960, ([int]($b.Height * 960 / $b.Width)); $bm.Dispose()
-        $ms = New-Object IO.MemoryStream; $sm.Save($ms, [Drawing.Imaging.ImageFormat]::Jpeg); $sm.Dispose(); $u = $ms.ToArray()
-    } catch { }
-    Emit @{ t = 'result'; action = 'Shot'; ok = [bool]$u; bytes = $u }
+    $p = Join-Path $DataDir 'shot.jpg'; $ok = $false
+    try { Start-Helper 'zb-shot.ps1' 'Add-Type -AssemblyName System.Drawing, System.Windows.Forms
+$b = [Windows.Forms.Screen]::PrimaryScreen.Bounds; $bm = New-Object Drawing.Bitmap $b.Width, $b.Height
+$g = [Drawing.Graphics]::FromImage($bm); $g.CopyFromScreen($b.Location, [Drawing.Point]::Empty, $b.Size); $g.Dispose()
+$sm = New-Object Drawing.Bitmap $bm, 960, ([int]($b.Height * 960 / $b.Width)); $bm.Dispose()
+$sm.Save((Join-Path $env:ProgramData ''ZanBooster\shot.jpg''), [Drawing.Imaging.ImageFormat]::Jpeg); $sm.Dispose()
+'; for ($i = 0; $i -lt 20 -and -not $ok; $i++) { Start-Sleep -Milliseconds 250; $ok = Test-Path $p } } catch { }
+    Emit @{ t = 'result'; action = 'Shot'; ok = $ok; path = $p }
 }
 
 function Do-Rpc {

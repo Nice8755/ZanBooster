@@ -2029,12 +2029,12 @@ function Do-Tray {
 function Do-Shot {
     $u = ''
     try {
-        Add-Type -AssemblyName System.Windows.Forms, System.Drawing
-        [Windows.Forms.SendKeys]::SendWait('{PRTSC}'); Start-Sleep -Milliseconds 400
-        $i = [Windows.Forms.Clipboard]::GetImage()
-        if ($i) { $ms = New-Object IO.MemoryStream; $i.Save($ms, [Drawing.Imaging.ImageFormat]::Jpeg); $u = 'data:image/jpeg;base64,' + [Convert]::ToBase64String($ms.ToArray()) }
+        $dir = Join-Path ([Environment]::GetFolderPath('MyPictures')) 'Screenshots'; $t0 = Get-Date
+        Add-Type -Name K -Namespace Z -MemberDefinition '[DllImport("user32")]public static extern void keybd_event(byte v,byte s,int f,int e);'
+        [Z.K]::keybd_event(0x5B, 0, 0, 0); [Z.K]::keybd_event(0x2C, 0, 0, 0); [Z.K]::keybd_event(0x2C, 0, 2, 0); [Z.K]::keybd_event(0x5B, 0, 2, 0)
+        for ($i = 0; $i -lt 20 -and -not $u; $i++) { Start-Sleep -Milliseconds 300; $f = Get-ChildItem $dir -Filter *.png -EA 0 | Where-Object { $_.LastWriteTime -ge $t0 } | Select-Object -First 1; if ($f) { $u = $f.FullName } }
     } catch { }
-    Emit @{ t = 'result'; action = 'Shot'; ok = [bool]$u; img = $u }
+    Emit @{ t = 'result'; action = 'Shot'; ok = [bool]$u; path = $u }
 }
 
 function Do-Rpc {
