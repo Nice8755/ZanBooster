@@ -1966,6 +1966,11 @@ function Do-Aff {
 function Do-Heat {
     $h = @{ t = 'result'; action = 'Heat'; ok = $true }
     try { $h.cpu = [int](Get-CimInstance Win32_PerfFormattedData_Counters_ProcessorInformation -Filter "Name='_Total'").PercentPerformanceLimit } catch { }
+    # โปรแกรมที่แย่ CPU ระหว่างเล่น: เทียบเวลา CPU ของแต่ละโปรแกรมห่างกัน 2 วิ (อ่านอย่างเดียว)
+    try {
+        $a = @{}; Get-Process | ForEach-Object { $a[$_.Id] = $_.TotalProcessorTime.TotalMilliseconds }; Start-Sleep 2; $n = [Environment]::ProcessorCount
+        $h.top = (Get-Process | Where-Object { $a.ContainsKey($_.Id) -and $_.ProcessName -notmatch '^(Idle|System|FiveM|GTA5|ZanBooster|powershell|msedgewebview2|dwm|csrss)' } | Group-Object ProcessName | ForEach-Object { $c = 0; $_.Group | ForEach-Object { $c += $_.TotalProcessorTime.TotalMilliseconds - $a[$_.Id] }; "$($_.Name):$([math]::Round($c / 20 / $n))" } | Where-Object { [int]($_ -split ':')[-1] -ge 5 } | Select-Object -First 5) -join ';'
+    } catch { }
     try { $h.gpu = [string](nvidia-smi --query-gpu=temperature.gpu,clocks_throttle_reasons.hw_thermal_slowdown,clocks_throttle_reasons.sw_thermal_slowdown --format=csv,noheader,nounits | Select-Object -First 1) } catch { }
     Emit $h
 }

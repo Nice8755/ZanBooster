@@ -1163,5 +1163,10 @@
 "ใส่รูปจอเกมแล้ว": "Game screenshot added",
 "ไฟล์นี้ไม่ใช่รูป": "This file is not an image",
 "อยากได้รูปจอเกมในการ์ด: ระหว่างวัดกด PrintScreen ในเกม 1 ครั้ง": "Want a game screenshot on the card: press PrintScreen once in game while measuring",
-"ระหว่างวัดกด PrintScreen ในเกม 1 ครั้ง (ไม่บังคับ)": "Press PrintScreen once in game while measuring (optional)"
+"ระหว่างวัดกด PrintScreen ในเกม 1 ครั้ง (ไม่บังคับ)": "Press PrintScreen once in game while measuring (optional)",
+"ระหว่างเล่นมีโปรแกรมแย่ CPU:": "Apps using CPU while you played:",
+"ถ้าเกมกระตุกเป็นช่วง ๆ ลองปิดโปรแกรมพวกนี้ก่อนเข้าเกม": "If the game stutters now and then, close these apps before playing",
+"ตั้งตามผล": "Apply results",
+"ไว้ก่อน": "Not now",
+"ตั้งตามผลวัดแล้ว": "Applied the measured results"
 }
