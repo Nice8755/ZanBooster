@@ -2025,23 +2025,6 @@ function Do-Tray {
     Emit @{ t = 'result'; action = 'Tray'; ok = $ok }
 }
 
-# ถ่ายรูปหน้าจอ (แบบ Print Screen) ตอนวัด FPS เสร็จ ไว้ใส่การ์ดผลวัด · ไม่แตะเกม · ย่อเหลือกว้าง 960 ส่งกลับเป็นรูป JPEG
-function Do-Shot {
-    $u = ''
-    try {
-        Add-Type -Name D -Namespace Z -MemberDefinition '[DllImport("user32")]public static extern bool SetProcessDPIAware();'; [void][Z.D]::SetProcessDPIAware()
-        Add-Type -AssemblyName System.Drawing, System.Windows.Forms
-        $b = [Windows.Forms.Screen]::PrimaryScreen.Bounds; $bm = New-Object Drawing.Bitmap $b.Width, $b.Height
-        $g = [Drawing.Graphics]::FromImage($bm); $g.CopyFromScreen($b.Location, [Drawing.Point]::Empty, $b.Size); $g.Dispose()
-        $sm = New-Object Drawing.Bitmap $bm, 960, ([int]($b.Height * 960 / $b.Width)); $bm.Dispose()
-        $ep = New-Object Drawing.Imaging.EncoderParameters 1; $ep.Param[0] = New-Object Drawing.Imaging.EncoderParameter ([Drawing.Imaging.Encoder]::Quality), 74L
-        $ms = New-Object IO.MemoryStream; $sm.Save($ms, ([Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq 'image/jpeg' }), $ep); $sm.Dispose()
-        $u = 'data:image/jpeg;base64,' + [Convert]::ToBase64String($ms.ToArray())
-    } catch { }
-    Emit @{ t = 'result'; action = 'Shot'; ok = [bool]$u; img = $u }
-}
-
-# สถานะใน Discord (Rich Presence): ตัวช่วยเล็ก ๆ ต่อท่อ Discord บนเครื่อง ค้างไว้ระหว่างเปิดโปรแกรม ปิดโปรแกรม/ปิดสวิตช์ = หายเอง
 function Do-Rpc {
     $ok = $false
     try {
@@ -2117,7 +2100,6 @@ try {
     'JoinWait'   { Do-JoinWait }
     'Tray'       { Do-Tray }
     'Dup'        { Do-Dup }
-    'Shot'       { Do-Shot }
     'Rpc'        { Do-Rpc }
     'Reboot'     { shutdown.exe /r /t 5 /c 'Zan Booster'; Emit @{ t = 'result'; action = 'Reboot'; ok = ($LASTEXITCODE -eq 0) } }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -EA 0)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }

@@ -1157,5 +1157,11 @@
 "Windows เพิ่งอัปเดต (%s → %s) บางค่าอาจกลับเป็นค่าเดิม กดบูสต์อีกรอบได้เลย": "Windows just updated (%s → %s) and may have turned some settings back. Press Boost again",
 "สถานะใน Discord": "Discord status",
 "แสดงสถานะใน Discord": "Show status in Discord",
-"ขึ้นใต้ชื่อคุณในดิสว่า \"กำลังใช้ Zan Booster\" พร้อมปุ่มให้เพื่อนโหลด ปิดได้ตลอด (ต้องเปิดแอป Discord บนคอมไว้)": "Shows \"Using Zan Booster\" under your Discord name with a download button for friends. Turn it off any time (the Discord app must be running on this PC)"
+"ขึ้นใต้ชื่อคุณในดิสว่า \"กำลังใช้ Zan Booster\" พร้อมปุ่มให้เพื่อนโหลด ปิดได้ตลอด (ต้องเปิดแอป Discord บนคอมไว้)": "Shows \"Using Zan Booster\" under your Discord name with a download button for friends. Turn it off any time (the Discord app must be running on this PC)",
+"เลือกไฟล์รูป": "Choose image",
+"กด Ctrl+V เพื่อใส่รูปจอเกมที่กด PrintScreen ไว้ ·": "Press Ctrl+V to add the game screenshot you took with PrintScreen ·",
+"ใส่รูปจอเกมแล้ว": "Game screenshot added",
+"ไฟล์นี้ไม่ใช่รูป": "This file is not an image",
+"อยากได้รูปจอเกมในการ์ด: ระหว่างวัดกด PrintScreen ในเกม 1 ครั้ง": "Want a game screenshot on the card: press PrintScreen once in game while measuring",
+"ระหว่างวัดกด PrintScreen ในเกม 1 ครั้ง (ไม่บังคับ)": "Press PrintScreen once in game while measuring (optional)"
 }
