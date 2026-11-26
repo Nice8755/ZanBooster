@@ -2016,7 +2016,7 @@ function Do-Tray {
         $pp = (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId; $p = Get-Process -Id $pp; $h = [int64]$p.MainWindowHandle
         if ($h) {
             $s = 'Add-Type -AssemblyName System.Windows.Forms,System.Drawing;Add-Type -Name W -Namespace Z -MemberDefinition ''ZBW'';$h=[IntPtr]ZBH;$x=0;$n=New-Object Windows.Forms.NotifyIcon;$n.Icon=[Drawing.Icon]::ExtractAssociatedIcon(''ZBE'');$n.Text=''Zan Booster'';$n.Visible=1;$q={$n.Visible=0;[Windows.Forms.Application]::Exit()};$o={[Z.W]::Tab($h,1);[void][Z.W]::ShowWindowAsync($h,9);[void][Z.W]::SetForegroundWindow($h);&$q};$n.add_MouseClick({if($_.Button -eq ''Left''){&$o}});$m=New-Object Windows.Forms.ContextMenuStrip;[void]$m.Items.Add(''เปิด Zan Booster'',$null,{&$o});[void]$m.Items.Add(''ปิดโปรแกรม'',$null,{$global:x=1;[void][Z.W]::PostMessage($h,16,[IntPtr]::Zero,[IntPtr]::Zero);&$q});$n.ContextMenuStrip=$m;[void][Z.W]::ShowWindowAsync($h,6);Start-Sleep -m 400;[Z.W]::Tab($h,0);$t=New-Object Windows.Forms.Timer;$t.Interval=2000;$t.add_Tick({if(-not [Z.W]::IsWindow($h) -or -not [Z.W]::IsIconic($h)){[Z.W]::Tab($h,1);&$q}});$t.Start();try{[Windows.Forms.Application]::Run()}finally{$n.Dispose();if(-not $x -and [Z.W]::IsWindow($h)){[Z.W]::Tab($h,1)}}'.Replace('ZBW', $ZW).Replace('ZBH', "$h").Replace('ZBE', $p.Path.Replace("'", "''"))
-            Start-Process powershell.exe -WindowStyle Hidden -ArgumentList '-NoProfile', '-STA', '-EncodedCommand', ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($s)))
+            Start-Helper 'zb-tray.ps1' $s
             Add-Type -Name W -Namespace Z -MemberDefinition $ZW
             for ($i = 0; $i -lt 40 -and -not $ok; $i++) { Start-Sleep -Milliseconds 250; $ok = [Z.W]::IsIconic([IntPtr]$h) }
             if ($ok) { [IO.File]::WriteAllText("$env:TEMP\zbtray", "$pp`:$h") }
@@ -2049,12 +2049,17 @@ function Do-Rpc {
         else {
             $pp = (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId
             $s = '$m=New-Object Threading.Mutex($false,''Local\ZanBoosterRpc'');if(-not $m.WaitOne(0)){exit};$q=New-Object Threading.EventWaitHandle($false,''ManualReset'',''Local\ZanBoosterRpcStop'');$c=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(''ZBC'')) -split "`n";$pp=ZBP;function G($s,$n){$d=New-Object byte[] $n;$r=0;while($r -lt $n){$k=$s.Read($d,$r,$n-$r);if($k -le 0){throw ''x''};$r+=$k};,$d}function F($s,$o,$t){$b=[Text.Encoding]::UTF8.GetBytes($t);$s.Write([BitConverter]::GetBytes([int]$o),0,4);$s.Write([BitConverter]::GetBytes($b.Length),0,4);$s.Write($b,0,$b.Length);$s.Flush();$h=G $s 8;$null=G $s ([BitConverter]::ToInt32($h,4))}while((Get-Process -Id $pp -EA 0) -and -not $q.WaitOne(0)){$s=$null;for($i=0;$i -lt 10 -and -not $s;$i++){try{$p=New-Object IO.Pipes.NamedPipeClientStream(''.'',"discord-ipc-$i",''InOut'');$p.Connect(250);$s=$p}catch{}}if($s){try{F $s 0 $c[0];while((Get-Process -Id $pp -EA 0) -and -not $q.WaitOne(0)){F $s 1 $c[1].Replace(''ZPID'',"$PID");if($q.WaitOne(60000)){break}}}catch{};try{$s.Dispose()}catch{}}if($q.WaitOne(20000)){break}}'.Replace('ZBP', "$pp").Replace('ZBC', $Opt)
-            Start-Process powershell.exe -WindowStyle Hidden -ArgumentList '-NoProfile', '-EncodedCommand', ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($s))); $ok = $true
+            Start-Helper 'zb-rpc.ps1' $s; $ok = $true
         }
     } catch { }
     Emit @{ t = 'result'; action = 'Rpc'; ok = $ok }
 }
 
+# ตัวช่วยเบื้องหลัง: เขียนเป็นไฟล์สคริปต์ธรรมดาใน ProgramData\ZanBooster แล้วเปิดแบบปกติ (ไม่ใช้คำสั่งเข้ารหัส แอนติไวรัสจะไม่เข้าใจผิด)
+function Start-Helper([string]$n, [string]$s) {
+    $f = Join-Path $DataDir $n; [IO.File]::WriteAllText($f, $s, [Text.UTF8Encoding]::new($true))
+    Start-Process powershell.exe -WindowStyle Hidden -ArgumentList '-NoProfile', '-STA', '-ExecutionPolicy', 'RemoteSigned', '-File', "`"$f`""
+}
 function Do-JoinWait {
     $n = -1; $hit = $false; $nm = ''
     try {
