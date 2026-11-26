@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.20",
-    "sha256": "3d66feb6fe1db15b19bec050d6f0ac0ce4ae82e2a960ba3f85914c2d3f0858f1",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2cd91afa502f12502fc75b4be077a02d14fe24c2/ZanBooster.exe",
-    "notes": "เปิดใช้สถานะใน Discord"
+    "version": "4.12.21",
+    "sha256": "2fcdaa28aad76906103c31085b8b3c9bdeb289e72fc4c3f1da9217469c6951ed",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/4cce13bac99720bdff397c2ff69063505ecea656/ZanBooster.exe",
+    "notes": "ลดโอกาสโดนแอนติไวรัสเข้าใจผิด"
   },
   "vip": {
     "version": "4.12.20",
