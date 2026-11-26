@@ -22,6 +22,18 @@ $s1 = $ui.IndexOf('<style>') + 7; $s2 = $ui.IndexOf('</style>', $s1); if ($s1 -l
 $css = [regex]::Replace($ui.Substring($s1, $s2 - $s1), '(?s)/\*.*?\*/', '')
 $css = [regex]::Replace([regex]::Replace([regex]::Replace($css, ';?\s*\}\s*', '}'), '\s*\{\s*', '{'), ';\s+', ';')
 $ui = $ui.Substring(0, $s1) + $css + $ui.Substring($s2)
+# graphics preview images (site/zp): put them inside the exe while there is room. A big block of blank padding
+# in the exe made a few antivirus engines suspicious. If the slot gets too full they stay on the web instead.
+$uiWeb = $ui
+$z1 = $ui.IndexOf('const ZP_PREV = {'); $z2 = $ui.IndexOf("`n", $z1); if ($z1 -lt 0) { throw 'ZP_PREV not found' }
+$zIn = @{}; $zLeft = 1054600 - $utf8.GetByteCount($ui) - 600   # 600: base85 decoder + margin
+foreach ($m in [regex]::Matches($ui.Substring($z1, $z2 - $z1), '"([a-z0-9]+-\d+)"')) {
+    $f = Join-Path $root "site\zp\$($m.Groups[1].Value).jpg"; if (-not (Test-Path $f)) { continue }
+    $cost = [math]::Ceiling((Get-Item $f).Length / 4) * 5 + 20; if ($cost -le $zLeft) { $zIn[$m.Groups[1].Value] = $f; $zLeft -= $cost }
+}
+$zl = [regex]::Replace($ui.Substring($z1, $z2 - $z1), '"([a-z0-9]+-\d+)"', { param($m) if ($zIn.ContainsKey($m.Groups[1].Value)) { '"data:image/jpeg;base64,' + [Convert]::ToBase64String([IO.File]::ReadAllBytes($zIn[$m.Groups[1].Value])) + '"' } else { $m.Value } })
+"preview images inside the exe: $($zIn.Count) (the rest load from the web)"
+$ui = $ui.Substring(0, $z1) + $zl + $ui.Substring($z2)
 # graphics preview images: base85 instead of base64 (same bytes, about 24 KB smaller), decoded by Z8() at startup
 $abc = -join ([char[]](33..125) | Where-Object { '"\<&''`$%'.IndexOf($_) -lt 0 })
 if ($abc.Length -ne 85) { throw "alphabet $($abc.Length)" }
@@ -40,6 +52,7 @@ foreach ($m in [regex]::Matches($ui.Substring($p1, $p2 - $p1), '"data:image/jpeg
 }
 $dec = 'const Z8=(s,n)=>{const A="' + $abc + '";let o="";for(let i=0;i<s.length;i+=5){let v=0;for(let j=0;j<5;j++)v=v*85+A.indexOf(s[i+j]);o+=String.fromCharCode(v>>>24,v>>>16&255,v>>>8&255,v&255)}return"data:image/jpeg;base64,"+btoa(o.slice(0,n))};' + "`n"
 if ($at -gt $p1) { $ui = $ui.Substring(0, $p1) + $dec + $sb.ToString() + $ui.Substring($at) }  # preview images now load from site/zp, nothing to pack
+if ($utf8.GetByteCount($ui) -gt 1054600) { $ui = $uiWeb; 'preview images: estimate was off, all load from the web' }
 # drop the oldest changelog entries from the release copy until it fits the slot
 $cut = 0
 while ($utf8.GetByteCount($ui) -gt 1054600) { $end = $ui.IndexOf(']</script>', $ui.IndexOf('id="changelog"')); $st = $ui.LastIndexOf(', {"v": "', $end); if ($st -lt 0) { throw 'cannot fit' }; $ui = $ui.Remove($st, $end - $st); $cut++ }
