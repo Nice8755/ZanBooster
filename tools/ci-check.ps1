@@ -42,7 +42,7 @@ if ($env:GITHUB_ACTIONS) {
 if ($env:GITHUB_ACTIONS) {
     $ast = [Management.Automation.Language.Parser]::ParseFile($f, [ref]$null, [ref]$null)
     $cs = { param($w) ($ast.FindAll({ $args[0] -is [Management.Automation.Language.StringConstantExpressionAst] -and $args[0].Value -like $w }, $true) | Select-Object -First 1).Value }
-    $tray = & $cs 'Add-Type -AssemblyName System.Windows.Forms*'; $zw = & $cs '`[DllImport("user32")`]public static extern bool ShowWindowAsync*'
+    $tray = & $cs '$mx=New-Object Threading.Mutex*'; $zw = & $cs '`[DllImport("user32")`]public static extern bool ShowWindowAsync*'
     if (-not $tray -or -not $zw) { throw 'tray script not found in engine' }
     Add-Type -Name W -Namespace Z -MemberDefinition $zw
     $vis = { param($h) [Z.W]::IsWindowVisible([IntPtr]$h) }; $ico = { param($h) [Z.W]::IsIconic([IntPtr]$h) }
