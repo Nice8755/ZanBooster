@@ -52,6 +52,7 @@
 - หน้าโลโก้ (#splash) มีตัวลบแยกในสคริปต์ของตัวเอง + สำรองในโค้ดหลัก ห้ามเอาออก
 - เปิดไม่สำเร็จ = รอบถัดไปเปิดเซฟโหมด (`window.ZB_SAFE`) · ค่าที่ตั้งไว้มีสำเนาใน localStorage `zbSetBak` กู้คืนเองถ้า settings.json เสีย · ห้ามบันทึกก่อน `__settingsLoaded`
 - ตัวช่วยเบื้องหลัง (ถาด `zb-tray.ps1`, สถานะดิส `zb-rpc.ps1`) เขียนเป็นไฟล์ใน ProgramData\ZanBooster แล้วเปิดด้วย `-File` ห้ามใช้ `-EncodedCommand` (แอนติไวรัสจับ) · ห้ามซ่อนหน้าต่างด้วย SW_HIDE (WebView2 จอดำ) ใช้พับ + เอาปุ่มออกจากแถบงาน
+- แอนติไวรัส (Kaspersky HEUR:Trojan.PowerShell.Agent) จับ engine ถ้ามี: (1) โค้ดถ่ายรูปหน้าจอ/จัดการรูปใดๆ ใน engine (รูปจอเกมให้ผู้ใช้กด PrintScreen แล้ว Ctrl+V ในหน้าจอแทน) (2) เปิด powershell ซ่อนหน้าต่างพร้อม `-ExecutionPolicy` (ตัวช่วยได้ค่านี้จาก engine เองอยู่แล้ว ไม่ต้องใส่) · ขั้น test/owner สแกน exe ใน VirusTotal เอง (secret `VT_API_KEY`) ดูบรรทัด `VT result`/`VT flag` ในผล Actions · สแกนไฟล์เองได้ด้วย `tools/vt-scan.ps1` · Trapmine จับ exe 4.11.15 เดิมอยู่แล้ว (ตัว exe ไม่ใช่สคริปต์เรา)
 - พื้นที่ engine: ตัวสร้างย่อชื่อคำสั่งและชื่อฟังก์ชันของ engine เองในตัวปล่อย (ตัวตรวจ token เทียบให้) เหลือราว 2.5KB
 - สถานะ Discord: รหัสแอป 1575471055965921411 อยู่ใน `themes/themes.json` (rpc) รูปชื่อ `logo` ใน Developer Portal
 - ประกาศดิสลงเองผ่าน secret `DISCORD_WEBHOOK` (ห้องข่าวสาร) เป็นการ์ด embed ไม่ต้องลงซ้ำเอง
