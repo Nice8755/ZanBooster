@@ -10,8 +10,9 @@ setTimeout(() => { console.log('  ui: FAILED (took too long, page hung)'); proce
 (async () => {
   const opt = process.platform === 'win32' ? { channel: 'msedge' } : {};
   const b = await pw.chromium.launch(opt); let bad = 0;
-  for (const lang of ['th', 'en']) {
+  for (const lang of ['th', 'en', 'nostore']) { // nostore = เครื่องที่เปิด localStorage ไม่ได้ (เคยทำให้ค้างหน้าโลโก้)
     const ctx = await b.newContext(lang === 'en' ? { locale: 'en-US', timezoneId: 'America/New_York', viewport: { width: 1247, height: 811 } } : { locale: 'th-TH', timezoneId: 'Asia/Bangkok', viewport: { width: 1247, height: 811 } });
+    if (lang === 'nostore') await ctx.addInitScript(() => { Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Access is denied', 'SecurityError'); } }); });
     const p = await ctx.newPage(); const errs = [];
     p.on('pageerror', e => errs.push(e.message));
     await p.route(u => !u.href.startsWith('file:'), r => r.request().url().includes('en.json') ? r.fulfill({ status: 200, contentType: 'application/json', body: en }) : r.fulfill({ status: 200, contentType: 'text/html', body: '' }));
