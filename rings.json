@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.17",
-    "sha256": "b0d5bac5d2367d7a33e061aac0aff4da06715891cd02b8f81a7384528737e334",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/72e3ddccd7ddab40cc1bce766f5025353649e782/ZanBooster.exe",
-    "notes": "แก้เปิดโปรแกรมแล้วค้างหน้าโลโก้บนบางเครื่อง"
+    "version": "4.12.18",
+    "sha256": "5eacf69f82a9540ec56c1d669065d211648c0aa5acde6fb3bab96a5bc30564aa",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/3b6f711194a1b75b3ad5f92f89e4e9b4a9209338/ZanBooster.exe",
+    "notes": "เตือนบูสต์หลัง Windows อัปเดต · สำรอง/ย้ายค่าที่ตั้งไว้ · สรุปประจำสัปดาห์"
   },
   "vip": {
     "version": "4.12.17",
