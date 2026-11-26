@@ -9,9 +9,9 @@
     "notes": "แก้แอนติไวรัสเข้าใจผิด"
   },
   "vip": {
-    "version": "4.12.22",
-    "sha256": "a039aaf3ce0df624945565b09ba0e5b4fcd98c8903af0c4cf2d64bf631445338",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9aa0f0b02f422eab1567f8b44166f745172b0b28/ZanBooster.exe",
-    "notes": "ลดโอกาสแอนติไวรัสเข้าใจผิด · หน้าเว็บแนะนำโปรแกรม"
+    "version": "4.12.25",
+    "sha256": "a069fbc55ce17708bbd2aecefd19a460eca8f3a8991cdeaf9f6534f4fb44dfdb",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/7f35a635a511e0b47e50d3afe21b2d6100a6c91a/ZanBooster.exe",
+    "notes": "แก้แอนติไวรัสบางตัวเข้าใจผิดว่าโปรแกรมเป็นไวรัส · รูปจอเกมในการ์ดผล: กด PrintScreen ในเกม แล้วกด Ctrl+V ในโปรแกรม"
   }
 }
