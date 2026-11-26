@@ -76,6 +76,19 @@ if ($env:GITHUB_ACTIONS) {
     }
 }
 
+# 1d2) measure flow: engine Focus brings a window to the front while another one is in front (report only)
+if ($env:GITHUB_ACTIONS) {
+    try {
+        Add-Type -Name F -Namespace Z -MemberDefinition '[DllImport("user32")]public static extern IntPtr GetForegroundWindow();'
+        $n1 = Start-Process notepad.exe -PassThru; Start-Sleep 3; $n2 = Start-Process notepad.exe -PassThru; Start-Sleep 3; $n1.Refresh(); $n2.Refresh()
+        $before = [Z.F]::GetForegroundWindow() -eq $n2.MainWindowHandle
+        $l = [string](& powershell.exe -NoProfile -Command "`$ok = (New-Object -ComObject WScript.Shell).AppActivate($($n1.Id)); `$ok")
+        Start-Sleep 1; $after = [Z.F]::GetForegroundWindow() -eq $n1.MainWindowHandle
+        "  focus: other window in front before=$before, AppActivate returned=$l, target in front after=$after"
+        try { $n1.Kill(); $n2.Kill() } catch { }
+    } catch { "  focus test skipped: $_" }
+}
+
 # 1e) Discord status helper: speaks the Discord IPC frame format to a stand-in Discord pipe, and stops on "off"
 if ($env:GITHUB_ACTIONS) {
     # like a home PC: scripts blocked for the user, so the helper must get its policy from the engine process

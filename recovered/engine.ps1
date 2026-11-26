@@ -1994,7 +1994,7 @@ function Do-YtSearch {
 
 # เข้าแล้วปิดโปรแกรม: ดูว่า FiveM เข้าเซิร์ฟสำเร็จหรือยัง (บรรทัด connectOK ใน log หลังผ่านหน้ายืนยันของเซิร์ฟ) อ่านอย่างเดียว ไม่แตะเกม
 # Opt = ตำแหน่งในไฟล์ที่อ่านไปแล้ว คืน n = ขนาดไฟล์ตอนนี้, f = ชื่อไฟล์ log ล่าสุด, hit = เจอ connectOK หลังตำแหน่งนั้น
-$ZW = '[DllImport("user32")]public static extern bool ShowWindowAsync(IntPtr h,int c);[DllImport("user32")]public static extern bool IsIconic(IntPtr h);[DllImport("user32")]public static extern bool SetForegroundWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool PostMessage(IntPtr h,int m,IntPtr w,IntPtr l);[ComImport,Guid("56FDF342-FD6D-11d0-958A-006097C9A090"),InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]public interface ITL{void HrInit();void AddTab(IntPtr h);void DeleteTab(IntPtr h);}[ComImport,Guid("56FDF344-FD6D-11d0-958A-006097C9A090")]public class TL{}public static void Tab(IntPtr h,bool a){var t=(ITL)new TL();t.HrInit();if(a)t.AddTab(h);else t.DeleteTab(h);}[DllImport("user32")]public static extern IntPtr GetForegroundWindow();[DllImport("user32")]public static extern uint GetWindowThreadProcessId(IntPtr h,out uint p);[DllImport("user32")]public static extern bool AttachThreadInput(uint a,uint b,bool c);[DllImport("kernel32")]public static extern uint GetCurrentThreadId();public static void Front(IntPtr h){uint p;uint t=GetWindowThreadProcessId(GetForegroundWindow(),out p),c=GetCurrentThreadId();if(t!=c)AttachThreadInput(c,t,true);if(IsIconic(h))ShowWindowAsync(h,9);SetForegroundWindow(h);if(t!=c)AttachThreadInput(c,t,false);}'
+$ZW = '[DllImport("user32")]public static extern bool ShowWindowAsync(IntPtr h,int c);[DllImport("user32")]public static extern bool IsIconic(IntPtr h);[DllImport("user32")]public static extern bool SetForegroundWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool PostMessage(IntPtr h,int m,IntPtr w,IntPtr l);[ComImport,Guid("56FDF342-FD6D-11d0-958A-006097C9A090"),InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]public interface ITL{void HrInit();void AddTab(IntPtr h);void DeleteTab(IntPtr h);}[ComImport,Guid("56FDF344-FD6D-11d0-958A-006097C9A090")]public class TL{}public static void Tab(IntPtr h,bool a){var t=(ITL)new TL();t.HrInit();if(a)t.AddTab(h);else t.DeleteTab(h);}'
 # เปิดโปรแกรมซ้ำ: ถ้ามีตัวเดิมซ่อนที่ถาดหรือพับอยู่ (ไม่แตะตัวที่เปิดโชว์อยู่ เช่นตัวเก่าที่กำลังปิดตอนอัปเดต) ดึงตัวเดิมขึ้นมา หน้าจอจะปิดตัวใหม่เอง
 function Do-Dup {
     $f = $false
@@ -2019,8 +2019,8 @@ function Do-Dup {
 function Do-Focus {
     $ok = $false
     try {
-        $h = if ($Opt -eq 'app') { (Get-Process -Id (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId).MainWindowHandle } else { (Get-Process -EA 0 | Where-Object { $_.ProcessName -match '^(FiveM_.*GTAProcess|GTA5)$' -and $_.MainWindowHandle -ne 0 } | Select-Object -First 1).MainWindowHandle }
-        if ($h -and $h -ne 0) { Add-Type -Name W -Namespace Z -MemberDefinition $ZW; [Z.W]::Front([IntPtr]$h); $ok = $true }
+        $h = if ($Opt -eq 'app') { (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId } else { (Get-Process -EA 0 | Where-Object { $_.ProcessName -match '^(FiveM_.*GTAProcess|GTA5)$' -and $_.MainWindowHandle -ne 0 } | Select-Object -First 1).Id }
+        if ($h) { $ok = (New-Object -ComObject WScript.Shell).AppActivate([int]$h) }
     } catch { }
     Emit @{ t = 'result'; action = 'Focus'; ok = $ok }
 }
