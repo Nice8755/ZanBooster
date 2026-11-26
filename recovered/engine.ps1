@@ -2082,6 +2082,7 @@ try {
     'JoinWait'   { Do-JoinWait }
     'Tray'       { Do-Tray }
     'Dup'        { Do-Dup }
+    'Reboot'     { shutdown.exe /r /t 5 /c 'Zan Booster'; Emit @{ t = 'result'; action = 'Reboot'; ok = ($LASTEXITCODE -eq 0) } }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -EA 0)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }
         'Health'     { Do-Health }
