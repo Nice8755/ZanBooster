@@ -120,6 +120,21 @@ jobs:
           "VT result: malicious=$($st.malicious) suspicious=$($st.suspicious) undetected=$($st.undetected) sha256=$($a.meta.file_info.sha256)"
           $a.data.attributes.results.PSObject.Properties | Where-Object { $_.Value.category -in 'malicious', 'suspicious' } | ForEach-Object { "VT flag: $($_.Name) = $($_.Value.result)" }
 
+      - name: VT bisect (test only)
+        if: steps.q.outputs.stage == 'test'
+        continue-on-error: true
+        shell: powershell
+        working-directory: src
+        env:
+          VT: ${{ secrets.VT_API_KEY }}
+        run: |
+          New-Item -ItemType Directory -Force vtw | Out-Null
+          Copy-Item "$env:TEMP\zb-release-engine-run.ps1" vtw\a-release-engine.ps1
+          Copy-Item recovered\engine.ps1 vtw\b-src-engine.ps1
+          Copy-Item recovered\ui.html vtw\c-ui.html
+          Copy-Item beta\ZanBooster.exe vtw\d-orig-4.11.15.exe
+          ./tools/vt-scan.ps1 -Files (Get-ChildItem vtw | Sort-Object Name | ForEach-Object FullName)
+
       - name: Keep the cloud work on rebuild-4x
         if: steps.q.outputs.stage == 'owner' && github.event_name == 'push'
         run: |
