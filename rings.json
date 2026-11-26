@@ -9,9 +9,9 @@
     "notes": "แก้แอนติไวรัสเข้าใจผิด · ตั้งตามผลวัด · บอกโปรแกรมที่แย่ CPU ระหว่างเล่น"
   },
   "vip": {
-    "version": "4.12.25",
-    "sha256": "a069fbc55ce17708bbd2aecefd19a460eca8f3a8991cdeaf9f6534f4fb44dfdb",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/7f35a635a511e0b47e50d3afe21b2d6100a6c91a/ZanBooster.exe",
-    "notes": "แก้แอนติไวรัสบางตัวเข้าใจผิดว่าโปรแกรมเป็นไวรัส · รูปจอเกมในการ์ดผล: กด PrintScreen ในเกม แล้วกด Ctrl+V ในโปรแกรม"
+    "version": "4.12.27",
+    "sha256": "c81d656e1855e6a4f326cf232bebcb9ff87c78a20592bc2916991c9232b0f169",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6b6e427b60f9efd8ec24e831d06ac3c2824523e2/ZanBooster.exe",
+    "notes": "วัดทีละข้อแล้วกด ตั้งตามผล ได้ · ระหว่างเล่นบอกโปรแกรมที่แย่ CPU · แก้แอนติไวรัสเข้าใจผิด"
   }
 }
