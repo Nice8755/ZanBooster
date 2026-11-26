@@ -781,7 +781,7 @@
 "กดเพื่อหยุด ผลรอบนี้จะไม่ถูกบันทึก": "Press to stop; this run will not be saved",
 "เตรียมวัด...": "Preparing...",
 "ยกเลิกแล้ว": "Cancelled",
-"วัดไม่สำเร็จ": "Test failed",
+"วัดไม่สำเร็จ": "Measurement failed",
 "รอบ": "Run",
 "ค่าฐาน": "Baseline",
 "ใช้เป็นฐาน": "Set baseline",
@@ -1169,5 +1169,7 @@
 "ตั้งตามผล": "Apply results",
 "ไว้ก่อน": "Not now",
 "ตั้งตามผลวัดแล้ว": "Applied the measured results",
-"ตามธีม": "Match theme"
+"ตามธีม": "Match theme",
+"ยกเลิกการวัดแล้ว": "Measurement cancelled",
+"วัดเสร็จแล้ว": "Measurement done"
 }
