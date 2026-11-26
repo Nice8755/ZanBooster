@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.30",
-    "sha256": "1eca6cc66de7ea09b7abda5c65aba09f1ff12ab98094856d0c8ea46181d5f6c6",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/31be1a3bf27837300e47d3a01c1c26eae6b48071/ZanBooster.exe",
-    "notes": "ระหว่างวัด FPS ไม่มีงานเบื้องหลังแทรก ผลวัดนิ่งขึ้น"
+    "version": "4.12.31",
+    "sha256": "54f08ff780e1d8237b7b3d7b930d7efb4ec89dbd6361a38230482021c34aca7a",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ae97c703675fcb0f3208d590dad7de5d941c6a0f/ZanBooster.exe",
+    "notes": "วัด FPS: สลับไปหน้าเกมให้เอง วัดเสร็จเด้งกลับพร้อมบอกผล"
   },
   "vip": {
     "version": "4.12.29",
