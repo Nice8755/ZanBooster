@@ -1,6 +1,6 @@
 {
-  "version": "4.12.20",
-  "sha256": "3d66feb6fe1db15b19bec050d6f0ac0ce4ae82e2a960ba3f85914c2d3f0858f1",
+  "version": "4.12.22",
+  "sha256": "a039aaf3ce0df624945565b09ba0e5b4fcd98c8903af0c4cf2d64bf631445338",
   "file": "release/ZanBooster.exe",
-  "notes": "สถานะใน Discord · เตือนบูสต์หลัง Windows อัปเดต · สำรอง/ย้ายค่าที่ตั้งไว้ · สรุปประจำสัปดาห์"
+  "notes": "ลดโอกาสแอนติไวรัสเข้าใจผิด · หน้าเว็บแนะนำโปรแกรม"
 }
