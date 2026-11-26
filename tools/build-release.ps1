@@ -39,7 +39,7 @@ foreach ($m in [regex]::Matches($ui.Substring($p1, $p2 - $p1), '"data:image/jpeg
     [void]$sb.Append("`",$len)")
 }
 $dec = 'const Z8=(s,n)=>{const A="' + $abc + '";let o="";for(let i=0;i<s.length;i+=5){let v=0;for(let j=0;j<5;j++)v=v*85+A.indexOf(s[i+j]);o+=String.fromCharCode(v>>>24,v>>>16&255,v>>>8&255,v&255)}return"data:image/jpeg;base64,"+btoa(o.slice(0,n))};' + "`n"
-$ui = $ui.Substring(0, $p1) + $dec + $sb.ToString() + $ui.Substring($at)
+if ($at -gt $p1) { $ui = $ui.Substring(0, $p1) + $dec + $sb.ToString() + $ui.Substring($at) }  # preview images now load from site/zp, nothing to pack
 # drop the oldest changelog entries from the release copy until it fits the slot
 $cut = 0
 while ($utf8.GetByteCount($ui) -gt 1054600) { $end = $ui.IndexOf(']</script>', $ui.IndexOf('id="changelog"')); $st = $ui.LastIndexOf(', {"v": "', $end); if ($st -lt 0) { throw 'cannot fit' }; $ui = $ui.Remove($st, $end - $st); $cut++ }
