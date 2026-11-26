@@ -136,7 +136,7 @@ jobs:
           [IO.File]::WriteAllText("$PWD\vtw\x1-noStartHelper.ps1", $noSH, $u)
           [IO.File]::WriteAllText("$PWD\vtw\x2-noAffTask.ps1", $noAT, $u)
           [IO.File]::WriteAllText("$PWD\vtw\x3-noBoth.ps1", (($noSH -split "`n") | ForEach-Object { if ($_ -match "Register-ScheduledTask -TaskName") { '            $null' } else { $_ } }) -join "`n", $u)
-          [IO.File]::WriteAllText("$PWD\vtw\x4-noRpc.ps1", (& $cut 'function Do-Rpc' '# ตัวช่วยเบื้องหลัง'), $u)
+          [IO.File]::WriteAllText("$PWD\vtw\x4-noRpc.ps1", (& $cut 'function Do-Rpc' 'function Start-Helper'), $u)
           [IO.File]::WriteAllText("$PWD\vtw\x5-noTray.ps1", (& $cut 'function Do-Tray' 'function Do-Rpc'), $u)
           [IO.File]::WriteAllText("$PWD\vtw\x6-noDup.ps1", (& $cut 'function Do-Dup' 'function Do-Tray'), $u)
           ./tools/vt-scan.ps1 -Files (Get-ChildItem vtw | Sort-Object Name | ForEach-Object FullName)
