@@ -9,9 +9,9 @@
     "notes": "หน้าเว็บแนะนำโปรแกรม · ลดโอกาสแอนติไวรัสเข้าใจผิด"
   },
   "vip": {
-    "version": "4.12.20",
-    "sha256": "3d66feb6fe1db15b19bec050d6f0ac0ce4ae82e2a960ba3f85914c2d3f0858f1",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2cd91afa502f12502fc75b4be077a02d14fe24c2/ZanBooster.exe",
-    "notes": "สถานะใน Discord · เตือนบูสต์หลัง Windows อัปเดต · สำรอง/ย้ายค่าที่ตั้งไว้ · สรุปประจำสัปดาห์"
+    "version": "4.12.22",
+    "sha256": "a039aaf3ce0df624945565b09ba0e5b4fcd98c8903af0c4cf2d64bf631445338",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9aa0f0b02f422eab1567f8b44166f745172b0b28/ZanBooster.exe",
+    "notes": "ลดโอกาสแอนติไวรัสเข้าใจผิด · หน้าเว็บแนะนำโปรแกรม"
   }
 }
