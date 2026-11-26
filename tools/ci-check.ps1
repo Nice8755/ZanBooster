@@ -90,6 +90,15 @@ if ($node) {
     }
     if ($i -lt 1) { throw 'no script found in ui.html' }
     "ui scripts ok ($i)"
+    # open the real screens in Edge (same engine as WebView2), Thai and English: no page error, no hang
+    if ($env:GITHUB_ACTIONS) {
+        $pwd0 = Join-Path $work 'pw'; New-Item -ItemType Directory -Force $pwd0 | Out-Null
+        & npm install --no-save --no-audit --no-fund --prefix $pwd0 playwright-core@1.49.1 2>&1 | Select-Object -Last 1
+        $env:NODE_PATH = Join-Path $pwd0 'node_modules'
+        & node (Join-Path $root 'tools\ui-smoke.js') (Join-Path $root 'recovered\ui.html') (Join-Path $root 'i18n\en.json')
+        if ($LASTEXITCODE) { throw 'ui smoke test failed: a screen hangs or throws an error (see above)' }
+        'ui smoke test ok'
+    }
 } else { 'node not installed: ui syntax check skipped' }
 [IO.Directory]::Delete($work, $true)
 'ALL CHECKS OK'

@@ -1071,5 +1071,8 @@
 "60 วินาทีล่าสุด": "Last 60 seconds",
 "ลดลำดับ CPU ของ UI ในเกม (ถ้า HUD หน่วงให้ปิด)": "Lower CPU priority of the in-game UI (turn off if the HUD lags)",
 "เช็กรอบอัปเดตไม่ได้: %s": "Couldn't check for updates: %s",
-"ขยับได้": "MOVES"
+"ขยับได้": "MOVES",
+"กลับโหมดปกติ": "Back to normal mode",
+"ส่งรายงานให้แอดมิน": "Send report to admin",
+"ส่งรายงานให้แอดมินแล้ว ขอบคุณครับ": "Report sent, thank you"
 }
