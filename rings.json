@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.16",
-    "sha256": "c63dd67cb8ca00fb93f263e7ac96d95eb3203ea7af8d69701994663765443e48",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/5229a8737467e6d62cb155dad2d4fbcb9796ba18/ZanBooster.exe",
-    "notes": "การ์ดผลวัด FPS มีรูปจอเกมจริง ก่อน/หลัง ประกายวิบวับ ลายตามธีม"
+    "version": "4.12.17",
+    "sha256": "b0d5bac5d2367d7a33e061aac0aff4da06715891cd02b8f81a7384528737e334",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/72e3ddccd7ddab40cc1bce766f5025353649e782/ZanBooster.exe",
+    "notes": "แก้เปิดโปรแกรมแล้วค้างหน้าโลโก้บนบางเครื่อง"
   },
   "vip": {
     "version": "4.12.14",
