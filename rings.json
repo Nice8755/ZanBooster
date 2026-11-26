@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.25",
-    "sha256": "a069fbc55ce17708bbd2aecefd19a460eca8f3a8991cdeaf9f6534f4fb44dfdb",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/7f35a635a511e0b47e50d3afe21b2d6100a6c91a/ZanBooster.exe",
-    "notes": "แก้แอนติไวรัสเข้าใจผิด"
+    "version": "4.12.26",
+    "sha256": "54794ae0cf96aaf4cccb383f44b52a90d8b9368ec5c722c11969164b4c28e1c4",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/124e5fb7c7925df2bc2821487a11ed6dcf68045a/ZanBooster.exe",
+    "notes": "วัดทีละข้อแล้วตั้งตามผลได้ · บอกโปรแกรมที่แย่ CPU ระหว่างเล่น"
   },
   "vip": {
     "version": "4.12.25",
