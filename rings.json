@@ -9,9 +9,9 @@
     "notes": "กันค่าที่ตั้งไว้และธีมที่สร้างเองหาย · เซฟโหมดเมื่อเปิดไม่สำเร็จ"
   },
   "vip": {
-    "version": "4.12.11",
-    "sha256": "c511cafe725025f8d0adf5038e0de0c6e68f88b168c01ec43a70890e8249d1d7",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/5fd2bacf15bc746528c21b992fb300313f9f025f/ZanBooster.exe",
-    "notes": "Power Plan ของ Zan ไม่พักแกน CPU ลดอาการกระตุก"
+    "version": "4.12.13",
+    "sha256": "259cc6d26717bee7757807c05b385c62f358e419d3c904fed9bbc47dbea04485",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/3a0dd397c1ceae60d03ec7bb222329e9bdcf6d5d/ZanBooster.exe",
+    "notes": "กันค่าที่ตั้งไว้และธีมที่สร้างเองหาย · เซฟโหมดเมื่อเปิดไม่สำเร็จ · ส่งรายงานให้แอดมินในคลิกเดียว"
   }
 }
