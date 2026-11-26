@@ -1,6 +1,6 @@
 {
-  "version": "4.12.10",
-  "sha256": "676ab0d45d4c97a05de4b9feeed441fa003d8066d3880839a16959be5decc45f",
+  "version": "4.12.11",
+  "sha256": "c511cafe725025f8d0adf5038e0de0c6e68f88b168c01ec43a70890e8249d1d7",
   "file": "release/ZanBooster.exe",
-  "notes": "ธีมใหม่ทั้ง 10 แบบมีหน้าตาของตัวเอง ไม่ใช่แค่เปลี่ยนสี"
+  "notes": "Power Plan ของ Zan ไม่พักแกน CPU ลดอาการกระตุก"
 }
