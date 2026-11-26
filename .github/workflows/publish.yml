@@ -167,8 +167,14 @@ jobs:
           if (-not $env:DC_HOOK) { 'DISCORD_WEBHOOK secret is not set, nothing posted'; exit 0 }
           $f = "$env:RUNNER_TEMP/discord.txt"; $t = if (Test-Path $f) { [IO.File]::ReadAllText($f).Trim() } else { '' }
           if (-not $t) { $who = if ($env:STAGE -eq 'everyone') { 'everyone' } else { 'Premium' }; $t = "**Zan Booster $env:VERSION** ($who)`n$env:NOTES" }
-          if ($t.Length -gt 1900) { $t = $t.Substring(0, 1900) }
-          $b = @{ content = $t; allowed_mentions = @{ parse = @() } } | ConvertTo-Json -Depth 3
+          # posted as a card (embed): coloured bar on the side, so each announcement stands apart from the last one
+          $title = "Zan Booster $env:VERSION"; $ls = $t -split "`n"
+          if ($ls[0] -match '^#+\s*(.+)$') { $title = $Matches[1].Trim(); $t = ($ls | Select-Object -Skip 1) -join "`n" }
+          $t = $t.Trim(); if ($t.Length -gt 3900) { $t = $t.Substring(0, 3900) }; if ($title.Length -gt 250) { $title = $title.Substring(0, 250) }
+          $col = if ($env:STAGE -eq 'everyone') { 0x22D3FF } else { 0xFFC94D }
+          $who = if ($env:STAGE -eq 'everyone') { 'อัปเดตสำหรับทุกคน' } else { 'อัปเดตสำหรับ Premium' }
+          $e = @{ title = $title; description = $t; color = $col; footer = @{ text = "Zan Booster v$env:VERSION · $who" }; timestamp = (Get-Date).ToUniversalTime().ToString('o') }
+          $b = @{ allowed_mentions = @{ parse = @() }; embeds = @($e) } | ConvertTo-Json -Depth 6
           Invoke-RestMethod -Uri $env:DC_HOOK -Method Post -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($b)) | Out-Null
           'posted to Discord'
 
