@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.24",
-    "sha256": "6d9bcf895ef681dfdf4d76bfa516ac991085b699ec31bebdbf6f6a365a4b0ab5",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/e5f84d561fa3892a11a4c8cbff145dc6f064598e/ZanBooster.exe",
-    "notes": "แก้แอนติไวรัสเข้าใจผิด · รูปจอเกมในการ์ดใช้ PrintScreen + Ctrl+V"
+    "version": "4.12.25",
+    "sha256": "a069fbc55ce17708bbd2aecefd19a460eca8f3a8991cdeaf9f6534f4fb44dfdb",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/7f35a635a511e0b47e50d3afe21b2d6100a6c91a/ZanBooster.exe",
+    "notes": "แก้แอนติไวรัสเข้าใจผิด"
   },
   "vip": {
     "version": "4.12.22",
