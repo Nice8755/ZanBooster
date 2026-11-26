@@ -257,6 +257,9 @@ $Tweaks = [ordered]@{
             powercfg /setacvalueindex $SchemeGuid $VIDEO_SUB $VIDEO_IDLE 0 | Out-Null
             powercfg /setdcvalueindex $SchemeGuid $VIDEO_SUB $VIDEO_IDLE 0 | Out-Null
             if (@($Script:Backup.Applied) -contains 'UsbSuspend') { powercfg /setacvalueindex $SchemeGuid $USB_SUB $USB_SET 0 | Out-Null; powercfg /setdcvalueindex $SchemeGuid $USB_SUB $USB_SET 0 | Out-Null }
+            # เสียบปลั๊ก: ไม่พักแกน CPU (core parking) และเร่งความถี่ CPU แบบไว (แก้กระตุกตอนเกมเรียกแกนที่หลับอยู่) · อยู่ใน Power Plan ของ Zan เท่านั้น ยกเลิกแล้วหายไปพร้อมแผน
+            powercfg /setacvalueindex $SchemeGuid 54533251-82be-4824-96c1-47b60b740d00 0cc5b647-c1df-4637-891a-dec35c318583 100 2>$null | Out-Null
+            powercfg /setacvalueindex $SchemeGuid 54533251-82be-4824-96c1-47b60b740d00 be337238-0d82-4146-a960-4f3749d470c7 2 2>$null | Out-Null
             powercfg /setactive $SchemeGuid | Out-Null
             if ((Get-ActiveScheme) -ne $SchemeGuid) { throw 'เปิดใช้ Power Plan ไม่ได้' }
         }
