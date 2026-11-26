@@ -78,6 +78,8 @@ if ($env:GITHUB_ACTIONS) {
 
 # 1e) Discord status helper: speaks the Discord IPC frame format to a stand-in Discord pipe, and stops on "off"
 if ($env:GITHUB_ACTIONS) {
+    # like a home PC: scripts blocked for the user, so the helper must get its policy from the engine process
+    $pol = Get-ExecutionPolicy -Scope CurrentUser; Set-ExecutionPolicy Restricted -Scope CurrentUser -Force -EA 0
     $srv = New-Object IO.Pipes.NamedPipeServerStream('discord-ipc-0', 'InOut', 1)
     $cfg = '{"v":1,"client_id":"123"}' + "`n" + '{"cmd":"SET_ACTIVITY","args":{"pid":ZPID,"activity":{"details":"t","assets":{"large_image":"logo"}}},"nonce":"zb"}'
     $l = [string](& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $f -Action Rpc -Opt ([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($cfg))) | Where-Object { $_ -match '"t":"result"' } | Select-Object -Last 1)
@@ -92,6 +94,7 @@ if ($env:GITHUB_ACTIONS) {
     $null = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $f -Action Rpc -Opt off
     $gone = $false; for ($i = 0; $i -lt 30 -and -not $gone; $i++) { Start-Sleep 1; try { $m = [Threading.Mutex]::OpenExisting('Local\ZanBoosterRpc'); $m.Dispose() } catch { $gone = $true } }
     "  rpc helper stopped on off: $gone"; $srv.Dispose()
+    Set-ExecutionPolicy $pol -Scope CurrentUser -Force -EA 0
     if (-not $gone) { throw 'rpc helper did not stop' }
 }
 

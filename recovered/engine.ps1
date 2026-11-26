@@ -2041,7 +2041,7 @@ function Do-Rpc {
 # ตัวช่วยเบื้องหลัง: เขียนเป็นไฟล์สคริปต์ธรรมดาใน ProgramData\ZanBooster แล้วเปิดแบบปกติ (ไม่ใช้คำสั่งเข้ารหัส แอนติไวรัสจะไม่เข้าใจผิด)
 function Start-Helper([string]$n, [string]$s) {
     $f = Join-Path $DataDir $n; [IO.File]::WriteAllText($f, $s, [Text.UTF8Encoding]::new($true))
-    Start-Process powershell.exe -WindowStyle Hidden -ArgumentList '-NoProfile', '-STA', '-ExecutionPolicy', 'RemoteSigned', '-File', "`"$f`""
+    Start-Process powershell.exe -WindowStyle Hidden -ArgumentList '-NoProfile', '-STA', '-File', "`"$f`""
 }
 function Do-JoinWait {
     $n = -1; $hit = $false; $nm = ''
