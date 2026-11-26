@@ -9,9 +9,9 @@
     "notes": "วัด FPS: สลับไปหน้าเกมให้เอง วัดเสร็จเด้งกลับพร้อมบอกผล"
   },
   "vip": {
-    "version": "4.12.29",
-    "sha256": "8b420a1a8735db45d36b1963d7564a1ce93360b996314b11173597b63ea97134",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/a1d07e8cae992510e64d31e67dd56922b80865bf/ZanBooster.exe",
-    "notes": "หน้าเลือกธีมใหม่ เคอร์เซอร์ตามธีม ประกายตอนคลิก · เสียงครบทุกธีมและตามแอนิเมชัน"
+    "version": "4.12.32",
+    "sha256": "49d7cb91b461d50810c2894a26396abcfd8cc58d7ea51de30720f8768254243b",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6e00ff0fbef3c2e265ff22b40f743f089e08eaff/ZanBooster.exe",
+    "notes": "วัด FPS: สลับไปหน้าเกมให้เอง วัดเสร็จเด้งกลับพร้อมบอกผล · ระหว่างวัดไม่มีงานเบื้องหลังแทรก"
   }
 }
