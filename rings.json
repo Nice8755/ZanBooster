@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.18",
-    "sha256": "5eacf69f82a9540ec56c1d669065d211648c0aa5acde6fb3bab96a5bc30564aa",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/3b6f711194a1b75b3ad5f92f89e4e9b4a9209338/ZanBooster.exe",
-    "notes": "เตือนบูสต์หลัง Windows อัปเดต · สำรอง/ย้ายค่าที่ตั้งไว้ · สรุปประจำสัปดาห์"
+    "version": "4.12.19",
+    "sha256": "50e0d786087102e3527023b8b1a62647f720b9e386b578fa130b87e5e51f8e91",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/f4633fa89111ed88c4e7fe6ed851bc866d199dbf/ZanBooster.exe",
+    "notes": "สถานะใน Discord (รอรหัสแอป) · เตือนบูสต์หลัง Windows อัปเดต · สำรอง/ย้ายค่า · สรุปประจำสัปดาห์"
   },
   "vip": {
     "version": "4.12.17",
