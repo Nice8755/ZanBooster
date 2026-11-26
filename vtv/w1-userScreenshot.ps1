@@ -1596,6 +1596,64 @@ function Do-CloseApps {
     Emit @{ t = 'result'; action = 'CloseApps'; ok = $true; n = $n; mb = $mb }
 }
 
+function Do-Report {
+    # ทุกขั้นแยก try/catch: ขั้นไหนพัง จดลง errors.txt แล้วไปต่อ (รายงานยังส่งได้เสมอ)
+    $stamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+    $tmp = Join-Path $env:TEMP "ZanBooster-report-$stamp"
+    New-Item -ItemType Directory -Path $tmp -Force | Out-Null
+    $errs = [Collections.Generic.List[string]]::new()
+    $send = ($Ids -eq 'send') # ส่งเข้า Discord: เก็บเฉพาะที่จำเป็น ไฟล์เล็ก
+    try {
+        $Script:Capture = [Collections.Generic.List[object]]::new()
+        foreach ($fn in 'Do-SysInfo', 'Do-Status', 'Do-Health', 'Do-GfxPlan', 'Do-GfxStatus') { try { & $fn } catch { $errs.Add("$fn : $($_.Exception.Message)") } }
+        $data = $Script:Capture.ToArray(); $Script:Capture = $null
+        $osName = ''; try { $os = Get-CimInstance Win32_OperatingSystem; $osName = "$($os.Caption) $($os.Version)" } catch { }
+        $report = [ordered]@{ created = (Get-Date).ToString('s'); app = "$Opt"; os = $osName; results = $data }
+        try { $report | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $tmp 'report.json') -Encoding UTF8 }
+        catch { $errs.Add("report.json : $($_.Exception.Message)"); try { ($data | ForEach-Object { $_ | Out-String }) -join "`r`n" | Set-Content (Join-Path $tmp 'report.txt') -Encoding UTF8 } catch { } }
+    } catch { $errs.Add("collect : $($_.Exception.Message)"); $Script:Capture = $null }
+    $files = @('log.txt', 'backup.json', 'config.json'); if (-not $send) { $files += @('settings.json', 'remote.json') }
+    foreach ($f in $files) { try { $src = Join-Path $DataDir $f; if (Test-Path $src) { Copy-Item -LiteralPath $src -Destination $tmp } } catch { $errs.Add("copy $f : $($_.Exception.Message)") } }
+    try {
+        $fd = Get-FiveMData
+        if ($fd) {
+            $app = Split-Path $fd -Parent
+            $ini = Join-Path $app 'CitizenFX.ini'; if (Test-Path $ini) { Copy-Item -LiteralPath $ini -Destination $tmp }
+            $logs = Join-Path $app 'logs'
+            if (Test-Path $logs) {
+                foreach ($lf in @(Get-ChildItem -LiteralPath $logs -File | Sort-Object LastWriteTime -Descending | Select-Object -First 2)) {
+                    try {
+                        $dst = Join-Path $tmp $lf.Name
+                        if ($send -and $lf.Length -gt 409600) {
+                            $fs = New-Object System.IO.FileStream($lf.FullName, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+                            $out = $null
+                            try {
+                                $fs.Position = [long]($lf.Length - 409600)
+                                $out = New-Object System.IO.FileStream($dst, [System.IO.FileMode]::Create, [System.IO.FileAccess]::Write)
+                                $fs.CopyTo($out)
+                            } finally { if ($out) { $out.Dispose() }; $fs.Dispose() }
+                        } else { Copy-Item -LiteralPath $lf.FullName -Destination $tmp }
+                    } catch { $errs.Add("fivem log $($lf.Name) : $($_.Exception.Message)") }
+                }
+            }
+        }
+    } catch { $errs.Add("fivem : $($_.Exception.Message)") }
+    try { if (Test-Path $GfxFile) { Copy-Item -LiteralPath $GfxFile -Destination $tmp } } catch { $errs.Add("gfx : $($_.Exception.Message)") }
+    if ($errs.Count) { try { $errs -join "`r`n" | Set-Content (Join-Path $tmp 'errors.txt') -Encoding UTF8 } catch { } }
+    $zipDir = [Environment]::GetFolderPath('Desktop'); if ($send) { $zipDir = $env:TEMP }
+    $zip = Join-Path $zipDir "ZanBooster-report-$stamp.zip"
+    try {
+        Add-Type -AssemblyName System.IO.Compression.FileSystem -EA 0
+        if (Test-Path $zip) { Remove-Item $zip -Force }
+        [System.IO.Compression.ZipFile]::CreateFromDirectory($tmp, $zip)
+    } catch {
+        try { Compress-Archive -Path (Join-Path $tmp '*') -DestinationPath $zip -Force } catch { Remove-Item $tmp -Recurse -Force -EA 0; throw "สร้างไฟล์รายงานไม่ได้: $($_.Exception.Message)" }
+    }
+    Remove-Item $tmp -Recurse -Force -EA 0
+    if (-not $send) { Start-Process explorer.exe "/select,`"$zip`"" }
+    Emit @{ t = 'result'; action = 'Report'; ok = $true; path = $zip }
+}
+
 function Do-Restore {
     $c = Get-Config; if ($c.affBoot) { $c | Add-Member affBoot $false -Force; Save-Config $c; Sync-AffBoot $false }
     if (-not (Test-HasBackup)) { Emit @{ t = 'result'; action = 'Restore'; ok = $false; m = 'ยังไม่มีค่าที่ต้องคืน' }; return }
@@ -1971,19 +2029,19 @@ function Do-Tray {
 function Do-Shot {
     $u = ''
     try {
-        Add-Type -Name D -Namespace Z -MemberDefinition '[DllImport("user32")]public static extern bool SetProcessDPIAware();'; [void][Z.D]::SetProcessDPIAware()
-        Add-Type -AssemblyName System.Drawing, System.Windows.Forms
-        $b = [Windows.Forms.Screen]::PrimaryScreen.Bounds; $bm = New-Object Drawing.Bitmap $b.Width, $b.Height
-        $g = [Drawing.Graphics]::FromImage($bm); $g.CopyFromScreen($b.Location, [Drawing.Point]::Empty, $b.Size); $g.Dispose()
-        $sm = New-Object Drawing.Bitmap $bm, 960, ([int]($b.Height * 960 / $b.Width)); $bm.Dispose()
-        $ep = New-Object Drawing.Imaging.EncoderParameters 1; $ep.Param[0] = New-Object Drawing.Imaging.EncoderParameter ([Drawing.Imaging.Encoder]::Quality), 74L
-        $ms = New-Object IO.MemoryStream; $sm.Save($ms, ([Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq 'image/jpeg' }), $ep); $sm.Dispose()
-        $u = 'data:image/jpeg;base64,' + [Convert]::ToBase64String($ms.ToArray())
+        $t0 = [DateTime]::FromFileTimeUtc([int64]$Opt).ToLocalTime()
+        $dirs = @((Join-Path ([Environment]::GetFolderPath('MyPictures')) 'Screenshots'), (Join-Path $env:USERPROFILE 'OneDrive\Pictures\Screenshots'))
+        $f = Get-ChildItem $dirs -Filter *.png -EA 0 | Where-Object { $_.LastWriteTime -ge $t0 } | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($f) {
+            Add-Type -AssemblyName System.Drawing
+            $im = [Drawing.Image]::FromFile($f.FullName); $sm = New-Object Drawing.Bitmap $im, 960, ([int]($im.Height * 960 / $im.Width)); $im.Dispose()
+            $ms = New-Object IO.MemoryStream; $sm.Save($ms, [Drawing.Imaging.ImageFormat]::Jpeg); $sm.Dispose()
+            $u = 'data:image/jpeg;base64,' + [Convert]::ToBase64String($ms.ToArray())
+        }
     } catch { }
     Emit @{ t = 'result'; action = 'Shot'; ok = [bool]$u; img = $u }
 }
 
-# สถานะใน Discord (Rich Presence): ตัวช่วยเล็ก ๆ ต่อท่อ Discord บนเครื่อง ค้างไว้ระหว่างเปิดโปรแกรม ปิดโปรแกรม/ปิดสวิตช์ = หายเอง
 function Do-Rpc {
     $ok = $false
     try {

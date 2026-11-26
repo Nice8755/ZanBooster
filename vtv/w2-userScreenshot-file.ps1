@@ -1971,6 +1971,26 @@ function Do-Heat {
 }
 
 # ค้นหาเพลงใน YouTube จากชื่อ (ไม่ต้องใช้กุญแจ API): อ่านหน้าผลค้นหาแล้วดึงรหัสคลิป ชื่อ ช่อง ความยาว สูงสุด 12 รายการ
+function Do-YtSearch {
+    $o = [Collections.Generic.List[object]]::new()
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor 3072
+        $h = (Invoke-WebRequest "https://www.youtube.com/results?search_query=$([uri]::EscapeDataString($Opt))&sp=EgIQAQ%3D%3D" -UseBasicParsing -TimeoutSec 15 -UserAgent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36' -Headers @{ 'Accept-Language' = 'th,en;q=0.8' }).Content
+        $seen = @{}; $lr = [regex]'"lengthText":\{.{0,400}?"simpleText":"([\d:.]+)"'
+        foreach ($m in [regex]::Matches($h, '"videoRenderer":\{"videoId":"([\w-]{11})"(.{0,3000}?)"title":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"(.{0,3000}?)"(?:longBylineText|ownerText)":\{"runs":\[\{"text":"((?:[^"\\]|\\.)*)"')) {
+            $v = $m.Groups[1].Value; if ($seen[$v]) { continue }; $seen[$v] = 1
+            $d = ''; try { $d = $lr.Match($h, $m.Index).Groups[1].Value } catch { }
+            $o.Add(@{ v = $v; t = [regex]::Unescape($m.Groups[3].Value); c = [regex]::Unescape($m.Groups[5].Value); d = $d })
+            if ($o.Count -ge 12) { break }
+        }
+    } catch { $e = "$_" }
+    Emit @{ t = 'result'; action = 'YtSearch'; ok = ($o.Count -gt 0); items = $o.ToArray(); m = $e }
+}
+
+# เข้าแล้วปิดโปรแกรม: ดูว่า FiveM เข้าเซิร์ฟสำเร็จหรือยัง (บรรทัด connectOK ใน log หลังผ่านหน้ายืนยันของเซิร์ฟ) อ่านอย่างเดียว ไม่แตะเกม
+# Opt = ตำแหน่งในไฟล์ที่อ่านไปแล้ว คืน n = ขนาดไฟล์ตอนนี้, f = ชื่อไฟล์ log ล่าสุด, hit = เจอ connectOK หลังตำแหน่งนั้น
+$ZW = '[DllImport("user32")]public static extern bool ShowWindowAsync(IntPtr h,int c);[DllImport("user32")]public static extern bool IsIconic(IntPtr h);[DllImport("user32")]public static extern bool SetForegroundWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindow(IntPtr h);[DllImport("user32")]public static extern bool IsWindowVisible(IntPtr h);[DllImport("user32")]public static extern bool PostMessage(IntPtr h,int m,IntPtr w,IntPtr l);[ComImport,Guid("56FDF342-FD6D-11d0-958A-006097C9A090"),InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]public interface ITL{void HrInit();void AddTab(IntPtr h);void DeleteTab(IntPtr h);}[ComImport,Guid("56FDF344-FD6D-11d0-958A-006097C9A090")]public class TL{}public static void Tab(IntPtr h,bool a){var t=(ITL)new TL();t.HrInit();if(a)t.AddTab(h);else t.DeleteTab(h);}'
+# เปิดโปรแกรมซ้ำ: ถ้ามีตัวเดิมซ่อนที่ถาดหรือพับอยู่ (ไม่แตะตัวที่เปิดโชว์อยู่ เช่นตัวเก่าที่กำลังปิดตอนอัปเดต) ดึงตัวเดิมขึ้นมา หน้าจอจะปิดตัวใหม่เอง
 function Do-Dup {
     $f = $false
     try {
@@ -2009,19 +2029,18 @@ function Do-Tray {
 function Do-Shot {
     $u = ''
     try {
-        Add-Type -Name D -Namespace Z -MemberDefinition '[DllImport("user32")]public static extern bool SetProcessDPIAware();'; [void][Z.D]::SetProcessDPIAware()
-        Add-Type -AssemblyName System.Drawing, System.Windows.Forms
-        $b = [Windows.Forms.Screen]::PrimaryScreen.Bounds; $bm = New-Object Drawing.Bitmap $b.Width, $b.Height
-        $g = [Drawing.Graphics]::FromImage($bm); $g.CopyFromScreen($b.Location, [Drawing.Point]::Empty, $b.Size); $g.Dispose()
-        $sm = New-Object Drawing.Bitmap $bm, 960, ([int]($b.Height * 960 / $b.Width)); $bm.Dispose()
-        $ep = New-Object Drawing.Imaging.EncoderParameters 1; $ep.Param[0] = New-Object Drawing.Imaging.EncoderParameter ([Drawing.Imaging.Encoder]::Quality), 74L
-        $ms = New-Object IO.MemoryStream; $sm.Save($ms, ([Drawing.Imaging.ImageCodecInfo]::GetImageEncoders() | Where-Object { $_.MimeType -eq 'image/jpeg' }), $ep); $sm.Dispose()
-        $u = 'data:image/jpeg;base64,' + [Convert]::ToBase64String($ms.ToArray())
+        $t0 = [DateTime]::FromFileTimeUtc([int64]$Opt).ToLocalTime()
+        $dirs = @((Join-Path ([Environment]::GetFolderPath('MyPictures')) 'Screenshots'), (Join-Path $env:USERPROFILE 'OneDrive\Pictures\Screenshots'))
+        $f = Get-ChildItem $dirs -Filter *.png -EA 0 | Where-Object { $_.LastWriteTime -ge $t0 } | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($f) {
+            Add-Type -AssemblyName System.Drawing
+            $im = [Drawing.Image]::FromFile($f.FullName); $sm = New-Object Drawing.Bitmap $im, 960, ([int]($im.Height * 960 / $im.Width)); $im.Dispose()
+            $p = Join-Path $DataDir 'shot.jpg'; $sm.Save($p, [Drawing.Imaging.ImageFormat]::Jpeg); $sm.Dispose(); $u = $p
+        }
     } catch { }
     Emit @{ t = 'result'; action = 'Shot'; ok = [bool]$u; img = $u }
 }
 
-# สถานะใน Discord (Rich Presence): ตัวช่วยเล็ก ๆ ต่อท่อ Discord บนเครื่อง ค้างไว้ระหว่างเปิดโปรแกรม ปิดโปรแกรม/ปิดสวิตช์ = หายเอง
 function Do-Rpc {
     $ok = $false
     try {
