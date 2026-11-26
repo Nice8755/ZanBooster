@@ -120,6 +120,29 @@ jobs:
           "VT result: malicious=$($st.malicious) suspicious=$($st.suspicious) undetected=$($st.undetected) sha256=$($a.meta.file_info.sha256)"
           $a.data.attributes.results.PSObject.Properties | Where-Object { $_.Value.category -in 'malicious', 'suspicious' } | ForEach-Object { "VT flag: $($_.Name) = $($_.Value.result)" }
 
+      - name: VT bisect (test only)
+        if: steps.q.outputs.stage == 'test'
+        continue-on-error: true
+        shell: powershell
+        working-directory: src
+        env:
+          VT: ${{ secrets.VT_API_KEY }}
+        run: |
+          foreach ($h in 'a069fbc55ce17708bbd2aecefd19a460eca8f3a8991cdeaf9f6534f4fb44dfdb', '54794ae0cf96aaf4cccb383f44b52a90d8b9368ec5c722c11969164b4c28e1c4') {
+            $null = curl.exe -s -X POST -H "x-apikey: $env:VT" "https://www.virustotal.com/api/v3/files/$h/analyse"
+          }
+          New-Item -ItemType Directory -Force vtw | Out-Null
+          Copy-Item "$env:TEMP\zb-release-engine-run.ps1" vtw\a-release-engine.ps1
+          Copy-Item "$env:TEMP\zb-release-ui.html" vtw\b-release-ui.html
+          git show HEAD~3:recovered/engine.ps1 | Out-Null
+          ./tools/vt-scan.ps1 -Files (Get-ChildItem vtw | Sort-Object Name | ForEach-Object FullName)
+          Start-Sleep 240
+          foreach ($h in 'a069fbc55ce17708bbd2aecefd19a460eca8f3a8991cdeaf9f6534f4fb44dfdb', '54794ae0cf96aaf4cccb383f44b52a90d8b9368ec5c722c11969164b4c28e1c4') {
+            $f = curl.exe -s -H "x-apikey: $env:VT" "https://www.virustotal.com/api/v3/files/$h" | ConvertFrom-Json
+            $fl = @($f.data.attributes.last_analysis_results.PSObject.Properties | Where-Object { $_.Value.category -in 'malicious', 'suspicious' } | ForEach-Object { "$($_.Name)=$($_.Value.result)" })
+            "VT rescan $($h.Substring(0,8)) : malicious=$($f.data.attributes.last_analysis_stats.malicious) | $($fl -join ' ; ')"
+          }
+
       - name: Keep the cloud work on rebuild-4x
         if: steps.q.outputs.stage == 'owner' && github.event_name == 'push'
         run: |
