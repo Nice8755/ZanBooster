@@ -1,6 +1,6 @@
 {
-  "version": "4.12.22",
-  "sha256": "a039aaf3ce0df624945565b09ba0e5b4fcd98c8903af0c4cf2d64bf631445338",
+  "version": "4.12.25",
+  "sha256": "a069fbc55ce17708bbd2aecefd19a460eca8f3a8991cdeaf9f6534f4fb44dfdb",
   "file": "beta/ZanBooster.exe",
-  "notes": "ลดโอกาสแอนติไวรัสเข้าใจผิด · หน้าเว็บแนะนำโปรแกรม"
+  "notes": "แก้แอนติไวรัสบางตัวเข้าใจผิดว่าโปรแกรมเป็นไวรัส · รูปจอเกมในการ์ดผล: กด PrintScreen ในเกม แล้วกด Ctrl+V ในโปรแกรม"
 }
