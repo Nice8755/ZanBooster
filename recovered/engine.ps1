@@ -2041,6 +2041,20 @@ function Do-Shot {
     Emit @{ t = 'result'; action = 'Shot'; ok = [bool]$u; img = $u }
 }
 
+# สถานะใน Discord (Rich Presence): ตัวช่วยเล็ก ๆ ต่อท่อ Discord บนเครื่อง ค้างไว้ระหว่างเปิดโปรแกรม ปิดโปรแกรม/ปิดสวิตช์ = หายเอง
+function Do-Rpc {
+    $ok = $false
+    try {
+        if ($Opt -eq 'off') { try { [Threading.EventWaitHandle]::OpenExisting('Local\ZanBoosterRpcStop').Set() | Out-Null } catch { }; $ok = $true }
+        else {
+            $pp = (Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId
+            $s = '$m=New-Object Threading.Mutex($false,''Local\ZanBoosterRpc'');if(-not $m.WaitOne(0)){exit};$q=New-Object Threading.EventWaitHandle($false,''ManualReset'',''Local\ZanBoosterRpcStop'');$c=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String(''ZBC'')) -split "`n";$pp=ZBP;function F($s,$o,$t){$b=[Text.Encoding]::UTF8.GetBytes($t);$s.Write([BitConverter]::GetBytes([int]$o),0,4);$s.Write([BitConverter]::GetBytes($b.Length),0,4);$s.Write($b,0,$b.Length);$s.Flush();$h=New-Object byte[] 8;if($s.Read($h,0,8) -lt 8){throw ''x''};$n=[BitConverter]::ToInt32($h,4);$d=New-Object byte[] $n;$r=0;while($r -lt $n){$k=$s.Read($d,$r,$n-$r);if($k -le 0){throw ''x''};$r+=$k}}while((Get-Process -Id $pp -EA 0) -and -not $q.WaitOne(0)){$s=$null;for($i=0;$i -lt 10 -and -not $s;$i++){try{$p=New-Object IO.Pipes.NamedPipeClientStream(''.'',"discord-ipc-$i",''InOut'');$p.Connect(250);$s=$p}catch{}}if($s){try{F $s 0 $c[0];while((Get-Process -Id $pp -EA 0) -and -not $q.WaitOne(0)){F $s 1 $c[1].Replace(''ZPID'',"$PID");if($q.WaitOne(60000)){break}}}catch{};try{$s.Dispose()}catch{}}if($q.WaitOne(20000)){break}}'.Replace('ZBP', "$pp").Replace('ZBC', $Opt)
+            Start-Process powershell.exe -WindowStyle Hidden -ArgumentList '-NoProfile', '-EncodedCommand', ([Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($s))); $ok = $true
+        }
+    } catch { }
+    Emit @{ t = 'result'; action = 'Rpc'; ok = $ok }
+}
+
 function Do-JoinWait {
     $n = -1; $hit = $false; $nm = ''
     try {
@@ -2099,6 +2113,7 @@ try {
     'Tray'       { Do-Tray }
     'Dup'        { Do-Dup }
     'Shot'       { Do-Shot }
+    'Rpc'        { Do-Rpc }
     'Reboot'     { shutdown.exe /r /t 5 /c 'Zan Booster'; Emit @{ t = 'result'; action = 'Reboot'; ok = ($LASTEXITCODE -eq 0) } }
     'NuiPrio'    { $n = 0; foreach ($x in @(Get-Process FiveM_ChromeBrowser -EA 0)) { try { $x.PriorityClass = $(if ($Opt -eq 'low') { 'BelowNormal' } else { 'Normal' }); $n++ } catch { } }; Emit @{ t = 'result'; action = 'NuiPrio'; ok = ($n -gt 0); n = $n } }
         'PickFiveM'  { Do-PickFiveM }

@@ -76,6 +76,25 @@ if ($env:GITHUB_ACTIONS) {
     }
 }
 
+# 1e) Discord status helper: speaks the Discord IPC frame format to a stand-in Discord pipe, and stops on "off"
+if ($env:GITHUB_ACTIONS) {
+    $srv = New-Object IO.Pipes.NamedPipeServerStream('discord-ipc-0', 'InOut', 1)
+    $cfg = '{"v":1,"client_id":"123"}' + "`n" + '{"cmd":"SET_ACTIVITY","args":{"pid":ZPID,"activity":{"details":"t","assets":{"large_image":"logo"}}},"nonce":"zb"}'
+    $l = [string](& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $f -Action Rpc -Opt ([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($cfg))) | Where-Object { $_ -match '"t":"result"' } | Select-Object -Last 1)
+    "  rpc start: $l"
+    if (-not $srv.WaitForConnectionAsync().Wait(20000)) { throw 'rpc helper did not connect to the Discord pipe' }
+    $rf = { $h = New-Object byte[] 8; $n0 = 0; while ($n0 -lt 8) { $n0 += $srv.Read($h, $n0, 8 - $n0) }; $n = [BitConverter]::ToInt32($h, 4); $d = New-Object byte[] $n; $r = 0; while ($r -lt $n) { $r += $srv.Read($d, $r, $n - $r) }; @([BitConverter]::ToInt32($h, 0), [Text.Encoding]::UTF8.GetString($d)) }
+    $wf = { param($o, $t) $b = [Text.Encoding]::UTF8.GetBytes($t); $srv.Write([BitConverter]::GetBytes([int]$o), 0, 4); $srv.Write([BitConverter]::GetBytes($b.Length), 0, 4); $srv.Write($b, 0, $b.Length); $srv.Flush() }
+    $a = & $rf; & $wf 1 '{"cmd":"DISPATCH","evt":"READY"}'
+    $b = & $rf; & $wf 1 '{"cmd":"SET_ACTIVITY","nonce":"zb"}'
+    "  rpc handshake op=$($a[0]) $($a[1])"; "  rpc activity op=$($b[0]) $($b[1].Substring(0, [math]::Min(120, $b[1].Length)))"
+    if ($a[0] -ne 0 -or $a[1] -notmatch '"client_id":"123"' -or $b[0] -ne 1 -or $b[1] -notmatch '"cmd":"SET_ACTIVITY"' -or $b[1] -notmatch '"pid":\d+') { throw 'rpc frames are wrong' }
+    $null = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $f -Action Rpc -Opt off
+    $gone = $false; for ($i = 0; $i -lt 30 -and -not $gone; $i++) { Start-Sleep 1; try { $m = [Threading.Mutex]::OpenExisting('Local\ZanBoosterRpc'); $m.Dispose() } catch { $gone = $true } }
+    "  rpc helper stopped on off: $gone"; $srv.Dispose()
+    if (-not $gone) { throw 'rpc helper did not stop' }
+}
+
 # 2) ui.html scripts have no syntax error, changelog is valid JSON
 $ui = [IO.File]::ReadAllText((Join-Path $root 'recovered\ui.html'), $utf8)
 $cl = [regex]::Match($ui, 'id="changelog">(.*?)</script>', 'Singleline').Groups[1].Value
