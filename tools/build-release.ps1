@@ -103,7 +103,7 @@ $engTmp = Join-Path $env:TEMP 'zb-release-engine.ps1'
 # the squeezed copy must still answer the read-only actions on Windows PowerShell
 if (Get-Command powershell.exe -EA 0) {
     $engRun = Join-Path $env:TEMP 'zb-release-engine-run.ps1'; [IO.File]::WriteAllText($engRun, $min, [Text.UTF8Encoding]::new($true))
-    foreach ($a in 'Status', 'SysInfo', 'Health', 'FpsScan', 'GfxPlan', 'GfxStatus', 'Aff', 'Heat') {
+    foreach ($a in 'Status', 'SysInfo', 'Health', 'FpsScan', 'GfxPlan', 'GfxStatus', 'Aff', 'Heat', 'Dup', 'Shot') {
         $l = [string](& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $engRun -Action $a | Where-Object { $_ -match '"t":"(result|error)"' } | Select-Object -Last 1)
         if (-not $l -or $l -match '"t":"error"') { throw "release engine action $a failed: $l" }
     }

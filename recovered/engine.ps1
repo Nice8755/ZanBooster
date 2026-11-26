@@ -659,7 +659,7 @@ function Do-SysInfo {
     try { $info.cores = [int](Get-CimInstance Win32_Processor | Measure-Object NumberOfLogicalProcessors -Sum).Sum } catch { }
     try { $info.gpu = ((Get-CimInstance Win32_VideoController | Where-Object { $_.Name -notmatch 'Basic|Remote|Virtual|Parsec|Meta' }).Name) -join ' + ' } catch { $info.gpu = '-' }
     try { $info.ram = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB) } catch { }
-    try { $os = Get-CimInstance Win32_OperatingSystem; $info.os = $os.Caption; $info.build = $os.BuildNumber } catch { }
+    try { $os = Get-CimInstance Win32_OperatingSystem; $info.os = $os.Caption; $info.build = $os.BuildNumber; $info.ubr = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -EA 0).UBR } catch { }
     try {
         $ad = Get-UpAdapters | Select-Object -First 1
         if ($ad) { $info.net = $ad.InterfaceDescription; $info.link = $ad.LinkSpeed }
