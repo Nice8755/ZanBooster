@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.33",
-    "sha256": "d3311216128d40a23bf33df10a92dc0c5178f8d2708c15b5e268ef36373fdd39",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/58c9c473fbca4ba28cc2ae82bf8abea61e3cfeb6/ZanBooster.exe",
-    "notes": "พรีเซ็ต ReShade ชุดใหม่ 5 โทน"
+    "version": "4.12.34",
+    "sha256": "6ea67790d5052ebfea3da7cbd8d1e69c8015334d90a9b406100410cf23c852da",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/58fefdd5d12d1ca0ac16ca1d1b2c31aee1e27843/ZanBooster.exe",
+    "notes": "พรีเซ็ต Zan 5 โทน ต่างกันชัดขึ้น"
   },
   "vip": {
     "version": "4.12.32",
