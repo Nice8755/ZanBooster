@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.28",
-    "sha256": "57ee69ebb2c0d7388b15a89fca8a6102bf4c0147b97755842797c0885379a806",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/f9c43c50cebc1881936381c9f6d454bcb050dfcb/ZanBooster.exe",
-    "notes": "หน้าเลือกธีมใหม่ · เคอร์เซอร์ตามธีม · ประกายตอนคลิก"
+    "version": "4.12.29",
+    "sha256": "8b420a1a8735db45d36b1963d7564a1ce93360b996314b11173597b63ea97134",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/a1d07e8cae992510e64d31e67dd56922b80865bf/ZanBooster.exe",
+    "notes": "หน้าเลือกธีมใหม่ เคอร์เซอร์ตามธีม ประกายตอนคลิก · เสียงครบทุกธีมและตามแอนิเมชัน"
   },
   "vip": {
     "version": "4.12.27",
