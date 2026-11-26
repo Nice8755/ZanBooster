@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.10",
-    "sha256": "676ab0d45d4c97a05de4b9feeed441fa003d8066d3880839a16959be5decc45f",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/a647eaec6304fabd79cdde5accc7686bd16c2bca/ZanBooster.exe",
-    "notes": "ธีมใหม่ทั้ง 10 แบบมีหน้าตาของตัวเอง ไม่ใช่แค่เปลี่ยนสี"
+    "version": "4.12.11",
+    "sha256": "c511cafe725025f8d0adf5038e0de0c6e68f88b168c01ec43a70890e8249d1d7",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/5fd2bacf15bc746528c21b992fb300313f9f025f/ZanBooster.exe",
+    "notes": "Power Plan ของ Zan ไม่พักแกน CPU ลดอาการกระตุก"
   },
   "vip": {
     "version": "4.12.10",
