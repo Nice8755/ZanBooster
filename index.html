@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zan Booster</title>
+<meta name="description" content="โปรแกรมปรับคอมให้เล่น FiveM ลื่นขึ้น ใช้ฟรีได้ ปลอดภัย ไม่แตะไฟล์เกม คืนค่าได้ทุกข้อ">
+<meta property="og:title" content="Zan Booster · บูสต์คอมให้เล่น FiveM ลื่นขึ้น">
+<meta property="og:description" content="ใช้ฟรีได้เลย · ไม่แตะไฟล์เกม · คืนค่าได้ทุกข้อ · วัดผลจริงในเกม">
+<meta property="og:image" content="https://nice8755.github.io/ZanBooster/site/cover.jpg">
+<link rel="icon" href="site/logo.png">
+<style>
+:root{--bg:#06070f;--card:#10121f;--line:rgba(255,255,255,.08);--txt:#e9ecf7;--mut:#98a0b8;--c1:#22d3ff;--c2:#8b6cff;--c3:#ff3fd0;--g:linear-gradient(100deg,var(--c1),var(--c2) 55%,var(--c3))}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.6 "Segoe UI","Leelawadee UI","Noto Sans Thai",system-ui,sans-serif}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:5;background:rgba(6,7,15,.8);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:12px;height:60px}nav img{width:32px;height:32px;border-radius:8px}
+nav b{font-weight:800;letter-spacing:2px}nav b i{font-style:normal;background:var(--g);-webkit-background-clip:text;color:transparent}
+nav .sp{flex:1}nav a.l{color:var(--mut);font-size:14px;margin-left:16px}nav a.l:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:14px;font-weight:700;border:1px solid var(--line);background:rgba(255,255,255,.05);transition:transform .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px)}.btn.pri{background:var(--g);color:#0a0b16;border:0;box-shadow:0 10px 30px -10px rgba(139,108,255,.8)}
+header{position:relative;overflow:hidden;padding:70px 0 60px;background:radial-gradient(circle at 20% 30%,#211c5c,transparent 55%),radial-gradient(circle at 90% 10%,rgba(255,63,208,.25),transparent 45%)}
+header .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center}
+h1{font-size:54px;line-height:1.1;margin:0 0 16px;letter-spacing:1px}h1 i{font-style:normal;background:var(--g);-webkit-background-clip:text;color:transparent}
+header p{font-size:19px;color:#c9cfe4;margin:0 0 26px}.cta{display:flex;gap:12px;flex-wrap:wrap}
+.note{margin-top:14px;font-size:13px;color:var(--mut)}
+header img.hero{width:100%;border-radius:20px;box-shadow:0 30px 80px -30px rgba(139,108,255,.8),0 0 0 1px var(--line)}
+section{padding:60px 0}h2{font-size:32px;margin:0 0 8px}.sub{color:var(--mut);margin:0 0 30px}
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}.tc b{display:block;font-size:18px;margin:6px 0}.tc span{color:var(--mut);font-size:15px}.tc em{font-style:normal;font-size:28px}
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}.fc h3{margin:0 0 10px;font-size:20px}
+.fc ul{margin:0;padding-left:20px;color:#cdd3e6}.fc li{margin:4px 0}
+.fc.pro{border-color:rgba(255,201,77,.35);background:linear-gradient(180deg,rgba(255,201,77,.06),var(--card) 40%)}.tag{display:inline-block;font-size:12px;font-weight:800;padding:2px 10px;border-radius:20px;background:linear-gradient(90deg,#ffe08a,#ffb340);color:#2a1700;margin-left:8px;vertical-align:middle}
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:16px}.shots img{width:100%;border-radius:16px;border:1px solid var(--line)}.shots figure{margin:0}.shots figcaption{color:var(--mut);font-size:14px;margin-top:6px}
+.price{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;text-align:center}.pc b{display:block;font-size:34px;font-weight:900;margin:6px 0}.pc small{color:var(--mut)}
+.pc.best{border-color:var(--c2);box-shadow:0 0 0 1px var(--c2),0 20px 40px -20px rgba(139,108,255,.7)}
+ol.how{counter-reset:s;list-style:none;padding:0;display:grid;gap:10px;margin:0}ol.how li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px 14px 56px;position:relative}
+ol.how li:before{content:counter(s);position:absolute;left:14px;top:12px;width:30px;height:30px;border-radius:50%;background:var(--g);color:#0a0b16;font-weight:900;display:grid;place-items:center}
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:10px}summary{cursor:pointer;font-weight:700}details p{color:#c9cfe4;margin:10px 0 0}
+footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-size:14px;text-align:center}
+@media (max-width:820px){header .wrap,.feat,.shots{grid-template-columns:1fr}.trust{grid-template-columns:1fr}.price{grid-template-columns:1fr 1fr}h1{font-size:38px}nav a.l{display:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap"><img src="site/logo.png" alt=""><b>ZAN <i>BOOSTER</i></b><span class="sp"></span><a class="l" href="#features">ฟีเจอร์</a><a class="l" href="#price">ราคา</a><a class="l" href="#faq">คำถาม</a><a class="btn pri" style="padding:8px 16px;margin-left:16px" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">ดาวน์โหลด</a></div></nav>
+
+<header><div class="wrap">
+  <div>
+    <h1>บูสต์คอมให้เล่น <i>FiveM</i> ลื่นขึ้น</h1>
+    <p>ปรับ Windows ให้เกมได้ใช้เครื่องเต็มที่ ตรวจหาจุดที่ทำให้เสีย FPS แล้ววัดผลจริงในเกมให้เห็นกับตา ใช้ฟรีได้เลย</p>
+    <div class="cta"><a class="btn pri" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">⬇ ดาวน์โหลดฟรี</a><a class="btn" href="https://discord.gg/pCCqStQwmp">เข้าดิส ZAN HUB</a></div>
+    <div class="note">Windows 10 / 11 · เปิดไฟล์แล้วใช้ได้เลย ไม่ต้องติดตั้ง</div>
+  </div>
+  <img class="hero" src="site/cover.jpg" alt="Zan Booster">
+</div></header>
+
+<section><div class="wrap">
+  <h2>ปลอดภัย และพิสูจน์ได้</h2><p class="sub">สามเรื่องที่ทำให้ Zan Booster ต่างจากโปรแกรมบูสต์ทั่วไป</p>
+  <div class="trust">
+    <div class="tc"><em>🛡️</em><b>ไม่แตะไฟล์เกม ไม่ยุ่งกันโกง</b><span>ปรับเฉพาะค่าของ Windows ไม่ใส่โค้ดเข้าเกม</span></div>
+    <div class="tc"><em>↩️</em><b>คืนค่าได้ทุกข้อ</b><span>เก็บค่าเดิมไว้ทุกครั้งที่ปรับ กดคืนได้ตลอด</span></div>
+    <div class="tc"><em>📊</em><b>วัดผลจริง ไม่มั่วตัวเลข</b><span>วัด FPS ในเกมบนเครื่องคุณเอง ก่อน / หลังบูสต์ ไม่โฆษณาตัวเลขเกินจริง</span></div>
+  </div>
+</div></section>
+
+<section id="features" style="padding-top:20px"><div class="wrap">
+  <h2>ฟีเจอร์</h2><p class="sub">เวอร์ชันฟรีใช้ได้ครบงานหลัก อยากได้เต็มอัปเกรดเป็น Premium</p>
+  <div class="feat">
+    <div class="fc"><h3>ใช้ฟรี</h3><ul>
+      <li>บูสต์เครื่อง: ค่าแนะนำของ Windows สำหรับเล่นเกม</li><li>ตรวจเครื่อง: หาจุดที่ทำให้เสีย FPS</li><li>ล้างขยะ ล้างแคช FiveM</li>
+      <li>ภารกิจวัดผล: วัด FPS ในเกมก่อน / หลังบูสต์ พร้อมการ์ดผลที่มีรูปจอเกมจริง</li><li>ฟังเพลง YouTube ในโปรแกรม · เคอร์เซอร์ 17 แบบ</li><li>สำรอง / ย้ายค่าที่ตั้งไว้</li></ul></div>
+    <div class="fc pro"><h3>Premium <span class="tag">PRO</span></h3><ul>
+      <li>เข้าเซิร์ฟคลิกเดียว: ตั้ง build · Pure · Pool size ให้ ไม่ต้องรีเกม</li><li>รอคิวเซิร์ฟเต็ม เข้าให้อัตโนมัติ</li><li>โหมดเล่นเกม · ล้างแรมอัตโนมัติ · กู้ FPS</li>
+      <li>ไดรเวอร์การ์ดจอ · เฟรมเจน · Zan Upscale · ReShade 12 โทน</li><li>กราฟิกแยกตามเซิร์ฟ · โปรไฟล์ดวลปืน / เที่ยวเมือง · เป้าเล็ง</li><li>ธีมขยับได้ 10 แบบ + ธีมการ์ตูน + สร้างธีมเอง</li></ul></div>
+  </div>
+</div></section>
+
+<section style="padding-top:20px"><div class="wrap">
+  <h2>หน้าตาโปรแกรม</h2><p class="sub">ธีมสวย ขยับได้ แต่หยุดเองตอนเล่นเกม ไม่กินเครื่อง</p>
+  <div class="shots">
+    <figure><img src="site/fps-card.jpg" alt="การ์ดผลวัด FPS" loading="lazy"><figcaption>การ์ดผลวัด FPS ก่อน / หลังบูสต์ (ตัวอย่าง) แชร์ลงดิสได้ทันที</figcaption></figure>
+    <figure><img src="site/theme-picker.jpg" alt="เลือกธีมและเคอร์เซอร์" loading="lazy"><figcaption>เลือกธีมและเคอร์เซอร์</figcaption></figure>
+    <figure><img src="site/themes-cute.jpg" alt="ธีมน่ารัก" loading="lazy"><figcaption>SAKURA · CANDY · PEACH · MINT · AURORA</figcaption></figure>
+    <figure><img src="site/themes-cool.jpg" alt="ธีมเท่" loading="lazy"><figcaption>CYBER · MIDNIGHT · CARBON · INFERNO · OCEAN</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="price" style="padding-top:20px"><div class="wrap">
+  <h2>ราคา Premium</h2><p class="sub">ลองฟรี 3 วันได้เลยในหน้า Premium ของโปรแกรม</p>
+  <div class="price">
+    <div class="pc"><small>7 วัน</small><b>25฿</b></div>
+    <div class="pc"><small>30 วัน</small><b>59฿</b></div>
+    <div class="pc best"><small>ถาวร · คุ้มสุด</small><b>300฿</b></div>
+    <div class="pc"><small>ทดลอง</small><b>ฟรี</b><small>3 วัน</small></div>
+  </div>
+  <h3 style="margin:30px 0 12px">วิธีซื้อ</h3>
+  <ol class="how"><li>เปิดโปรแกรม → หน้า <b>Premium</b> → คัดลอก <b>รหัสเครื่อง</b></li><li>เข้าดิส <a href="https://discord.gg/pCCqStQwmp" style="color:var(--c1)">ZAN HUB</a> เปิด Ticket แจ้งแพ็กที่ต้องการ พร้อมรหัสเครื่อง</li><li>โอนเงินแล้วส่งสลิป รับคีย์ไปใส่ในโปรแกรม ใช้ได้ทันที</li></ol>
+</div></section>
+
+<section id="faq" style="padding-top:20px"><div class="wrap">
+  <h2>คำถามที่พบบ่อย</h2>
+  <details><summary>เปิดแล้ว Windows ขึ้น "Windows protected your PC"</summary><p>เป็นเพราะไฟล์ยังไม่มีลายเซ็นดิจิทัล กด <b>More info</b> → <b>Run anyway</b> ได้เลย โปรแกรมไม่แตะไฟล์เกมและคืนค่าได้ทุกข้อ</p></details>
+  <details><summary>แอนติไวรัสเตือน</summary><p>โปรแกรมปรับเครื่องทุกตัวแก้ค่าของ Windows จึงอาจโดนแอนติไวรัสบางตัวเข้าใจผิด แจ้งแอดมินในดิสได้ เราจะส่งไฟล์ให้ผู้ผลิตแอนติไวรัสตรวจแก้</p></details>
+  <details><summary>ต้องเปิดโปรแกรมค้างไว้ตอนเล่นไหม</summary><p>ไม่ต้อง ค่าที่ปรับแล้วอยู่ใน Windows ปิดโปรแกรมได้เลย ยกเว้นฟีเจอร์ที่ทำงานระหว่างเล่น เช่น ล้างแรมอัตโนมัติ</p></details>
+  <details><summary>จะได้ FPS เพิ่มเท่าไหร่</summary><p>แต่ละเครื่องไม่เท่ากัน เราจึงไม่โฆษณาตัวเลข ใช้ภารกิจวัดผลในโปรแกรมวัดบนเครื่องคุณเองได้ทั้งก่อนและหลัง</p></details>
+  <details><summary>อยากกลับเป็นแบบเดิม</summary><p>กดคืนค่าในหน้าปรับแต่งได้ทุกข้อ โปรแกรมเก็บค่าเดิมไว้ทุกครั้ง</p></details>
+</div></section>
+
+<footer><div class="wrap">Zan Booster · <a href="https://discord.gg/pCCqStQwmp" style="color:var(--c1)">ZAN HUB</a> · โปรแกรมนี้ไม่ได้เกี่ยวข้องกับ Cfx.re หรือ Rockstar Games</div></footer>
+</body>
+</html>
