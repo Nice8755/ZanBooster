@@ -3,9 +3,9 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.31",
-    "sha256": "54f08ff780e1d8237b7b3d7b930d7efb4ec89dbd6361a38230482021c34aca7a",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ae97c703675fcb0f3208d590dad7de5d941c6a0f/ZanBooster.exe",
+    "version": "4.12.32",
+    "sha256": "49d7cb91b461d50810c2894a26396abcfd8cc58d7ea51de30720f8768254243b",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6e00ff0fbef3c2e265ff22b40f743f089e08eaff/ZanBooster.exe",
     "notes": "วัด FPS: สลับไปหน้าเกมให้เอง วัดเสร็จเด้งกลับพร้อมบอกผล"
   },
   "vip": {
