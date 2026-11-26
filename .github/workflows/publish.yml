@@ -123,6 +123,8 @@ jobs:
       - name: VT bisect (test only)
         if: steps.q.outputs.stage == 'test'
         continue-on-error: true
+        shell: powershell
+        working-directory: src
         env:
           VT: ${{ secrets.VT_API_KEY }}
         run: |
