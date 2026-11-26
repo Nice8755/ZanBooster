@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.36",
-    "sha256": "bcc031357eca0b42cee454e1f37af1be8895336c9685a1d32a63befbcbc972fc",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/33faf1f5a6863fc30c9704488e6279bcfe0ed911/ZanBooster.exe",
-    "notes": "พรีเซ็ต Zan สีสดขึ้น คมขึ้น แก้หมอกขาว"
+    "version": "4.12.37",
+    "sha256": "017999ddeaa4be3bc7754112f16a7a0e471a183f73221aa0e960d2b59fd2947c",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9d933354b6f70800962e04ae0f232385e43bbb5b/ZanBooster.exe",
+    "notes": "ปุ่มพร้อมใช้พรีเซ็ต + วิธีใช้ ReShade"
   },
   "vip": {
     "version": "4.12.32",
