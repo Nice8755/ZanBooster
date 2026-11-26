@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.35",
-    "sha256": "f7edf2da0cab857eddc4d4dca1103907c11c41fbcfef06a25843890901e1635e",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/52cf10b39d16a3a7abe9f67b41e5dabc755c5cf2/ZanBooster.exe",
-    "notes": "พรีเซ็ต Zan 5 โทนทำใหม่ สบายตา"
+    "version": "4.12.36",
+    "sha256": "bcc031357eca0b42cee454e1f37af1be8895336c9685a1d32a63befbcbc972fc",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/33faf1f5a6863fc30c9704488e6279bcfe0ed911/ZanBooster.exe",
+    "notes": "พรีเซ็ต Zan สีสดขึ้น คมขึ้น แก้หมอกขาว"
   },
   "vip": {
     "version": "4.12.32",
