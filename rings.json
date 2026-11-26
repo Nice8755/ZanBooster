@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.32",
-    "sha256": "49d7cb91b461d50810c2894a26396abcfd8cc58d7ea51de30720f8768254243b",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/6e00ff0fbef3c2e265ff22b40f743f089e08eaff/ZanBooster.exe",
-    "notes": "วัด FPS: สลับไปหน้าเกมให้เอง วัดเสร็จเด้งกลับพร้อมบอกผล"
+    "version": "4.12.33",
+    "sha256": "d3311216128d40a23bf33df10a92dc0c5178f8d2708c15b5e268ef36373fdd39",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/58c9c473fbca4ba28cc2ae82bf8abea61e3cfeb6/ZanBooster.exe",
+    "notes": "พรีเซ็ต ReShade ชุดใหม่ 5 โทน"
   },
   "vip": {
     "version": "4.12.32",
