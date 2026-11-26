@@ -604,7 +604,7 @@
 "ล้างเลย": "Clean now",
 "ล้างแคช": "Clean cache",
 "วัดผ่าน": "measured via",
-"วิธีใช้": "Guide",
+"วิธีใช้": "How to use",
 "วิ่งที่": "running at",
 "เครื่อง": "PC",
 "เปิดเกม": "Open game",
@@ -1188,5 +1188,18 @@
 "สีหม่นเย็น สบายตา เล่นนาน": "Muted cool colors, easy on the eyes for long play",
 "หนังโรง คอนทราสต์ลึก ส้ม-ฟ้าบาง ๆ": "Cinema look, deep contrast, light orange-teal",
 "5 โทน · สีไม่จัดจนแสบตา ปรับแค่สี กิน FPS น้อยมาก · ปิดเกมก่อนกด": "5 looks · no harsh colors, color only, very light on FPS · close the game first",
-"5 โทน · สีสดคม ไม่แสบตา ไม่เปิดเอฟเฟกต์หนัก กิน FPS น้อยมาก · ปิดเกมก่อนกด": "5 looks · vivid and crisp, easy on the eyes, no heavy effects, very light on FPS · close the game first"
+"5 โทน · สีสดคม ไม่แสบตา ไม่เปิดเอฟเฟกต์หนัก กิน FPS น้อยมาก · ปิดเกมก่อนกด": "5 looks · vivid and crisp, easy on the eyes, no heavy effects, very light on FPS · close the game first",
+"พร้อมใช้พรีเซ็ต": "Get presets ready",
+"กดก่อนเข้าเกม · ติดตั้ง เปิดใช้ ใส่พรีเซ็ต ให้ครบในปุ่มเดียว": "Press before playing · installs, turns on and applies a preset in one click",
+"วิธีใช้ ReShade": "How to use ReShade",
+"พร้อมเข้าเกมแล้ว ✓": "Ready to play ✓",
+"พร้อมเข้าเกมแล้ว": "Ready to play",
+"เข้าใจแล้ว": "Got it",
+"พร้อมใช้พรีเซ็ตเลย": "Get presets ready now",
+"พรีเซ็ต Zan ชุดใหม่มาแล้ว": "New Zan presets are here",
+"ไปเลือก": "Choose one",
+"ไว้ทีหลัง": "Later",
+"ตรวจ ReShade ในเครื่อง...": "Checking ReShade...",
+"เปิดใช้ ReShade...": "Turning ReShade on...",
+"ติดตั้ง ReShade (ครั้งแรกใช้เวลาสักครู่)...": "Installing ReShade (first time takes a moment)..."
 }
