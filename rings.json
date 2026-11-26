@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.19",
-    "sha256": "50e0d786087102e3527023b8b1a62647f720b9e386b578fa130b87e5e51f8e91",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/f4633fa89111ed88c4e7fe6ed851bc866d199dbf/ZanBooster.exe",
-    "notes": "สถานะใน Discord (รอรหัสแอป) · เตือนบูสต์หลัง Windows อัปเดต · สำรอง/ย้ายค่า · สรุปประจำสัปดาห์"
+    "version": "4.12.20",
+    "sha256": "3d66feb6fe1db15b19bec050d6f0ac0ce4ae82e2a960ba3f85914c2d3f0858f1",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2cd91afa502f12502fc75b4be077a02d14fe24c2/ZanBooster.exe",
+    "notes": "เปิดใช้สถานะใน Discord"
   },
   "vip": {
     "version": "4.12.17",
