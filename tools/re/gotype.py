@@ -45,6 +45,10 @@ def dump(t, depth=0):
             np, tp, off = struct.unpack_from('<QQQ', read(fp + i * 24, 24))
             fn, tag = name(np); ts, tk = tname(tp)
             print('  ' * depth + f'  +{off:<4} {fn:<14} {ts:<28} `{tag}`')
+    if kind in (17, 22, 23) and depth < 3:  # array/ptr/slice: ชนิดข้างใน
+        dump(struct.unpack_from('<Q', read(t + 48, 8))[0], depth + 1)
+    if kind == 21 and depth < 3:  # map: key แล้ว elem
+        k, e = struct.unpack_from('<QQ', read(t + 48, 16)); dump(k, depth + 1); dump(e, depth + 1)
 a = sys.argv[2]
 t = int(a, 16) if a.startswith('0x') else rodata + int(a)
 dump(t)

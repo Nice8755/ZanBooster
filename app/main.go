@@ -171,6 +171,7 @@ func main() {
 	must(w.Bind("gpuRestore", a.gpuRestoreAsync))
 	must(w.Bind("frameGenInfo", a.frameGenInfoAsync))
 	must(w.Bind("frameGenSet", a.frameGenSetAsync))
+	must(w.Bind("reshadeOp", a.reshadeAsync))
 	must(w.Bind("benchStart", a.benchStart))
 	must(w.Bind("benchStop", a.benchStop))
 	must(w.Bind("benchList", a.benchList))
@@ -236,8 +237,10 @@ func main() {
 	a.loadRemoteConfig()
 	go a.licRecheck()
 	go registerLinkScheme()
+	zanDataDir = a.dataDir
 	w.SetHtml(uiHTML)
 	w.Run()
+	zanExitCleanup() // ปิดโปรแกรมตอนเกมไม่ได้เปิด: เอาไฟล์ Zan ออก
 }
 
 func must(err error) {
