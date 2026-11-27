@@ -28,6 +28,11 @@ on:
       confirm:
         description: "everyone: type YES"
         default: ""
+      exe:
+        description: "test/owner: old = patch the 4.11.15 exe (now) · new = Go exe from app/ (after the owner tested it)"
+        type: choice
+        options: [old, new]
+        default: old
 
 permissions:
   contents: write
@@ -60,19 +65,21 @@ jobs:
           I_VERSION: ${{ inputs.version }}
           I_NOTES: ${{ inputs.notes }}
           I_CONFIRM: ${{ inputs.confirm }}
+          I_EXE: ${{ inputs.exe }}
         run: |
           if ($env:GITHUB_EVENT_NAME -eq 'push') {
             $o = Get-Content src/publish-request.json -Raw | ConvertFrom-Json
             $at = if ($o.at -is [datetime]) { $o.at.ToUniversalTime() } else { [datetime]::Parse($o.at, [Globalization.CultureInfo]::InvariantCulture, 'AdjustToUniversal,AssumeUniversal') }
             $age = ([datetime]::UtcNow - $at).TotalMinutes
             if ($age -gt 30 -or $age -lt -5) { throw "order is $([math]::Round($age)) minutes old, ask the owner again" }
-            $s = "$($o.stage)"; $v = "$($o.version)"; $n = "$($o.notes)"; $c = "$($o.confirm)"
+            $s = "$($o.stage)"; $v = "$($o.version)"; $n = "$($o.notes)"; $c = "$($o.confirm)"; $x = "$($o.exe)"
             [IO.File]::WriteAllText("$env:RUNNER_TEMP/discord.txt", "$($o.discord)", [Text.UTF8Encoding]::new($false))
-          } else { $s = $env:I_STAGE; $v = $env:I_VERSION; $n = $env:I_NOTES; $c = $env:I_CONFIRM }
+          } else { $s = $env:I_STAGE; $v = $env:I_VERSION; $n = $env:I_NOTES; $c = $env:I_CONFIRM; $x = $env:I_EXE }
+          if (-not $x) { $x = 'old' }; if ($x -notin 'old', 'new') { throw 'exe must be old or new' }
           if ($s -notin 'test', 'owner', 'premium', 'everyone') { throw "bad stage" }
           $n = ($n -replace '[\r\n]+', ' ').Trim(); if ($n.Length -gt 500) { $n = $n.Substring(0, 500) }
           $c = $c -replace '[^A-Za-z]', ''; if ($v -notmatch '^\d\.\d\d\.\d\d$') { throw 'version must look like 4.11.30' }
-          "stage=$s" >> $env:GITHUB_OUTPUT
+          "stage=$s" >> $env:GITHUB_OUTPUT; "exe=$x" >> $env:GITHUB_OUTPUT; "EXE=$x" >> $env:GITHUB_ENV
           "STAGE=$s" >> $env:GITHUB_ENV; "VERSION=$v" >> $env:GITHUB_ENV; "NOTES=$n" >> $env:GITHUB_ENV; "CONFIRM=$c" >> $env:GITHUB_ENV
 
       - name: Check inputs
@@ -95,10 +102,20 @@ jobs:
         if: steps.q.outputs.stage == 'test' || steps.q.outputs.stage == 'owner'
         shell: powershell
         working-directory: src
+        env:
+          REPORT_WEBHOOK: ${{ secrets.REPORT_WEBHOOK }}
         run: |
           $ErrorActionPreference = 'Stop'
           ./tools/ci-check.ps1
-          ./tools/build-release.ps1 -Version $env:VERSION -Out "$env:RUNNER_TEMP\ZanBooster.exe"
+          if ($env:EXE -eq 'new') {
+            "building the NEW exe (Go code in app/)"
+            Copy-Item recovered/ui.html, recovered/engine.ps1 app/ -Force
+            go test -mod=vendor ./app; if ($LASTEXITCODE) { throw 'new exe tests failed' }
+            ./tools/build-new.ps1 -Version $env:VERSION -Out "$env:RUNNER_TEMP\ZanBooster.exe"
+            ./tools/newexe-smoke.ps1 -Exe "$env:RUNNER_TEMP\ZanBooster.exe"
+          } else {
+            ./tools/build-release.ps1 -Version $env:VERSION -Out "$env:RUNNER_TEMP\ZanBooster.exe"
+          }
           $v = (Get-Item "$env:RUNNER_TEMP\ZanBooster.exe").VersionInfo.FileVersion
           if ($v -ne "$env:VERSION.0") { throw "exe version is $v" }
           $u = [IO.File]::ReadAllText("$PWD\recovered\ui.html")

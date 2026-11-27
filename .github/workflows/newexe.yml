@@ -1,9 +1,10 @@
-# ตัว exe ใหม่ (app/) สร้างและทดสอบอย่างเดียว ไม่ปล่อยให้ใคร · ดาวน์โหลดผลได้ที่หน้า Actions (Artifacts)
+# ตัว exe ใหม่ (app/) สร้าง ทดสอบ ลองเปิด และสแกนแอนติไวรัส อย่างเดียว ไม่ปล่อยให้ใคร · ดาวน์โหลดผลได้ที่หน้า Actions (Artifacts)
+# ปล่อยจริงใช้ Publish กับ "exe":"new" (เมื่อเจ้าของลองตัวใหม่ผ่านแล้วเท่านั้น)
 name: New exe (test build)
 on:
   push:
     branches: ['claude/newexe**']
-    paths: ['app/**', 'recovered/**', '.github/workflows/newexe.yml']
+    paths: ['app/**', 'recovered/**', 'tools/build-new.ps1', 'tools/newexe-smoke.ps1', '.github/workflows/newexe.yml']
   workflow_dispatch:
 jobs:
   build:
@@ -17,12 +18,31 @@ jobs:
         run: Copy-Item recovered/ui.html, recovered/engine.ps1 app/ -Force
       - name: Tests (machine code and key check must match the old exe)
         run: go test -mod=vendor ./app
-      - name: Build
+      - name: Screen and engine checks (same as the old exe release)
+        shell: powershell
+        run: ./tools/ci-check.ps1
+      - name: Build (release settings)
+        shell: powershell
+        env:
+          REPORT_WEBHOOK: ${{ secrets.REPORT_WEBHOOK }}
+        run: ./tools/build-new.ps1 -Version 4.20.00 -Out "$PWD\ZanBooster-new.exe"
+      - name: Open it (window + WebView2 must come up and stay)
+        shell: powershell
+        run: ./tools/newexe-smoke.ps1 -Exe "$PWD\ZanBooster-new.exe" -Shot "$PWD\screen.png"
+      - name: VirusTotal
+        continue-on-error: true
         shell: pwsh
+        env:
+          VT: ${{ secrets.VT_API_KEY }}
         run: |
-          $env:GOOS='windows'; $env:GOARCH='amd64'; $env:CGO_ENABLED='0'
-          go build -mod=vendor -trimpath -ldflags "-H windowsgui -X main.appVersion=4.20.0" -o ZanBooster-new.exe ./app
-          if ($LASTEXITCODE) { throw 'build failed' }
-          "size: $((Get-Item ZanBooster-new.exe).Length)"
+          if (-not $env:VT) { 'VT_API_KEY secret is not set, no scan'; exit 0 }
+          $f = "$PWD\ZanBooster-new.exe"
+          $r = curl.exe -s -H "x-apikey: $env:VT" -F "file=@$f" https://www.virustotal.com/api/v3/files | ConvertFrom-Json
+          $id = $r.data.id; if (-not $id) { "upload failed: $($r | ConvertTo-Json -Compress)"; exit 0 }
+          for ($i = 0; $i -lt 40; $i++) { Start-Sleep 20; $a = curl.exe -s -H "x-apikey: $env:VT" "https://www.virustotal.com/api/v3/analyses/$id" | ConvertFrom-Json; if ($a.data.attributes.status -eq 'completed') { break } }
+          $st = $a.data.attributes.stats
+          "VT result: malicious=$($st.malicious) suspicious=$($st.suspicious) undetected=$($st.undetected) sha256=$($a.meta.file_info.sha256)"
+          $a.data.attributes.results.PSObject.Properties | Where-Object { $_.Value.category -in 'malicious', 'suspicious' } | ForEach-Object { "VT flag: $($_.Name) = $($_.Value.result)" }
       - uses: actions/upload-artifact@v4
-        with: { name: ZanBooster-new, path: ZanBooster-new.exe, retention-days: 14 }
+        if: always()
+        with: { name: ZanBooster-new, path: "ZanBooster-new.exe\nscreen.png", retention-days: 14, if-no-files-found: ignore }
