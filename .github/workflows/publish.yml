@@ -136,6 +136,16 @@ jobs:
           $st = $a.data.attributes.stats
           "VT result: malicious=$($st.malicious) suspicious=$($st.suspicious) undetected=$($st.undetected) sha256=$($a.meta.file_info.sha256)"
           $a.data.attributes.results.PSObject.Properties | Where-Object { $_.Value.category -in 'malicious', 'suspicious' } | ForEach-Object { "VT flag: $($_.Name) = $($_.Value.result)" }
+          $big = $a.data.attributes.results.PSObject.Properties | Where-Object { $_.Value.category -in 'malicious', 'suspicious' -and $_.Name -match '^(Microsoft|Kaspersky|ESET-NOD32|BitDefender|Avast|AVG)$' } | ForEach-Object { $_.Name }
+          [IO.File]::WriteAllText("$env:RUNNER_TEMP/vt-big.txt", (@($big) -join ','))
+
+      # ตัว exe ใหม่: ถ้าแอนติไวรัสที่ลูกค้าส่วนใหญ่ใช้จับ ห้ามส่งให้เครื่องเจ้าของ (ลูกค้าจะเปิดไม่ได้)
+      - name: Stop if a major antivirus flags the new exe
+        if: steps.q.outputs.exe == 'new' && (steps.q.outputs.stage == 'test' || steps.q.outputs.stage == 'owner')
+        run: |
+          $f = "$env:RUNNER_TEMP/vt-big.txt"; $t = if (Test-Path $f) { [IO.File]::ReadAllText($f).Trim() } else { '' }
+          if ($t) { throw "flagged by $t, not published (rebuild or report a false positive first)" }
+          'no major antivirus flags'
 
       - name: Keep the cloud work on rebuild-4x
         if: steps.q.outputs.stage == 'owner' && github.event_name == 'push'
