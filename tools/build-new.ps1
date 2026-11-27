@@ -19,7 +19,7 @@ Copy-Item (Join-Path $root 'recovered\engine.ps1') (Join-Path $app 'engine.ps1')
 $env:GOOS = 'windows'; $env:GOARCH = 'amd64'; $env:CGO_ENABLED = '0'
 $hook = "$env:REPORT_WEBHOOK".Trim()
 if (-not $hook) { 'REPORT_WEBHOOK secret is not set: the report button will say it cannot send' }
-$ld = "-H windowsgui -s -w -X main.appVersion=$Version"
+$ld = "-H windowsgui -X main.appVersion=$Version"
 if ($hook) { $ld += " -X main.reportWebhook=$hook" }
 
 # เลขเวอร์ชันในคุณสมบัติไฟล์ (Windows > Properties): สร้าง resource ใหม่จากตัวเดิม (ไอคอน + manifest แอดมินเหมือนเดิม)
