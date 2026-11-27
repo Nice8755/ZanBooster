@@ -51,13 +51,24 @@ for i, ln in enumerate(lines):
             disp = struct.unpack_from('<i', code, 3)[0]
             tgt = addr + len(code) + disp
             n = None
-            for nx in lines[max(0, i - 2):i]:  # ความยาวที่เก็บลง stack ก่อนหน้า (ส่วนของ filepath.Join)
-                mm = stkre.search(nx)
-                if mm: n = int(mm.group(1), 16)
+            rr = re.search(r', (\w+)\s*$', m.group(3).split(';')[0].strip())
+            if rr:  # LEAQ X, R; MOVQ R, off(base); MOVQ $len, off+8(base)  (ค่าในโครงสร้าง/บน stack)
+                for nx in lines[i + 1:i + 4]:
+                    mo = re.search(r'MOVQ ' + rr.group(1) + r', 0x([0-9a-f]+)\((SP|AX|CX|DX|BX|SI|DI|R\d+)\)', nx)
+                    if mo:
+                        want = '0x%x(%s)' % (int(mo.group(1), 16) + 8, mo.group(2))
+                        for ny in lines[max(0, i - 4):i + 8]:
+                            ml = re.search(r'MOVQ \$0x([0-9a-f]+), ' + re.escape(want), ny)
+                            if ml: n = int(ml.group(1), 16); break
+                        break
+            if n is None:
+                for nx in lines[max(0, i - 2):i]:  # ความยาวที่เก็บลง stack ก่อนหน้า (ส่วนของ filepath.Join)
+                    mm = stkre.search(nx)
+                    if mm: n = int(mm.group(1), 16)
             for nx in ([] if n else lines[i + 1:i + 4]):
                 mm = lenre.search(nx)
                 if mm: n = int(mm.group(1), 16); break
-            if n is None:  # ความยาวถูกเก็บลง stack ก่อน/หลัง (เช่น filepath.Join หลายส่วน)
+            if n is None:
                 for nx in lines[i - 3:i] + lines[i + 1:i + 4]:
                     mm = stkre.search(nx)
                     if mm: n = int(mm.group(1), 16); break
@@ -72,6 +83,20 @@ for i, ln in enumerate(lines):
     if mg:
         v = gstr(mg.group(1))
         if v is not None: out += '    ; ' + mg.group(1) + ' = "' + v.replace('\n', '\\n')[:300] + '"'
+    # ก้อนข้อมูลคงที่ (struct ที่มีแต่ข้อความ เช่น healthItem{...}) : ลองอ่านเป็นชุดของ string
+    if m and 'LEAQ' in m.group(3) and '; ' not in out and '(SB)' in m.group(3) and 'main.' not in m.group(3):
+        code = bytes.fromhex(m.group(2))
+        if len(code) >= 7 and code[1] == 0x8d:
+            tgt = int(m.group(1), 16) + len(code) + struct.unpack_from('<i', code, 3)[0]
+            got = []
+            try:
+                for k in range(8):
+                    p_, n_ = struct.unpack('<QQ', read(tgt + 16 * k, 16))
+                    if n_ == 0 and p_ == 0: got.append(''); continue
+                    if not (0 < n_ < 3000): break
+                    got.append(read(p_, n_).decode('utf-8'))
+            except Exception: got = []
+            if sum(1 for g in got if g) >= 2: out += '    ; struct ' + repr(got)
     # ค่าคงที่ 8 ไบต์ที่เป็นตัวอักษร (เช่น เทียบ "https://")
     mq = re.search(r'MOVQ \$0x([0-9a-f]{9,16}), ', ln)
     if mq:

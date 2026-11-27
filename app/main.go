@@ -199,6 +199,15 @@ func main() {
 	must(w.Bind("licStartTrial", a.licStartTrial))
 	must(w.Bind("refInfo", a.refInfo))
 	must(w.Bind("remoteRaw", a.remoteRaw))
+	// ตรวจเครื่องพรีเมียม / การ์ดผล (health.go combat.go shot.go)
+	must(w.Bind("healthExtra", a.healthExtra))
+	must(w.Bind("biosInfo", a.biosInfo))
+	must(w.Bind("fixHz", a.fixHz))
+	must(w.Bind("revertHz", a.revertHz))
+	must(w.Bind("rebootBios", a.rebootBios))
+	must(w.Bind("combatFix", a.combatFix))
+	must(w.Bind("saveShot", a.saveShot))
+	must(w.Bind("showShot", showShot))
 
 	if self, err := os.Executable(); err == nil {
 		a.prevVer = exeVersion(self + ".old")

@@ -33,6 +33,7 @@
 - [x] โครง: โค้ด v2.6 + licensecore + หน้าจอ/engine ล่าสุด สร้างผ่าน (ยังไม่มีฟังก์ชันด้านล่าง)
 - [x] license.go: ระบบคีย์ ทดลองฟรี ตรวจซ้ำ 30 นาที ชวนเพื่อน (ถอดครบ 18 ฟังก์ชัน ข้อความ/ชื่อรีจิสทรี/โครงสร้าง JSON ตรงตัวเก่า) · isShortKey
 - [x] update.go: ตัวเก่าเช็ก latest.json (main) แบบเดียวกับ v2.6 + ระบบ Beta เก่า (beta.json, /beta/check) ซึ่งเลิกใช้แล้ว → ใช้ของ v2.6 ได้ (ตัวเก่าอัปเดตมาตัวใหม่ได้ เพราะแค่โหลดไฟล์ตาม latest.json + ตรวจ SHA256) · หน้าจอเลือกช่อง owner/premium เอง (ringPick ใน ui.html)
+- [x] health.go (รีเฟรชเรต ความร้อน ReBAR สายจอ ไบออส) · combat.go (ค่าเกมตี/ยิง) · shot.go (บันทึก/คัดลอกการ์ดผล)
 - [ ] ฟังก์ชันที่ต้องถอดจาก 4.11.15 (ชื่อไฟล์เดิม · จำนวน · ชื่อ):
 - `reshade.go` (48): reshadeAsync, reshadeCheck, reshadeImport, reshadeInstall, reshadeRemove, reshadeStatus, reshadeToggle, reshadeZan, zanFlush, zanMemoGet, zanMemoSet, zanReset, zanSetLight, zanWatch, buildPreset, dlBytes, fxDest, fxInstallOne, fxPackages, iniVals, isReshadeDll, map.init.3, reshadeCalcID, reshadeEffects, reshadeFixAck, reshadeLatest, reshadeLogID, reshadePaths, reshadeSetPreset, rsSendKey, stripZanSharp, stripZanSharpBody, u8IniGet, u8IniSet, u8IniSetTop, zanApplyLight, zanBody, zanCapture, zanCleanup, zanExitCleanup, zanIdx, zanInstalled, zanSetup, zanShortcutData, zanShortcutsBound, zanUserBody, zanWriteFiles, zanWriteOne
 - `license.go` (18): licAPI, licActivate, licBonus, licCall, licInfo, licMigrate, licPost, licRecheck, licStartTrial, refInfo, remoteRaw, licCompute, licDataDir, licGet, licLoad, licSave, machineGuid, trialSig
