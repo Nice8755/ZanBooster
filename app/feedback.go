@@ -16,6 +16,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 )
 
 var reportWebhook string
@@ -67,8 +68,25 @@ func (a *app) sendReport(zipPath, desc, contact string) string {
 		desc = "(ไม่ได้พิมพ์รายละเอียด)"
 	}
 	contact = trimRunes(contact, 80)
-	if contact == "" {
-		contact = "-"
+	if utf8.RuneCountInString(contact) < 2 {
+		return "ใส่ชื่อ Discord หรือ ID Discord ก่อน ผู้พัฒนาจะได้ติดต่อกลับได้"
+	}
+	// ผู้แจ้ง: ID ดิสโดยตรง หรือค้นชื่อในดิส ZAN Hub (เซิร์ฟเวอร์คีย์) ให้แท็กได้
+	who := contact + " (ไม่พบในดิส ZAN Hub)"
+	if id := cleanDiscordID(contact); id != "" {
+		who = "<@" + id + "> (`" + contact + "`)"
+	} else {
+		var r struct {
+			OK bool   `json:"ok"`
+			ID string `json:"id"`
+		}
+		if a.licPost("/v1/dcfind", map[string]string{"q": contact}, &r) == nil && r.OK && r.ID != "" {
+			who = "<@" + r.ID + "> (`" + contact + "`)"
+		}
+	}
+	plan := "ฟรี"
+	if st := licGet(); st.Premium {
+		plan = "Premium (" + st.Mode + ")"
 	}
 	payload := map[string]any{
 		"username":         "Zan Booster",
@@ -78,7 +96,9 @@ func (a *app) sendReport(zipPath, desc, contact string) string {
 			"description": desc,
 			"color":       0x00E5FF,
 			"fields": []map[string]any{
-				{"name": "ติดต่อกลับ", "value": contact, "inline": true},
+				{"name": "Discord ผู้แจ้ง", "value": who, "inline": true},
+				{"name": "สถานะ", "value": plan, "inline": true},
+				{"name": "รหัสเครื่อง", "value": machineCode(machineGuid()), "inline": true},
 				{"name": "Windows build", "value": fmt.Sprint(winBuild()), "inline": true},
 			},
 			"timestamp": time.Now().UTC().Format(time.RFC3339),
@@ -105,4 +125,22 @@ func (a *app) sendReport(zipPath, desc, contact string) string {
 	}
 	os.WriteFile(stamp, []byte(fmt.Sprint(time.Now().Unix())), 0o644)
 	return ""
+}
+
+// cleanDiscordID: <@123...>, @123..., 123... → ตัวเลข ID ดิส (17-20 หลัก) ไม่ใช่ = ""
+func cleanDiscordID(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.TrimPrefix(s, "<")
+	s = strings.TrimPrefix(s, "@")
+	s = strings.TrimPrefix(s, "!")
+	s = strings.TrimSuffix(s, ">")
+	if len(s) < 17 || len(s) > 20 {
+		return ""
+	}
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			return ""
+		}
+	}
+	return s
 }

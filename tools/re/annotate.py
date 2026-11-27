@@ -97,6 +97,7 @@ for i, ln in enumerate(lines):
                     got.append(read(p_, n_).decode('utf-8'))
             except Exception: got = []
             if sum(1 for g in got if g) >= 2: out += '    ; struct ' + repr(got)
+            elif len(got) >= 1 and got[0]: out += '    ; boxed "' + got[0] + '"'
     # ค่าคงที่ 8 ไบต์ที่เป็นตัวอักษร (เช่น เทียบ "https://")
     mq = re.search(r'MOVQ \$0x([0-9a-f]{9,16}), ', ln)
     if mq:

@@ -55,6 +55,10 @@ var noTrim = map[string]bool{
 	"system": true, "registry": true, "memory compression": true, "smss.exe": true, "csrss.exe": true,
 	"wininit.exe": true, "winlogon.exe": true, "services.exe": true, "lsass.exe": true, "dwm.exe": true,
 	"audiodg.exe": true, "fontdrvhost.exe": true, "explorer.exe": true, "zanbooster.exe": true,
+	// เพิ่มใน 4.11.x: ตัวพิมพ์/เมนูเริ่ม/ตัวช่วยการ์ดจอ/หน้าจอของโปรแกรม ตัดแรมแล้วกระตุกตอนกดใช้
+	"ctfmon.exe": true, "textinputhost.exe": true, "sihost.exe": true, "shellexperiencehost.exe": true,
+	"startmenuexperiencehost.exe": true, "searchhost.exe": true, "nvcontainer.exe": true, "nvidia overlay.exe": true,
+	"radeonsoftware.exe": true, "amdrsserv.exe": true, "msedgewebview2.exe": true,
 }
 
 func gpuVramCapMB() float64 {
