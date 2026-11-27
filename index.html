@@ -6,96 +6,166 @@
 <title>Zan Booster</title>
 <meta name="description" content="โปรแกรมปรับคอมให้เล่น FiveM ลื่นขึ้น ใช้ฟรีได้ ปลอดภัย ไม่แตะไฟล์เกม คืนค่าได้ทุกข้อ">
 <meta property="og:title" content="Zan Booster · บูสต์คอมให้เล่น FiveM ลื่นขึ้น">
-<meta property="og:description" content="ใช้ฟรีได้เลย · ไม่แตะไฟล์เกม · คืนค่าได้ทุกข้อ · วัดผลจริงในเกม">
+<meta property="og:description" content="ใช้ฟรีได้เลย · ไม่แตะไฟล์เกม · คืนค่าได้ทุกข้อ · วัดผลจริงในเกม · ลองใช้ในเว็บได้">
 <meta property="og:image" content="https://nice8755.github.io/ZanBooster/site/cover.jpg">
 <link rel="icon" href="site/logo.png">
 <style>
-:root{--bg:#06070f;--card:#10121f;--line:rgba(255,255,255,.08);--txt:#e9ecf7;--mut:#98a0b8;--c1:#22d3ff;--c2:#8b6cff;--c3:#ff3fd0;--g:linear-gradient(100deg,var(--c1),var(--c2) 55%,var(--c3))}
+:root{--bg:#06070f;--card:#0f1120;--card2:#141729;--line:rgba(255,255,255,.08);--txt:#e9ecf7;--mut:#98a0b8;--c1:#22d3ff;--c2:#8b6cff;--c3:#ff3fd0;--g:linear-gradient(100deg,var(--c1),var(--c2) 55%,var(--c3))}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.6 "Segoe UI","Leelawadee UI","Noto Sans Thai",system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.6 "Segoe UI","Leelawadee UI","Noto Sans Thai",system-ui,sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:-20%;z-index:-1;background:radial-gradient(40% 35% at 15% 10%,color-mix(in srgb,var(--c2) 28%,transparent),transparent 70%),radial-gradient(35% 30% at 90% 5%,color-mix(in srgb,var(--c3) 20%,transparent),transparent 70%),radial-gradient(40% 40% at 70% 95%,color-mix(in srgb,var(--c1) 14%,transparent),transparent 70%);transition:background .6s}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
-nav{position:sticky;top:0;z-index:5;background:rgba(6,7,15,.8);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-nav .wrap{display:flex;align-items:center;gap:12px;height:60px}nav img{width:32px;height:32px;border-radius:8px}
-nav b{font-weight:800;letter-spacing:2px}nav b i{font-style:normal;background:var(--g);-webkit-background-clip:text;color:transparent}
-nav .sp{flex:1}nav a.l{color:var(--mut);font-size:14px;margin-left:16px}nav a.l:hover{color:#fff}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:14px;font-weight:700;border:1px solid var(--line);background:rgba(255,255,255,.05);transition:transform .15s,box-shadow .2s}
-.btn:hover{transform:translateY(-2px)}.btn.pri{background:var(--g);color:#0a0b16;border:0;box-shadow:0 10px 30px -10px rgba(139,108,255,.8)}
-header{position:relative;overflow:hidden;padding:70px 0 60px;background:radial-gradient(circle at 20% 30%,#211c5c,transparent 55%),radial-gradient(circle at 90% 10%,rgba(255,63,208,.25),transparent 45%)}
-header .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center}
-h1{font-size:54px;line-height:1.1;margin:0 0 16px;letter-spacing:1px}h1 i{font-style:normal;background:var(--g);-webkit-background-clip:text;color:transparent}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.gt{background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent}
+nav{position:sticky;top:0;z-index:20;background:rgba(6,7,15,.78);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:12px;height:62px}nav img{width:32px;height:32px;border-radius:8px}
+nav b{font-weight:800;letter-spacing:2px}.sp{flex:1}nav a.l{color:var(--mut);font-size:14px;margin-left:14px;transition:color .2s}nav a.l:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:14px;font-weight:700;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--txt);cursor:pointer;font:inherit;font-weight:700;transition:transform .15s,box-shadow .2s,background .2s}
+.btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.09)}.btn.pri{background:var(--g);color:#0a0b16;border:0;box-shadow:0 10px 30px -10px color-mix(in srgb,var(--c2) 80%,transparent)}
+.btn.sm{padding:8px 16px;font-size:14px;border-radius:11px}
+header{padding:64px 0 40px}
+header .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:44px;align-items:center}
+.ver{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:30px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:13.5px;color:#cfd5ea;margin-bottom:18px}
+.ver i{width:8px;height:8px;border-radius:50%;background:#3dff9a;box-shadow:0 0 10px #3dff9a;animation:pl 1.6s ease-in-out infinite}@keyframes pl{50%{opacity:.35}}
+h1{font-size:56px;line-height:1.08;margin:0 0 16px;letter-spacing:.5px}
 header p{font-size:19px;color:#c9cfe4;margin:0 0 26px}.cta{display:flex;gap:12px;flex-wrap:wrap}
 .note{margin-top:14px;font-size:13px;color:var(--mut)}
-header img.hero{width:100%;border-radius:20px;box-shadow:0 30px 80px -30px rgba(139,108,255,.8),0 0 0 1px var(--line)}
-section{padding:60px 0}h2{font-size:32px;margin:0 0 8px}.sub{color:var(--mut);margin:0 0 30px}
+.hero{position:relative}.hero img{width:100%;border-radius:20px;box-shadow:0 30px 80px -30px color-mix(in srgb,var(--c2) 80%,transparent),0 0 0 1px var(--line);display:block}
+.stats{display:flex;gap:22px;margin-top:26px;flex-wrap:wrap}.stats div b{display:block;font-size:26px;font-weight:900}.stats div span{font-size:13px;color:var(--mut)}
+section{padding:64px 0}h2{font-size:34px;margin:0 0 8px}.sub{color:var(--mut);margin:0 0 28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px}
+/* ---- ลองใช้ในเว็บ ---- */
+.demo{display:grid;grid-template-columns:270px 1fr;gap:18px;align-items:start}
+.dside{padding:16px;position:sticky;top:80px}
+.dside h4{margin:0 0 10px;font-size:13px;letter-spacing:1px;color:var(--mut);font-weight:700}
+.cats{display:grid;gap:6px;margin-bottom:18px}
+.cats button{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:11px;font-size:14.5px;color:#cfd5ea;border:1px solid transparent;transition:background .2s,border-color .2s}
+.cats button:hover{background:rgba(255,255,255,.05)}.cats button.on{background:color-mix(in srgb,var(--c1) 12%,transparent);border-color:color-mix(in srgb,var(--c1) 45%,transparent);color:#fff}
+.cats button span{width:22px;text-align:center}
+.ths{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.ths button{all:unset;cursor:pointer;height:34px;border-radius:9px;border:2px solid transparent;position:relative;transition:transform .15s}
+.ths button:hover{transform:translateY(-2px)}.ths button.on{border-color:#fff;box-shadow:0 0 14px -2px var(--hc)}
+.thn{font-size:12.5px;color:var(--mut);margin-top:8px;min-height:18px}
+.screen{padding:10px;overflow:hidden}
+.sbar{display:flex;align-items:center;gap:7px;padding:2px 6px 10px;font-size:12.5px;color:var(--mut)}.sbar i{width:10px;height:10px;border-radius:50%;background:#ff5f57}.sbar i:nth-child(2){background:#febc2e}.sbar i:nth-child(3){background:#28c840}.sbar span{margin-left:8px;flex:1}
+.fwrap{position:relative;width:100%;aspect-ratio:1280/800;border-radius:12px;overflow:hidden;background:#07080f}
+.fwrap iframe{position:absolute;left:0;top:0;width:1280px;height:800px;border:0;transform-origin:0 0}
+.fcover{position:absolute;inset:0;display:grid;place-items:center;text-align:center;background:linear-gradient(180deg,rgba(6,7,15,.35),rgba(6,7,15,.85)),url(site/cover.jpg) center/cover;z-index:2}
+.fcover b{display:block;font-size:22px;margin-bottom:12px}.fcover small{display:block;color:#c3c9de;margin-top:10px;font-size:13px}
+.dnote{font-size:13px;color:var(--mut);margin-top:10px}
+/* ---- อัปเดต ---- */
+.upd{display:grid;grid-template-columns:330px 1fr;gap:18px;align-items:start}
+.now{padding:24px;position:sticky;top:80px;background:linear-gradient(160deg,color-mix(in srgb,var(--c2) 16%,var(--card)),var(--card) 60%)}
+.now small{color:var(--mut);font-size:13px}.now .v{font-size:44px;font-weight:900;line-height:1.1;margin:4px 0 10px}.now p{margin:0 0 18px;color:#d5dbef;font-size:15px}
+.tl{display:grid;gap:12px}
+.rel{padding:18px 20px;position:relative}.rel h3{margin:0;font-size:18px;display:flex;align-items:center;gap:10px}.rel h3 em{font-style:normal;font-size:12px;color:var(--mut);font-weight:500}
+.rel h3 .new{font-size:11px;font-weight:800;padding:2px 9px;border-radius:20px;background:var(--g);color:#0a0b16}
+.rel ul{margin:8px 0 0;padding-left:20px;color:#cdd3e6;font-size:15px}.rel li{margin:3px 0}
+.more{margin-top:6px}
+.skel{height:84px;border-radius:16px;background:linear-gradient(90deg,var(--card),var(--card2),var(--card));background-size:200% 100%;animation:sk 1.2s linear infinite}@keyframes sk{to{background-position:-200% 0}}
+/* ---- ReShade ---- */
+.rs{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.rp{overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s}.rp:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--c1) 50%,transparent)}
+.rp .im{position:relative;aspect-ratio:384/186}.rp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .35s}.rp img+img{opacity:0}.rp:hover img+img,.rp.n img+img{opacity:1}
+.rp div.t{padding:12px 14px}.rp b{display:block;font-size:15px}.rp span{font-size:13px;color:var(--mut)}
+.rshint{font-size:13px;color:var(--mut);margin-top:10px}
+/* ---- ฟีเจอร์ / ราคา / ถามตอบ ---- */
 .trust{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.tc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}.tc b{display:block;font-size:18px;margin:6px 0}.tc span{color:var(--mut);font-size:15px}.tc em{font-style:normal;font-size:28px}
+.tc{padding:22px}.tc b{display:block;font-size:18px;margin:6px 0}.tc span{color:var(--mut);font-size:15px}.tc em{font-style:normal;font-size:28px}
 .feat{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.fc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}.fc h3{margin:0 0 10px;font-size:20px}
-.fc ul{margin:0;padding-left:20px;color:#cdd3e6}.fc li{margin:4px 0}
-.fc.pro{border-color:rgba(255,201,77,.35);background:linear-gradient(180deg,rgba(255,201,77,.06),var(--card) 40%)}.tag{display:inline-block;font-size:12px;font-weight:800;padding:2px 10px;border-radius:20px;background:linear-gradient(90deg,#ffe08a,#ffb340);color:#2a1700;margin-left:8px;vertical-align:middle}
-.shots{display:grid;grid-template-columns:1fr 1fr;gap:16px}.shots img{width:100%;border-radius:16px;border:1px solid var(--line)}.shots figure{margin:0}.shots figcaption{color:var(--mut);font-size:14px;margin-top:6px}
+.fc{padding:24px}.fc h3{margin:0 0 10px;font-size:20px}.fc ul{margin:0;padding-left:20px;color:#cdd3e6}.fc li{margin:5px 0}
+.fc.pro{border-color:rgba(255,201,77,.35);background:linear-gradient(180deg,rgba(255,201,77,.07),var(--card) 40%)}
+.tag{display:inline-block;font-size:12px;font-weight:800;padding:2px 10px;border-radius:20px;background:linear-gradient(90deg,#ffe08a,#ffb340);color:#2a1700;margin-left:8px;vertical-align:middle}
 .price{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.pc{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;text-align:center}.pc b{display:block;font-size:34px;font-weight:900;margin:6px 0}.pc small{color:var(--mut)}
-.pc.best{border-color:var(--c2);box-shadow:0 0 0 1px var(--c2),0 20px 40px -20px rgba(139,108,255,.7)}
+.pc{padding:22px;text-align:center}.pc b{display:block;font-size:34px;font-weight:900;margin:6px 0}.pc small{color:var(--mut)}
+.pc.best{border-color:var(--c2);box-shadow:0 0 0 1px var(--c2),0 20px 40px -20px color-mix(in srgb,var(--c2) 70%,transparent)}
 ol.how{counter-reset:s;list-style:none;padding:0;display:grid;gap:10px;margin:0}ol.how li{counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px 14px 56px;position:relative}
 ol.how li:before{content:counter(s);position:absolute;left:14px;top:12px;width:30px;height:30px;border-radius:50%;background:var(--g);color:#0a0b16;font-weight:900;display:grid;place-items:center}
 details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin-bottom:10px}summary{cursor:pointer;font-weight:700}details p{color:#c9cfe4;margin:10px 0 0}
 footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-size:14px;text-align:center}
-@media (max-width:820px){header .wrap,.feat,.shots{grid-template-columns:1fr}.trust{grid-template-columns:1fr}.price{grid-template-columns:1fr 1fr}h1{font-size:38px}nav a.l{display:none}}
+.rv{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s}.rv.in{opacity:1;transform:none}
+@media (max-width:980px){.demo,.upd{grid-template-columns:1fr}.dside,.now{position:static}.ths{grid-template-columns:repeat(8,1fr)}.rs{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:820px){header .wrap,.feat{grid-template-columns:1fr}.trust{grid-template-columns:1fr}.price{grid-template-columns:1fr 1fr}h1{font-size:38px}nav a.l{display:none}.ths{grid-template-columns:repeat(6,1fr)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
-<nav><div class="wrap"><img src="site/logo.png" alt=""><b>ZAN <i>BOOSTER</i></b><span class="sp"></span><a class="l" href="#features">ฟีเจอร์</a><a class="l" href="#price">ราคา</a><a class="l" href="#faq">คำถาม</a><a class="btn pri" style="padding:8px 16px;margin-left:16px" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">ดาวน์โหลด</a></div></nav>
+<nav><div class="wrap"><img src="site/logo.png" alt=""><b>ZAN <span class="gt">BOOSTER</span></b><span class="sp"></span><a class="l" href="#update">อัปเดต</a><a class="l" href="#try">ลองใช้</a><a class="l" href="#reshade">ReShade</a><a class="l" href="#features">ฟีเจอร์</a><a class="l" href="#price">ราคา</a><a class="l" href="#faq">คำถาม</a><a class="btn pri sm" style="margin-left:16px" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">ดาวน์โหลด</a></div></nav>
 
 <header><div class="wrap">
   <div>
-    <h1>บูสต์คอมให้เล่น <i>FiveM</i> ลื่นขึ้น</h1>
+    <a class="ver" href="#update"><i></i><span id="hVer">เวอร์ชันล่าสุด</span></a>
+    <h1>บูสต์คอมให้เล่น <span class="gt">FiveM</span> ลื่นขึ้น</h1>
     <p>ปรับ Windows ให้เกมได้ใช้เครื่องเต็มที่ ตรวจหาจุดที่ทำให้เสีย FPS แล้ววัดผลจริงในเกมให้เห็นกับตา ใช้ฟรีได้เลย</p>
-    <div class="cta"><a class="btn pri" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">⬇ ดาวน์โหลดฟรี</a><a class="btn" href="https://discord.gg/pCCqStQwmp">เข้าดิส ZAN HUB</a></div>
+    <div class="cta"><a class="btn pri" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">⬇ ดาวน์โหลดฟรี</a><a class="btn" href="#try">ลองใช้ในเว็บ</a><a class="btn" href="https://discord.gg/pCCqStQwmp">เข้าดิส ZAN HUB</a></div>
     <div class="note">Windows 10 / 11 · เปิดไฟล์แล้วใช้ได้เลย ไม่ต้องติดตั้ง</div>
   </div>
-  <img class="hero" src="site/cover.jpg" alt="Zan Booster">
+  <div class="hero"><img src="site/cover.jpg" alt="Zan Booster"></div>
 </div></header>
+
+<section id="try" style="padding-top:30px"><div class="wrap">
+  <h2>ลองใช้ <span class="gt">ในเว็บ</span></h2><p class="sub">หน้าตาโปรแกรมจริง กดสลับหมวด เปลี่ยนธีม ลองกดเล่นได้เลย (ตัวทดลอง ไม่แตะเครื่องคุณ)</p>
+  <div class="demo">
+    <div class="card dside">
+      <h4>หมวด</h4>
+      <div class="cats" id="cats"></div>
+      <h4>ธีม</h4>
+      <div class="ths" id="ths"></div>
+      <div class="thn" id="thn">NEON</div>
+    </div>
+    <div class="card screen">
+      <div class="sbar"><i></i><i></i><i></i><span>Zan Booster · ตัวทดลอง</span><a class="btn sm" id="full" href="recovered/ui.html#demo" target="_blank" rel="noopener">เปิดเต็มจอ ↗</a></div>
+      <div class="fwrap" id="fwrap">
+        <div class="fcover" id="fcover"><div><b>หน้าตาโปรแกรมจริง</b><button class="btn pri" id="dStart">▶ เปิดตัวทดลอง</button><small>โหลดราว 1 MB · บนมือถือจะเล็ก เปิดบนคอมจะเห็นชัดกว่า</small></div></div>
+      </div>
+      <div class="dnote">ตัวเลขในตัวทดลองเป็นตัวอย่าง ไม่ใช่ผลจากเครื่องคุณ · ฟีเจอร์ที่ต้องแก้เครื่องจริงทำงานเฉพาะในโปรแกรม</div>
+    </div>
+  </div>
+</div></section>
+
+<section id="update" style="padding-top:20px"><div class="wrap">
+  <h2>อัปเดต<span class="gt">ล่าสุด</span></h2><p class="sub">ข้อมูลดึงจากระบบปล่อยอัปเดตจริง เปิดหน้านี้เมื่อไหร่ก็เป็นของล่าสุด</p>
+  <div class="upd">
+    <div class="card now"><small>เวอร์ชันที่ทุกคนได้ตอนนี้</small><div class="v gt" id="uVer">-</div><p id="uNotes">กำลังโหลด...</p><a class="btn pri" style="width:100%" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">⬇ ดาวน์โหลดเวอร์ชันนี้</a><div class="note">มีโปรแกรมอยู่แล้ว เปิดโปรแกรมจะอัปเดตเอง</div></div>
+    <div><div class="tl" id="tl"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div><button class="btn sm more" id="more" style="display:none">ดูอัปเดตก่อนหน้า</button></div>
+  </div>
+</div></section>
+
+<section id="reshade" style="padding-top:20px"><div class="wrap">
+  <h2>พรีเซ็ต ReShade <span class="gt">5 โทน</span> <span class="tag">PRO</span></h2><p class="sub">ปรับแค่สี ไม่เปิดเอฟเฟกต์หนัก กิน FPS น้อยมาก · กดปุ่ม "พร้อมใช้พรีเซ็ต" ปุ่มเดียวก่อนเข้าเกม</p>
+  <div class="rs" id="rs"></div>
+  <div class="rshint">ภาพจำลองจากสูตรสีของพรีเซ็ต · ชี้หรือแตะเพื่อดูกลางคืน</div>
+</div></section>
 
 <section><div class="wrap">
   <h2>ปลอดภัย และพิสูจน์ได้</h2><p class="sub">สามเรื่องที่ทำให้ Zan Booster ต่างจากโปรแกรมบูสต์ทั่วไป</p>
   <div class="trust">
-    <div class="tc"><em>🛡️</em><b>ไม่แตะไฟล์เกม ไม่ยุ่งกันโกง</b><span>ปรับเฉพาะค่าของ Windows ไม่ใส่โค้ดเข้าเกม</span></div>
-    <div class="tc"><em>↩️</em><b>คืนค่าได้ทุกข้อ</b><span>เก็บค่าเดิมไว้ทุกครั้งที่ปรับ กดคืนได้ตลอด</span></div>
-    <div class="tc"><em>📊</em><b>วัดผลจริง ไม่มั่วตัวเลข</b><span>วัด FPS ในเกมบนเครื่องคุณเอง ก่อน / หลังบูสต์ ไม่โฆษณาตัวเลขเกินจริง</span></div>
+    <div class="card tc rv"><em>🛡️</em><b>ไม่แตะไฟล์เกม ไม่ยุ่งกันโกง</b><span>ปรับเฉพาะค่าของ Windows ไม่ใส่โค้ดเข้าเกม</span></div>
+    <div class="card tc rv"><em>↩️</em><b>คืนค่าได้ทุกข้อ</b><span>เก็บค่าเดิมไว้ทุกครั้งที่ปรับ กดคืนได้ตลอด</span></div>
+    <div class="card tc rv"><em>📊</em><b>วัดผลจริง ไม่มั่วตัวเลข</b><span>วัด FPS ในเกมบนเครื่องคุณเอง ก่อน / หลังบูสต์ ไม่โฆษณาตัวเลขเกินจริง</span></div>
   </div>
 </div></section>
 
 <section id="features" style="padding-top:20px"><div class="wrap">
   <h2>ฟีเจอร์</h2><p class="sub">เวอร์ชันฟรีใช้ได้ครบงานหลัก อยากได้เต็มอัปเกรดเป็น Premium</p>
   <div class="feat">
-    <div class="fc"><h3>ใช้ฟรี</h3><ul>
-      <li>บูสต์เครื่อง: ค่าแนะนำของ Windows สำหรับเล่นเกม</li><li>ตรวจเครื่อง: หาจุดที่ทำให้เสีย FPS</li><li>ล้างขยะ ล้างแคช FiveM</li>
-      <li>ภารกิจวัดผล: วัด FPS ในเกมก่อน / หลังบูสต์ พร้อมการ์ดผลที่มีรูปจอเกมจริง</li><li>ฟังเพลง YouTube ในโปรแกรม · เคอร์เซอร์ 17 แบบ</li><li>สำรอง / ย้ายค่าที่ตั้งไว้</li></ul></div>
-    <div class="fc pro"><h3>Premium <span class="tag">PRO</span></h3><ul>
-      <li>เข้าเซิร์ฟคลิกเดียว: ตั้ง build · Pure · Pool size ให้ ไม่ต้องรีเกม</li><li>รอคิวเซิร์ฟเต็ม เข้าให้อัตโนมัติ</li><li>โหมดเล่นเกม · ล้างแรมอัตโนมัติ · กู้ FPS</li>
-      <li>ไดรเวอร์การ์ดจอ · เฟรมเจน · Zan Upscale · ReShade 12 โทน</li><li>กราฟิกแยกตามเซิร์ฟ · โปรไฟล์ดวลปืน / เที่ยวเมือง · เป้าเล็ง</li><li>ธีมขยับได้ 10 แบบ + ธีมการ์ตูน + สร้างธีมเอง</li></ul></div>
-  </div>
-</div></section>
-
-<section style="padding-top:20px"><div class="wrap">
-  <h2>หน้าตาโปรแกรม</h2><p class="sub">ธีมสวย ขยับได้ แต่หยุดเองตอนเล่นเกม ไม่กินเครื่อง</p>
-  <div class="shots">
-    <figure><img src="site/fps-card.jpg" alt="การ์ดผลวัด FPS" loading="lazy"><figcaption>การ์ดผลวัด FPS ก่อน / หลังบูสต์ (ตัวอย่าง) แชร์ลงดิสได้ทันที</figcaption></figure>
-    <figure><img src="site/theme-picker.jpg" alt="เลือกธีมและเคอร์เซอร์" loading="lazy"><figcaption>เลือกธีมและเคอร์เซอร์</figcaption></figure>
-    <figure><img src="site/themes-cute.jpg" alt="ธีมน่ารัก" loading="lazy"><figcaption>SAKURA · CANDY · PEACH · MINT · AURORA</figcaption></figure>
-    <figure><img src="site/themes-cool.jpg" alt="ธีมเท่" loading="lazy"><figcaption>CYBER · MIDNIGHT · CARBON · INFERNO · OCEAN</figcaption></figure>
+    <div class="card fc rv"><h3>ใช้ฟรี</h3><ul>
+      <li>บูสต์เครื่อง: ค่าแนะนำของ Windows สำหรับเล่นเกม</li><li>ตรวจเครื่อง: หาจุดที่ทำให้เสีย FPS · เช็กจอที่ตั้ง Hz ไม่เต็ม</li><li>ล้างขยะ ล้างแคช FiveM</li>
+      <li>วัด FPS: กดแล้วสลับเข้าเกมให้เอง วัดเสร็จเด้งกลับพร้อมผล · การ์ดผลมีรูปจอเกมจริง</li><li>วัดทีละข้อ แล้วกด "ตั้งตามผล" เก็บเฉพาะที่ช่วยเครื่องคุณ</li>
+      <li>ฟังเพลง YouTube ในโปรแกรม · เคอร์เซอร์ 18 แบบ · เสียงตามธีม</li><li>สำรอง / ย้ายค่าที่ตั้งไว้</li></ul></div>
+    <div class="card fc pro rv"><h3>Premium <span class="tag">PRO</span></h3><ul>
+      <li>เข้าเซิร์ฟคลิกเดียว: ตั้ง build · Pure · Pool size ให้ ไม่ต้องรีเกม</li><li>รอคิวเซิร์ฟเต็ม เข้าให้อัตโนมัติ</li><li>โหมดเล่นเกม · ล้างแรมอัตโนมัติ · กู้ FPS · บอกโปรแกรมที่แย่ CPU ระหว่างเล่น</li>
+      <li>ReShade 5 โทนใหม่ + ปุ่มพร้อมใช้ · ไดรเวอร์การ์ดจอ · เฟรมเจน · Zan Upscale</li><li>กราฟิกแยกตามเซิร์ฟ · โปรไฟล์ดวลปืน / เที่ยวเมือง · เป้าเล็ง</li><li>ธีม 22 แบบ ขยับได้ + ธีมการ์ตูน + สร้างธีมเอง</li></ul></div>
   </div>
 </div></section>
 
 <section id="price" style="padding-top:20px"><div class="wrap">
   <h2>ราคา Premium</h2><p class="sub">ลองฟรี 3 วันได้เลยในหน้า Premium ของโปรแกรม</p>
   <div class="price">
-    <div class="pc"><small>7 วัน</small><b>25฿</b></div>
-    <div class="pc"><small>30 วัน</small><b>59฿</b></div>
-    <div class="pc best"><small>ถาวร · คุ้มสุด</small><b>300฿</b></div>
-    <div class="pc"><small>ทดลอง</small><b>ฟรี</b><small>3 วัน</small></div>
+    <div class="card pc rv"><small>7 วัน</small><b>25฿</b></div>
+    <div class="card pc rv"><small>30 วัน</small><b>59฿</b></div>
+    <div class="card pc best rv"><small>ถาวร · คุ้มสุด</small><b>300฿</b></div>
+    <div class="card pc rv"><small>ทดลอง</small><b>ฟรี</b><small>3 วัน</small></div>
   </div>
   <h3 style="margin:30px 0 12px">วิธีซื้อ</h3>
   <ol class="how"><li>เปิดโปรแกรม → หน้า <b>Premium</b> → คัดลอก <b>รหัสเครื่อง</b></li><li>เข้าดิส <a href="https://discord.gg/pCCqStQwmp" style="color:var(--c1)">ZAN HUB</a> เปิด Ticket แจ้งแพ็กที่ต้องการ พร้อมรหัสเครื่อง</li><li>โอนเงินแล้วส่งสลิป รับคีย์ไปใส่ในโปรแกรม ใช้ได้ทันที</li></ol>
@@ -104,12 +174,81 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
 <section id="faq" style="padding-top:20px"><div class="wrap">
   <h2>คำถามที่พบบ่อย</h2>
   <details><summary>เปิดแล้ว Windows ขึ้น "Windows protected your PC"</summary><p>เป็นเพราะไฟล์ยังไม่มีลายเซ็นดิจิทัล กด <b>More info</b> → <b>Run anyway</b> ได้เลย โปรแกรมไม่แตะไฟล์เกมและคืนค่าได้ทุกข้อ</p></details>
-  <details><summary>แอนติไวรัสเตือน</summary><p>โปรแกรมปรับเครื่องทุกตัวแก้ค่าของ Windows จึงอาจโดนแอนติไวรัสบางตัวเข้าใจผิด แจ้งแอดมินในดิสได้ เราจะส่งไฟล์ให้ผู้ผลิตแอนติไวรัสตรวจแก้</p></details>
-  <details><summary>ต้องเปิดโปรแกรมค้างไว้ตอนเล่นไหม</summary><p>ไม่ต้อง ค่าที่ปรับแล้วอยู่ใน Windows ปิดโปรแกรมได้เลย ยกเว้นฟีเจอร์ที่ทำงานระหว่างเล่น เช่น ล้างแรมอัตโนมัติ</p></details>
+  <details><summary>แอนติไวรัสเตือน</summary><p>โปรแกรมปรับเครื่องทุกตัวแก้ค่าของ Windows จึงอาจโดนแอนติไวรัสบางตัวเข้าใจผิด เราสแกนไฟล์ทุกเวอร์ชันก่อนปล่อย ตัวหลักอย่าง Windows Defender, Kaspersky, ESET, Avast ไม่จับ ถ้าเจอเตือนแจ้งแอดมินในดิสได้</p></details>
+  <details><summary>เปิดโปรแกรมค้างไว้ตอนเล่น กิน FPS ไหม</summary><p>ตอนอยู่ในเกม โปรแกรมหยุดแอนิเมชันและเสียงทั้งหมดเอง ค่าที่ปรับแล้วอยู่ใน Windows จะปิดโปรแกรมก็ได้ ยกเว้นฟีเจอร์ที่ทำงานระหว่างเล่น เช่น ล้างแรมอัตโนมัติ</p></details>
   <details><summary>จะได้ FPS เพิ่มเท่าไหร่</summary><p>แต่ละเครื่องไม่เท่ากัน เราจึงไม่โฆษณาตัวเลข ใช้ภารกิจวัดผลในโปรแกรมวัดบนเครื่องคุณเองได้ทั้งก่อนและหลัง</p></details>
+  <details><summary>ใช้ ReShade ยังไง</summary><p>ปิดเกม → เครื่องมือ → ReShade → กด <b>พร้อมใช้พรีเซ็ต</b> โปรแกรมติดตั้งและใส่พรีเซ็ตให้ครบ เข้าเกมภาพเปลี่ยนเอง กด Home เปิดเมนู</p></details>
   <details><summary>อยากกลับเป็นแบบเดิม</summary><p>กดคืนค่าในหน้าปรับแต่งได้ทุกข้อ โปรแกรมเก็บค่าเดิมไว้ทุกครั้ง</p></details>
 </div></section>
 
 <footer><div class="wrap">Zan Booster · <a href="https://discord.gg/pCCqStQwmp" style="color:var(--c1)">ZAN HUB</a> · โปรแกรมนี้ไม่ได้เกี่ยวข้องกับ Cfx.re หรือ Rockstar Games</div></footer>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s), RAW = 'https://raw.githubusercontent.com/Nice8755/ZanBooster/';
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const vn = v => String(v).split('.').reduce((a, x) => a * 1000 + (+x || 0), 0);
+  const thDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return d; } };
+
+  /* ---------- อัปเดตล่าสุด: เวอร์ชันจาก latest.json (สาขา main = ที่ทุกคนได้) รายการจาก changelog ในหน้าโปรแกรม ---------- */
+  let REL = [], shown = 0;
+  const relHtml = (c, i) => `<div class="card rel rv in"><h3>v${esc(c.v)} ${i === 0 ? '<span class="new">ล่าสุด</span>' : ''}<em>${esc(thDate(c.d))}</em></h3><ul>${(c.th || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+  function relMore(n) { const t = $('#tl'); t.insertAdjacentHTML('beforeend', REL.slice(shown, shown + n).map((c, k) => relHtml(c, shown + k)).join('')); shown += n; $('#more').style.display = shown < REL.length ? '' : 'none'; }
+  $('#more').onclick = () => relMore(8);
+  (async () => {
+    let lv = null;
+    try { lv = await (await fetch(RAW + 'main/latest.json', { cache: 'no-store' })).json(); } catch (e) { }
+    if (lv && lv.version) { $('#uVer').textContent = 'v' + lv.version; $('#uNotes').textContent = lv.notes || ''; $('#hVer').textContent = 'เวอร์ชันล่าสุด v' + lv.version; }
+    try {
+      const h = await (await fetch('recovered/ui.html', { cache: 'no-cache' })).text();
+      const m = h.match(/id="changelog">([\s\S]*?)<\/script>/);
+      REL = JSON.parse(m[1]).filter(c => !lv || vn(c.v) <= vn(lv.version)); // เฉพาะที่ปล่อยให้ทุกคนแล้ว
+      $('#tl').innerHTML = ''; relMore(5);
+      if (!lv && REL[0]) { $('#uVer').textContent = 'v' + REL[0].v; $('#uNotes').textContent = (REL[0].th || [])[0] || ''; }
+    } catch (e) { $('#tl').innerHTML = '<div class="card rel">ดูประวัติอัปเดตได้ในโปรแกรม หน้า "มีอะไรใหม่"</div>'; }
+  })();
+
+  /* ---------- พรีเซ็ต ReShade ---------- */
+  const RS = [['z1', 'Night Tungsten', 'เมืองกลางคืนโทนฟ้า ไฟส้มอุ่น'], ['z2', 'Portra Warm', 'อุ่นนวลแบบฟิล์มถ่ายคน ผิวสวย'], ['z3', 'Clear Day', 'ธรรมชาติใส ฟ้าน้ำสด เห็นไกล'], ['z4', 'Eterna Calm', 'สีหม่นเย็น สบายตา เล่นนาน'], ['z5', 'Vision Cinema', 'หนังโรง คอนทราสต์ลึก ส้ม-ฟ้าบาง ๆ']];
+  $('#rs').innerHTML = RS.map(([k, n, d]) => `<div class="card rp rv"><div class="im"><img src="site/zp/${k}-0.jpg" alt="${n} กลางวัน" loading="lazy"><img src="site/zp/${k}-1.jpg" alt="${n} กลางคืน" loading="lazy"></div><div class="t"><b>${n}</b><span>${d}</span></div></div>`).join('');
+  document.querySelectorAll('.rp').forEach(c => c.onclick = () => c.classList.toggle('n'));
+
+  /* ---------- ตัวทดลอง: หน้าโปรแกรมจริง (recovered/ui.html#demo) ---------- */
+  const CATS = [['dash', '🏠', 'หน้าหลัก'], ['boost', '⚡', 'บูสต์'], ['opt', '🎛️', 'ปรับแต่ง'], ['health', '🩺', 'ตรวจเครื่อง'], ['gfx', '🖥️', 'กราฟิกเกม'], ['bench', '📊', 'วัดผล'], ['rs', '🎨', 'ReShade'], ['tools', '🧰', 'เครื่องมือ'], ['prem', '👑', 'พรีเมียม']];
+  const TH = { neon: ['NEON', '#00e5ff', '#ff2bd6', '#8b5cff'], gold: ['GOLD', '#ffc94d', '#ff7a3d', '#ffa63d'], crimson: ['CRIMSON', '#ff4d6d', '#ff9a3d', '#ff2b8a'], emerald: ['EMERALD', '#39ff9c', '#00d5ff', '#1fd1a5'], violet: ['VIOLET', '#a78bff', '#ff5cd6', '#5c8cff'], ice: ['ICE', '#dfeaff', '#8fb4ff', '#b9c6ff'], pop: ['POP ★', '#ffd400', '#ff3b3b', '#29d3ff'], kawaii: ['KAWAII ♥', '#ff8fc7', '#8ff0d6', '#b69cff'], toon: ['TOON', '#ff9f1c', '#2ec4ff', '#7bff5c'], manga: ['MANGA', '#ff2e4d', '#f2f2f2', '#8a8f9c'], slime: ['SLIME', '#b6ff00', '#9d4dff', '#00ffc8'], pixel: ['PIXEL', '#3dff6e', '#ff3df2', '#3dc8ff'], sakura: ['SAKURA ✿', '#ff8fb8', '#ffd1e3', '#c78bff'], candy: ['CANDY ◍', '#ffa6dc', '#8fe3ff', '#c4a6ff'], peach: ['PEACH ☁', '#ffb38a', '#ff8fa8', '#ffd59e'], mint: ['MINT ✧', '#6ff0c4', '#9fd4ff', '#cfb1ff'], aurora: ['AURORA', '#3dffb4', '#7a5cff', '#2ad1ff'], cyber: ['CYBER', '#00f0ff', '#ff2e88', '#7d5cff'], midnight: ['MIDNIGHT', '#7eb0ff', '#b48cff', '#4d6bff'], carbon: ['CARBON', '#e8edf5', '#8d97ad', '#aab4c8'], inferno: ['INFERNO', '#ff6a1f', '#ffc21f', '#ff2e4d'], ocean: ['OCEAN', '#2ad1ff', '#2a7bff', '#5cffe0'] };
+  let F = null, curCat = 'dash', curTh = 'neon';
+  $('#cats').innerHTML = CATS.map(([k, i, n]) => `<button data-c="${k}" class="${k === 'dash' ? 'on' : ''}"><span>${i}</span>${n}</button>`).join('');
+  const thPaint = () => { $('#ths').innerHTML = Object.entries(TH).map(([k, t]) => `<button data-t="${k}" title="${esc(t[0])}" class="${k === curTh ? 'on' : ''}" style="--hc:${t[1]};background:linear-gradient(120deg,${t[1]},${t[3]},${t[2]})"></button>`).join(''); $('#thn').textContent = TH[curTh][0]; };
+  thPaint();
+  const W = () => F && F.contentWindow;
+  const fit = () => { if (F) F.style.transform = `scale(${$('#fwrap').clientWidth / 1280})`; };
+  addEventListener('resize', fit);
+  function setPage() {
+    const w = W(); if (!w || !w.go) return;
+    try {
+      w.document.querySelectorAll('.ov.show,#gov.show').forEach(x => x.classList.remove('show'));
+      if (curCat === 'rs') { w.go('tools'); const t = w.document.querySelector('#ttabs [data-t="t8"]'); if (t) t.click(); const p = w.document.querySelector('#rsPre'); if (p) p.style.display = ''; }
+      else w.go(curCat);
+    } catch (e) { }
+  }
+  function setTheme() {
+    const t = TH[curTh], r = document.documentElement.style; r.setProperty('--c1', t[1]); r.setProperty('--c2', t[3]); r.setProperty('--c3', t[2]); // หน้าเว็บเปลี่ยนสีตามธีมด้วย
+    const w = W(); if (w && w.themeApply) try { w.themeApply(curTh); } catch (e) { }
+  }
+  function start() {
+    if (F) return; $('#dStart').textContent = 'กำลังโหลด...';
+    F = document.createElement('iframe'); F.src = 'recovered/ui.html#demo'; F.title = 'Zan Booster ตัวทดลอง'; F.setAttribute('loading', 'eager');
+    F.onload = () => { fit(); setTimeout(() => { $('#fcover').remove(); setTheme(); setPage(); }, 4500); }; // รอหน้าโลโก้ของโปรแกรมเล่นจบ
+    $('#fwrap').appendChild(F); fit();
+  }
+  $('#dStart').onclick = start;
+  $('#cats').onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; curCat = b.dataset.c; document.querySelectorAll('#cats button').forEach(x => x.classList.toggle('on', x === b)); if (!F) start(); else setPage(); };
+  $('#ths').onclick = e => { const b = e.target.closest('[data-t]'); if (!b) return; curTh = b.dataset.t; thPaint(); setTheme(); if (!F) start(); };
+
+  /* ---------- ค่อย ๆ โผล่ตอนเลื่อนถึง ---------- */
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
+  document.querySelectorAll('.rv').forEach(x => io.observe(x));
+})();
+</script>
 </body>
 </html>
