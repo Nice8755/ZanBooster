@@ -95,3 +95,11 @@ func parseLicKey(key string, mb []byte) (kind byte, exp time.Time, err error) {
 	}
 	return raw[1], exp, nil
 }
+
+// isShortKey: คีย์สั้นที่ผู้ขายส่งให้ (ZAN-XXXXX-XXXXX-XXXXX-XXXXX) ต้องถามเซิร์ฟเวอร์เพื่อแลกเป็นคีย์ยาว
+// (ถอดจาก exe 4.11.15: ตัดช่องว่าง ตัวใหญ่ ตัด "ZAN" ข้างหน้า ตัด "-" แล้วต้องเหลือ 20 ตัว)
+func isShortKey(k string) bool {
+	s := strings.ToUpper(strings.Join(strings.Fields(k), ""))
+	s = strings.TrimPrefix(s, "ZAN")
+	return len(strings.ReplaceAll(s, "-", "")) == 20
+}

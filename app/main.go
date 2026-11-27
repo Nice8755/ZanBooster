@@ -193,6 +193,12 @@ func main() {
 	must(w.Bind("launchServer", a.launchServerAsync))
 	must(w.Bind("loadRecent", a.loadRecent))
 	must(w.Bind("saveRecent", a.saveRecent))
+	// ระบบคีย์ (license.go ถอดจาก 4.11.15)
+	must(w.Bind("licInfo", a.licInfo))
+	must(w.Bind("licActivate", a.licActivate))
+	must(w.Bind("licStartTrial", a.licStartTrial))
+	must(w.Bind("refInfo", a.refInfo))
+	must(w.Bind("remoteRaw", a.remoteRaw))
 
 	if self, err := os.Executable(); err == nil {
 		a.prevVer = exeVersion(self + ".old")
@@ -201,6 +207,7 @@ func main() {
 	go a.ensureGameModeHelper()
 	go a.gameModeRelay()
 	a.loadRemoteConfig()
+	go a.licRecheck()
 	w.SetHtml(uiHTML)
 	w.Run()
 }

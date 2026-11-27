@@ -24,3 +24,14 @@ func TestMachineCodeThisPC(t *testing.T) {
 		t.Fatalf("want errKeyShort, got %v", err)
 	}
 }
+
+func TestShortKey(t *testing.T) {
+	for k, want := range map[string]bool{
+		"ZAN-ABCDE-FGHIJ-KLMNO-PQRST": true, "zan abcde fghij klmno pqrst": true, "ABCDEFGHIJKLMNOPQRST": true,
+		"ZAN2.AAAA": false, "ZAN-ABCD": false, "": false,
+	} {
+		if got := isShortKey(k); got != want {
+			t.Errorf("isShortKey(%q) = %v want %v", k, got, want)
+		}
+	}
+}

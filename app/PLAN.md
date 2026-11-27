@@ -15,6 +15,9 @@
   `go tool objdump -s 'main\.\(\*app\)\.licAPI' beta/ZanBooster.exe | python3 tools/re/annotate.py beta/ZanBooster.exe`
 - เขียนใหม่ทีละไฟล์ตามชื่อไฟล์เดิม เทียบพฤติกรรมกับหน้าจอ (recovered/ui.html ตัวจำลองบอกรูปแบบข้อมูลที่ต้องส่งกลับ)
 
+## เครื่องมือ
+- `tools/re/annotate.py` เติมข้อความ · `tools/re/compact.py` ย่อให้อ่านง่าย · `tools/re/gotype.py` อ่าน struct (ชื่อช่อง + json tag) จาก `runtime.rodata+N`
+
 ## สร้าง / ทดสอบ
 - `.github/workflows/newexe.yml` : push สาขา `claude/newexe*` → test + build → ดาวน์โหลดที่ Actions > Artifacts
 - ไม่เกี่ยวกับระบบปล่อยอัปเดต (publish.yml ยังสร้างจาก exe เก่าเหมือนเดิม จนกว่าตัวใหม่ผ่านการทดสอบ)
@@ -28,6 +31,7 @@
 
 ## สถานะ
 - [x] โครง: โค้ด v2.6 + licensecore + หน้าจอ/engine ล่าสุด สร้างผ่าน (ยังไม่มีฟังก์ชันด้านล่าง)
+- [x] license.go: ระบบคีย์ ทดลองฟรี ตรวจซ้ำ 30 นาที ชวนเพื่อน (ถอดครบ 18 ฟังก์ชัน ข้อความ/ชื่อรีจิสทรี/โครงสร้าง JSON ตรงตัวเก่า) · isShortKey
 - [ ] ฟังก์ชันที่ต้องถอดจาก 4.11.15 (ชื่อไฟล์เดิม · จำนวน · ชื่อ):
 - `reshade.go` (48): reshadeAsync, reshadeCheck, reshadeImport, reshadeInstall, reshadeRemove, reshadeStatus, reshadeToggle, reshadeZan, zanFlush, zanMemoGet, zanMemoSet, zanReset, zanSetLight, zanWatch, buildPreset, dlBytes, fxDest, fxInstallOne, fxPackages, iniVals, isReshadeDll, map.init.3, reshadeCalcID, reshadeEffects, reshadeFixAck, reshadeLatest, reshadeLogID, reshadePaths, reshadeSetPreset, rsSendKey, stripZanSharp, stripZanSharpBody, u8IniGet, u8IniSet, u8IniSetTop, zanApplyLight, zanBody, zanCapture, zanCleanup, zanExitCleanup, zanIdx, zanInstalled, zanSetup, zanShortcutData, zanShortcutsBound, zanUserBody, zanWriteFiles, zanWriteOne
 - `license.go` (18): licAPI, licActivate, licBonus, licCall, licInfo, licMigrate, licPost, licRecheck, licStartTrial, refInfo, remoteRaw, licCompute, licDataDir, licGet, licLoad, licSave, machineGuid, trialSig

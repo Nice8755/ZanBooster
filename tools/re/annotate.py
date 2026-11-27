@@ -23,26 +23,55 @@ def read(va, n):
             return exe[off:off + n]
     return None
 
+syms = {}
+import subprocess
+for l in subprocess.run(['go', 'tool', 'nm', sys.argv[1]], capture_output=True, text=True).stdout.split('\n'):
+    q = l.split()
+    if len(q) >= 3 and q[2].startswith('main.'): syms[q[2]] = int(q[0], 16)
+def gstr(name):
+    a = syms.get(name)
+    if a is None: return None
+    b = read(a, 16)
+    if not b: return None
+    ptr, n = struct.unpack('<QQ', b)
+    if not (0 < n < 3000): return None
+    v = read(ptr, n)
+    try: return v.decode('utf-8')
+    except Exception: return None
 rip = re.compile(r'^\s*\S+\s+0x([0-9a-f]+)\s+([0-9a-f]+)\s+(.*)$')
+stkre = re.compile(r'MOVQ \$0x([0-9a-f]+), 0x[0-9a-f]+\(SP\)')
 lenre = re.compile(r'MOV[LQ] \$0x([0-9a-f]+), (?:BX|CX|DI|SI|R8|R9|R10|R11|DX)')
 lines = sys.stdin.read().split('\n')
 for i, ln in enumerate(lines):
     out = ln
     m = rip.match(ln)
-    if m and ('LEAQ' in m.group(3)) and ('go:string' in m.group(3) or 'rodata' in m.group(3)):
+    if m and ('LEAQ' in m.group(3)) and '(SB)' in m.group(3) and 'main.' not in m.group(3) and 'type:' not in m.group(3):
         addr = int(m.group(1), 16); code = bytes.fromhex(m.group(2))
         if len(code) >= 7 and code[1] == 0x8d:
             disp = struct.unpack_from('<i', code, 3)[0]
             tgt = addr + len(code) + disp
             n = None
-            for nx in lines[i + 1:i + 4]:
+            for nx in lines[max(0, i - 2):i]:  # ความยาวที่เก็บลง stack ก่อนหน้า (ส่วนของ filepath.Join)
+                mm = stkre.search(nx)
+                if mm: n = int(mm.group(1), 16)
+            for nx in ([] if n else lines[i + 1:i + 4]):
                 mm = lenre.search(nx)
                 if mm: n = int(mm.group(1), 16); break
+            if n is None:  # ความยาวถูกเก็บลง stack ก่อน/หลัง (เช่น filepath.Join หลายส่วน)
+                for nx in lines[i - 3:i] + lines[i + 1:i + 4]:
+                    mm = stkre.search(nx)
+                    if mm: n = int(mm.group(1), 16); break
             if n and 0 < n < 2000:
                 b = read(tgt, n)
                 if b:
-                    try: out += '    ; "' + b.decode('utf-8').replace('\n', '\\n') + '"'
-                    except UnicodeDecodeError: out += '    ; bytes ' + b[:40].hex()
+                    try:
+                        t = b.decode('utf-8')
+                        if all(c.isprintable() or c in '\n\r\t' for c in t): out += '    ; "' + t.replace('\n', '\\n') + '"'
+                    except UnicodeDecodeError: pass
+    mg = re.search(r'MOVQ (main\.[A-Za-z0-9_]+)\(SB\), ', ln)
+    if mg:
+        v = gstr(mg.group(1))
+        if v is not None: out += '    ; ' + mg.group(1) + ' = "' + v.replace('\n', '\\n')[:300] + '"'
     # ค่าคงที่ 8 ไบต์ที่เป็นตัวอักษร (เช่น เทียบ "https://")
     mq = re.search(r'MOVQ \$0x([0-9a-f]{9,16}), ', ln)
     if mq:
