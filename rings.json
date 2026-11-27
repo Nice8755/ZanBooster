@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.12.38",
-    "sha256": "14b474deea0a3b1f7cb935a64b8333ba2fc43e69c6692ee01afd7a761fae975d",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/7772c04e321721c9582b78dd3db5ab057712ad0d/ZanBooster.exe",
-    "notes": "หน้า ReShade: ปุ่มพรีเซ็ต Zan ไม่ล้นกรอบแล้วบนจอเล็กหรือจอที่ตั้งขยาย 125%"
+    "version": "4.12.39",
+    "sha256": "79fd667eaa21c219338402f110ec7c376c740b5ded9c9a5514625751a8c11e04",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/b3a1086f6e781afc57c7f3b182110a153bfe597e/ZanBooster.exe",
+    "notes": "จอเล็กหรือจอที่ตั้งขยาย 125%: แท็บหน้าเครื่องมือขึ้นสองแถวแทนการตกขอบ ปุ่มต่าง ๆ ไม่ล้นกรอบแล้ว"
   },
   "vip": {
     "version": "4.12.37",
