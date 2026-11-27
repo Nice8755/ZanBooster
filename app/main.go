@@ -208,6 +208,8 @@ func main() {
 	must(w.Bind("combatFix", a.combatFix))
 	must(w.Bind("saveShot", a.saveShot))
 	must(w.Bind("showShot", showShot))
+	must(w.Bind("sysBench", a.sysBenchAsync))
+	must(w.Bind("reRam", a.reRamAsync))
 
 	if self, err := os.Executable(); err == nil {
 		a.prevVer = exeVersion(self + ".old")
