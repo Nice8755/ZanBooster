@@ -63,7 +63,7 @@ var (
 )
 
 type app struct {
-	prevVer string
+	prevVer    string
 	w          webview2.WebView
 	hwnd       uintptr
 	enginePath string
@@ -84,6 +84,9 @@ type app struct {
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "--gamemode" {
 		runGameModeHelper()
+		return
+	}
+	if handleLinkArg() { // เปิดจากลิงก์ zanbooster:// ขณะหน้าโปรแกรมเปิดอยู่: ส่งต่อให้ตัวเดิมแล้วจบ
 		return
 	}
 	if p, err := windows.UTF16PtrFromString(uiMutexName); err == nil {
@@ -210,6 +213,17 @@ func main() {
 	must(w.Bind("showShot", showShot))
 	must(w.Bind("sysBench", a.sysBenchAsync))
 	must(w.Bind("reRam", a.reRamAsync))
+	must(w.Bind("takeDeepLink", a.takeDeepLink))
+	// 0 = ย่ออยู่, 1 = เปิดอยู่แต่ใช้โปรแกรมอื่น (เช่น อยู่ในเกม), 2 = กำลังใช้หน้าโปรแกรม
+	must(w.Bind("winState", func() int {
+		if r, _, _ := pIsIconic.Call(a.hwnd); r != 0 {
+			return 0
+		}
+		if fg, _, _ := pGetForegroundWindow.Call(); fg != a.hwnd {
+			return 1
+		}
+		return 2
+	}))
 
 	if self, err := os.Executable(); err == nil {
 		a.prevVer = exeVersion(self + ".old")
@@ -219,6 +233,7 @@ func main() {
 	go a.gameModeRelay()
 	a.loadRemoteConfig()
 	go a.licRecheck()
+	go registerLinkScheme()
 	w.SetHtml(uiHTML)
 	w.Run()
 }

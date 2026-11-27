@@ -81,7 +81,7 @@ type healthItem struct {
 }
 
 type hzInfo struct {
-	Dev, Name          string
+	Dev, Name           string
 	Cur, Max, W, H, Bpp uint32
 }
 

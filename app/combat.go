@@ -24,7 +24,9 @@ var combatKeys = []struct {
 
 func gfxFile() string { return filepath.Join(os.Getenv("APPDATA"), "CitizenFX", "gta5_settings.xml") }
 
-func combatRe(key string) *regexp.Regexp { return regexp.MustCompile(`(<` + key + `\s+value=")([^"]*)(")`) }
+func combatRe(key string) *regexp.Regexp {
+	return regexp.MustCompile(`(<` + key + `\s+value=")([^"]*)(")`)
+}
 
 // combatBad: ชื่อค่าที่ยังเปิดอยู่ · ok=false ถ้ายังไม่มีไฟล์ตั้งค่าของเกม
 func combatBad() (bad []string, ok bool) {

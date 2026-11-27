@@ -19,10 +19,10 @@ import (
 )
 
 var (
-	pQPF     = windows.NewLazySystemDLL("kernel32.dll").NewProc("QueryPerformanceFrequency")
-	pQPC     = windows.NewLazySystemDLL("kernel32.dll").NewProc("QueryPerformanceCounter")
-	pSleep   = windows.NewLazySystemDLL("kernel32.dll").NewProc("Sleep")
-	qpcFreq  float64
+	pQPF      = windows.NewLazySystemDLL("kernel32.dll").NewProc("QueryPerformanceFrequency")
+	pQPC      = windows.NewLazySystemDLL("kernel32.dll").NewProc("QueryPerformanceCounter")
+	pSleep    = windows.NewLazySystemDLL("kernel32.dll").NewProc("Sleep")
+	qpcFreq   float64
 	benchSink uint64
 )
 
