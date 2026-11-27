@@ -699,6 +699,15 @@ func (a *app) launchServer(fivemDir, connect string, build, pure, effDefault int
 		if pure > 0 {
 			args += fmt.Sprintf(" -pure_%d", pure)
 		}
+		// โหมดเล่นเกม: ลดรถ/คนรอบตัว และลดความคมพื้นผิวรถ (ตั้งที่หน้าโหมดเล่นเกม) ส่งเป็นตัวเลือกตอนเปิด
+		if gm := a.gmConfig(); gm.On {
+			if gm.EntLow {
+				args += " +set game_setDefaultEntityCapLimitToLow true"
+			}
+			if gm.TexLow {
+				args += " +set str_maxVehicleTextureRes 512"
+			}
+		}
 		step("กำลังเปิด FiveM (" + args + ")")
 		// ใส่ลิงก์เซิร์ฟไปตอนเปิดด้วย: FiveM จะเชื่อมต่อเองเมื่อหน้าเมนูโหลดเสร็จ
 		// (วิธีเดียวกับที่ FiveM ใช้ตอนรีเกมสลับ build: RestartGameToOtherBuild ส่ง "fivem://connect/..." ต่อท้าย)
@@ -957,8 +966,22 @@ func totalMB(files []buildFile) float64 {
 }
 
 // launchServerAsync เรียก launchServer ในเบื้องหลัง (ไม่ให้หน้าต่างค้าง) ผลส่งไป window.onLaunch
+// autoCloseOn: ตั้งไว้ให้ปิดหน้าโปรแกรมเองหลังเข้าเซิร์ฟสำเร็จ
+func (a *app) autoCloseOn() bool {
+	var c struct {
+		AutoClose bool `json:"autoClose"`
+	}
+	json.Unmarshal([]byte(a.loadSettings()), &c)
+	return c.AutoClose
+}
+
 func (a *app) launchServerAsync(fivemDir, connect string, build, pure, effDefault int, pool string, force bool, reqID int) bool {
 	go func() {
+		if !licGet().Premium {
+			b, _ := json.Marshal(map[string]any{"reqId": reqID, "ok": false, "m": "เข้าเซิร์ฟคลิกเดียวเป็นฟีเจอร์พรีเมียม"})
+			a.emit("onLaunch", string(b))
+			return
+		}
 		r := a.launchServer(fivemDir, connect, build, pure, effDefault, pool, force, func(t string) {
 			b, _ := json.Marshal(map[string]any{"reqId": reqID, "t": t})
 			a.emit("onLaunchStep", string(b))
@@ -968,6 +991,12 @@ func (a *app) launchServerAsync(fivemDir, connect string, build, pure, effDefaul
 			ReqID int `json:"reqId"`
 		}{r, reqID})
 		a.emit("onLaunch", string(b))
+		if r.OK && a.autoCloseOn() {
+			time.Sleep(4 * time.Second)
+			if a.autoCloseOn() {
+				a.winClose()
+			}
+		}
 	}()
 	return true
 }

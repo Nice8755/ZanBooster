@@ -51,6 +51,8 @@ type gmSettings struct {
 	Ram    bool  `json:"ram"`
 	Power  bool  `json:"power"`
 	Hotkey *bool `json:"hotkey,omitempty"`
+	EntLow bool  `json:"entLow,omitempty"` // ลดรถ/คนรอบตัว (ตัวเลือกตอนเปิดเกม)
+	TexLow bool  `json:"texLow,omitempty"` // ลดความละเอียดพื้นผิวรถ 512
 }
 
 type gmStatus struct {
@@ -75,6 +77,8 @@ type gmStatus struct {
 	Samples   int            `json:"samples"`
 	Recover   *recoverResult `json:"rec,omitempty"`
 	Hotkey    string         `json:"hk,omitempty"`
+	ArMB      float64        `json:"arMB,omitempty"` // เคลียร์แรมอัตโนมัติคืนไปกี่ MB
+	ArN       int            `json:"arN,omitempty"`  // กี่ครั้ง
 }
 
 func (a *app) gmConfig() gmSettings {
@@ -396,6 +400,8 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 		lastEmit      string
 		lastRec       *recoverResult
 		gameSince     time.Time
+		lastAutoRam   time.Time
+		lastWarn      time.Time
 		seenMarked    bool
 		pMask, pc, th = perfCoreMask()
 	)
@@ -440,6 +446,33 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 		if doRecover {
 			r := a.softRecover(gp, pMask, cfg, pq)
 			lastRec = &r
+		}
+		// เคลียร์แรมอัตโนมัติ (พรีเมียม, เปิดในหน้าโหมดเล่นเกม): แรมว่างเหลือน้อยกว่า max(1.5 GB, 12%) ทุกไม่เกิน 45 วิ หลังเข้าเกม 2 นาที
+		if gp != 0 && a.autoRamOn() {
+			if free, total := freeMB(), totalRAMMB(); free > 0 && total > 0 && free < math.Max(1536, total*0.12) &&
+				time.Since(lastAutoRam) > 45*time.Second && time.Since(gameSince) > 120*time.Second {
+				lastAutoRam = time.Now()
+				if f, _ := a.reRamN(3)["freedMB"].(float64); f > 0 {
+					st.ArN++
+					st.ArMB += f
+				}
+			}
+		}
+		// เตือน FPS อาจตก (ไม่เกินทุก 20 นาที): FiveM กินแรมเกิน 10 GB หรือการ์ดจอ VRAM เต็มเกิน 92%
+		if gp != 0 && pq != nil && time.Since(lastWarn) > 20*time.Minute {
+			_, _, all := pq.extra(gp)
+			vp := 0.0
+			if c := gpuVramCapMB(); all > 0 && c > 0 {
+				vp = all / c * 100
+			}
+			if priv := processPrivateMB(gp); vp > 92 || priv > 10240 {
+				lastWarn = time.Now()
+				m := fmt.Sprintf("การ์ดจอ VRAM เต็ม %.0f%% รีแรมช่วยไม่ได้ ลด Texture Quality ลง 1 ขั้น", vp)
+				if priv > 10240 {
+					m = fmt.Sprintf("FiveM ใช้แรมไป %.1f GB แล้ว (สคริปต์เซิร์ฟสะสม) รีแรมช่วยไม่ได้แล้ว", priv/1024)
+				}
+				go toastNotify("Zan Booster · FPS อาจตก", m+" · ถ้ากระตุกให้กด \"รีเกมแล้วเข้าเซิร์ฟเดิม\" ใน Zan Booster")
+			}
 		}
 		if gp == 0 || !cfg.On {
 			if pid != 0 {
@@ -621,10 +654,13 @@ func runGameModeHelper() {
 	rv, _ := windows.CreateEvent(nil, 0, 0, rn) // auto-reset
 	defer windows.CloseHandle(rv)
 	go a.hotkeyLoop(rv)
+	go a.bgWatchLoop() // รอคิวเซิร์ฟเต็มต่อแม้ปิดหน้าโปรแกรม (deeplink.go)
 	publish(`{"active":false}`)
 	a.gameWatcher(publish,
 		func() bool { r, _ := windows.WaitForSingleObject(q, 0); return r == windows.WAIT_OBJECT_0 },
-		func(idle time.Duration) bool { return idle > 15*time.Minute && !mutexExists(uiMutexName) },
+		func(idle time.Duration) bool {
+			return idle > 15*time.Minute && !mutexExists(uiMutexName) && len(a.watchPending()) == 0
+		},
 		func() bool { r, _ := windows.WaitForSingleObject(rv, 3000); return r == windows.WAIT_OBJECT_0 })
 }
 
@@ -674,4 +710,36 @@ func (a *app) gameModeRelay() {
 		}
 		time.Sleep(2 * time.Second)
 	}
+}
+
+var (
+	autoRamAt  time.Time
+	autoRamVal bool
+)
+
+// autoRamOn: เปิดเคลียร์แรมอัตโนมัติไว้ไหม (พรีเมียม) อ่านใหม่ทุก 10 วินาที
+func (a *app) autoRamOn() bool {
+	if time.Since(autoRamAt) < 10*time.Second {
+		return autoRamVal
+	}
+	autoRamAt = time.Now()
+	if !licGet().Premium {
+		autoRamVal = false
+		return false
+	}
+	var c struct {
+		AutoRam bool `json:"autoRam"`
+	}
+	json.Unmarshal([]byte(a.loadSettings()), &c)
+	autoRamVal = c.AutoRam
+	return autoRamVal
+}
+
+func totalRAMMB() float64 {
+	var m memStatusEx
+	m.Length = uint32(unsafe.Sizeof(m))
+	if r, _, _ := pGlobalMemoryStatus.Call(uintptr(unsafe.Pointer(&m))); r == 0 {
+		return 0
+	}
+	return float64(m.TotalPhys) / (1 << 20)
 }
