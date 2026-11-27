@@ -184,46 +184,51 @@ func (a *app) hotkeyEnabled() bool {
 	return c.Hotkey == nil || *c.Hotkey
 }
 
-// hotkeyLoop ปุ่มลัด Ctrl+Alt+F ใช้ได้ระหว่างอยู่ในเกม (RegisterHotKey ไม่ยุ่งกับตัวเกม)
+// hotkeyLoop: ตัวเก่า 4.11.15 เลิกใช้ปุ่มลัด Ctrl+Alt+F แล้ว (ห้ามเอากลับมา) เหลือแค่วาดเป้าเล็งซ้อนจอเกม
+// อ่านค่าเป้าใหม่ทุก 2 วินาที · ปุ่มลัด 0x5A43 (ถ้ามีคนลงทะเบียนไว้) สลับซ่อน/แสดงเป้า · ev ใช้กับคำสั่งกู้ FPS เดิม
 func (a *app) hotkeyLoop(ev windows.Handle) {
 	runtime.LockOSThread()
-	const (
-		id         = 0x5A42
-		modAlt     = 0x1
-		modControl = 0x2
-		modNoRep   = 0x4000
-		wmHotkey   = 0x0312
-		qsAllInput = 0x04FF
+	var (
+		xw      xhWin
+		cfg     xhCfg
+		pid     uint32
+		last    time.Time
+		visible = true
+		msg     [6]uint64 // MSG = 48 bytes
 	)
-	registered := false
 	hotkeyState.Store("off")
-	var msg [6]uint64 // MSG = 48 bytes
 	for {
-		want := a.hotkeyEnabled()
-		if want && !registered {
-			if r, _, _ := pRegisterHotKey.Call(0, id, modControl|modAlt|modNoRep, 'F'); r != 0 {
-				registered = true
-				hotkeyState.Store("ok")
-			} else {
-				hotkeyState.Store("busy") // มีโปรแกรมอื่นใช้ปุ่มนี้อยู่
+		if time.Since(last) >= 2*time.Second {
+			last = time.Now()
+			cfg = a.xhConfig()
+			pid = 0
+			if cfg.On {
+				pid, _ = gtaProcess()
 			}
-		} else if !want && registered {
-			pUnregisterHK.Call(0, id)
-			registered = false
-			hotkeyState.Store("off")
-		} else if !want {
 			hotkeyState.Store("off")
 		}
-		pMsgWaitMulti.Call(0, 0, 0, 2000, qsAllInput)
+		xw.tick(cfg, pid, visible)
+		wait := uintptr(2000)
+		if cfg.On {
+			wait = 250
+		}
+		pMsgWaitMulti.Call(0, 0, 0, wait, 0x04FF)
 		for {
 			r, _, _ := pPeekMessage.Call(uintptr(unsafe.Pointer(&msg[0])), 0, 0, 0, 1)
 			if r == 0 {
 				break
 			}
-			if uint32(msg[1]) == wmHotkey {
-				pMessageBeep.Call(0)
-				windows.SetEvent(ev)
+			if uint32(msg[1]) == 0x0312 {
+				if msg[2] == 0x5A43 {
+					visible = !visible
+					xw.tick(cfg, pid, visible)
+				} else {
+					pMessageBeep.Call(0)
+					windows.SetEvent(ev)
+				}
+				continue
 			}
+			pDispatchMessage.Call(uintptr(unsafe.Pointer(&msg[0])))
 		}
 	}
 }

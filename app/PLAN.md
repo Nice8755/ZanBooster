@@ -37,27 +37,13 @@
 - [x] sysbench.go (สูตรเดิม) · reRam (recover_ram.go) · deeplink.go (zanbooster:// + รอคิวเบื้องหลัง + แจ้งเตือน) · winState
 - [x] เทียบไฟล์ v2.6 กับ 4.11.15: launcher (พรีเมียม, entLow/texLow, autoClose) · gamemode (autoRam, เตือน FPS ตก, bgWatchLoop) · recover (noTrim) · feedback (ค้นดิส /v1/dcfind) · update (เหลือแต่ Beta ที่เลิกแล้ว)
 - [ ] ต้องใส่ secret REPORT_WEBHOOK (ห้องรายงานปัญหา) ตอนสร้าง: -X main.reportWebhook=... (ตัวเก่าฝังลิงก์ไว้ในไฟล์ ห้ามใส่ในที่เก็บ)
-- [ ] ฟังก์ชันที่ต้องถอดจาก 4.11.15 (ชื่อไฟล์เดิม · จำนวน · ชื่อ):
-- `reshade.go` (48): reshadeAsync, reshadeCheck, reshadeImport, reshadeInstall, reshadeRemove, reshadeStatus, reshadeToggle, reshadeZan, zanFlush, zanMemoGet, zanMemoSet, zanReset, zanSetLight, zanWatch, buildPreset, dlBytes, fxDest, fxInstallOne, fxPackages, iniVals, isReshadeDll, map.init.3, reshadeCalcID, reshadeEffects, reshadeFixAck, reshadeLatest, reshadeLogID, reshadePaths, reshadeSetPreset, rsSendKey, stripZanSharp, stripZanSharpBody, u8IniGet, u8IniSet, u8IniSetTop, zanApplyLight, zanBody, zanCapture, zanCleanup, zanExitCleanup, zanIdx, zanInstalled, zanSetup, zanShortcutData, zanShortcutsBound, zanUserBody, zanWriteFiles, zanWriteOne
-- `license.go` (18): licAPI, licActivate, licBonus, licCall, licInfo, licMigrate, licPost, licRecheck, licStartTrial, refInfo, remoteRaw, licCompute, licDataDir, licGet, licLoad, licSave, machineGuid, trialSig
-- `zanextra.go` (14): zanFxToggle, zanMyOp, zanSetEco, atof, stripComments, zanMyBodyPath, zanMyCapture, zanMyList, zanMyNamePath, zanMyRemove, zanMySlot, zanMyWrite, zanTransform, zanWatermark
-- `framegen.go` (13): frameGenInfo, frameGenInfoAsync, frameGenSet, frameGenSetAsync, (*nvSession).appProfile, (*nvSession).delX, (*nvSession).getX, (*nvSession).setX, fivemGameExes, gpuNames, loadNVApp, nvWide, smoothMotionGpu
-- `upscale.go` (12): dldsrInfo, upscaleAsync, upscaleFlush, upscaleInfo, upscaleSet, map.init.4, openNvcp, presetUndoCAS, readSampling, upRecommend, upSpec, writeSampling
-- `deeplink.go` (10): bgWatchLoop, takeDeepLink, watchList, watchPending, watchRemove, cleanLink, handleLinkArg, registerLinkScheme, slotFree, toastNotify
-- `hudmask.go` (10): zanDNSet, zanHudCapture, zanHudClear, blankMaskPNG, captureScreen, zanDNBody, zanDNGet, zanDNWrite, zanHudRemove, zanHudWrite
-- `health.go` (9): biosInfo, fixHz, healthExtra, rebootBios, boardInfo, monitorsHz, primaryAdapter, rebarNvidia, setHz
-- `zangrade.go` (7): map.init.5, zan3, zanGradeRemove, zanGradeWrite, zanStyleFx, zgFx, zgStyle
-- `crosshair.go` (6): xhConfig, (*xhWin).build, (*xhWin).destroy, (*xhWin).freeBitmap, (*xhWin).show, (*xhWin).tick
-- `sysbench.go` (5): sysBenchAsync, cpuScore, qpcUs, ramTest, timerTest
-- `combat.go` (4): combatFix, combatItem, combatBad, gfxFile
-- `crosshairdraw.go` (4): xhCfg.norm, xhColor, xhInside, xhRender
-- `licensecore.go` (4): isShortKey, machineBytes, machineCode, parseLicKey
-- `recover.go` (4): reRamAsync, reRamN, purgeStandbyGentle, trimOthersN
-- `update.go` (3): betaFromServer, isBetaMachine, ghGetRaw
-- `gamemode.go` (2): autoRamOn, totalRAMMB
-- `shot.go` (2): saveShot, showShot
-- `feedback.go` (1): cleanDiscordID
-- `launcher.go` (1): autoCloseOn
-- `zansharp.go` (1): writeZanSharp
+- [x] ถอดครบทุกฟังก์ชันของ 4.11.15 แล้ว (เทียบรายชื่อฟังก์ชันทั้งหมดใน exe เก่า เหลือแต่ Beta เก่าที่เลิกใช้: betaFromServer, isBetaMachine, ghGetRaw)
+  - framegen.go (Smooth Motion NVIDIA) · upscale.go (Zan Upscale, NVIDIA App, DLDSR)
+  - reshade.go + zangrade.go + zanextra.go + hudmask.go + zansharp.go (ReShade ทั้งชุด, พรีเซ็ต Zan p1-p12, พรีเซ็ตของฉัน, กลางวัน/กลางคืน, หน้ากาก HUD, ZanSharp)
+  - crosshair.go (เป้าเล็งซ้อนจอ) · hotkeyLoop เปลี่ยนเป็นแบบ 4.11.15 = ไม่มีปุ่มลัด Ctrl+Alt+F แล้ว
+  - ข้อมูลพรีเซ็ต p1-p12 + ตารางหมวด ดึงจาก exe ด้วย tools/re/rsdata.py → app/reshade_data.go
+  - ZanGrade.fx / แม่แบบ ZanSharp ดึงจาก exe เก็บแบบบีบอัด+สลับไบต์ (app/assets/zg.bin, zs.bin) ไม่วางข้อความตรง ๆ
+- [ ] ส่วนที่เขียนใหม่ตามพฤติกรรม ไม่ได้ตรงทีละคำสั่ง (ต้องลองในเกมจริง): ขั้นตัดสินจุด HUD ใน zanHudCapture, รูปทรงเป้าใน xhRender/xhInside, ลำดับบางขั้นใน u8IniSet
+- [ ] ทดสอบบนเครื่องเจ้าของ: รหัสเครื่อง/คีย์/ค่าที่ตั้ง, ติดตั้ง ReShade, ใช้พรีเซ็ต z1-z5 (engine RsCustom), Smooth Motion, Upscale, เป้าเล็ง
 - [ ] ไฟล์ที่มีอยู่แล้วจาก v2.6 ต้องเทียบกับ 4.11.15 ว่าเปลี่ยนอะไร (main, launcher, gamemode, gpudriver, findfivem, update, bench, backup, recover ...)
-- [ ] ไฟล์เชดเดอร์/พรีเซ็ตที่ฝังใน exe เก่า (ZanGrade.fx, ZanQV, ZanNVE, ZanSharp ...) ดึงออกมาเป็นไฟล์
+- [x] ไฟล์เชดเดอร์ที่ฝังใน exe เก่า ดึงออกมาแล้ว (ZanQV/ZanNVE/ZanGradeN สร้างจาก ZanGrade.fx แบบเดียวกับตัวเก่า)
