@@ -1,0 +1,28 @@
+# ตัว exe ใหม่ (app/) สร้างและทดสอบอย่างเดียว ไม่ปล่อยให้ใคร · ดาวน์โหลดผลได้ที่หน้า Actions (Artifacts)
+name: New exe (test build)
+on:
+  push:
+    branches: ['claude/newexe**']
+    paths: ['app/**', 'recovered/**', '.github/workflows/newexe.yml']
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: "1.24", cache: false }
+      - name: Put the current screen and engine inside
+        shell: pwsh
+        run: Copy-Item recovered/ui.html, recovered/engine.ps1 app/ -Force
+      - name: Tests (machine code and key check must match the old exe)
+        run: go test -mod=vendor ./app
+      - name: Build
+        shell: pwsh
+        run: |
+          $env:GOOS='windows'; $env:GOARCH='amd64'; $env:CGO_ENABLED='0'
+          go build -mod=vendor -trimpath -ldflags "-H windowsgui -X main.appVersion=4.20.0" -o ZanBooster-new.exe ./app
+          if ($LASTEXITCODE) { throw 'build failed' }
+          "size: $((Get-Item ZanBooster-new.exe).Length)"
+      - uses: actions/upload-artifact@v4
+        with: { name: ZanBooster-new, path: ZanBooster-new.exe, retention-days: 14 }
