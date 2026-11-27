@@ -169,6 +169,8 @@ func main() {
 	must(w.Bind("openBackupDir", a.openBackupDir))
 	must(w.Bind("gpuApply", a.gpuApplyAsync))
 	must(w.Bind("gpuRestore", a.gpuRestoreAsync))
+	must(w.Bind("frameGenInfo", a.frameGenInfoAsync))
+	must(w.Bind("frameGenSet", a.frameGenSetAsync))
 	must(w.Bind("benchStart", a.benchStart))
 	must(w.Bind("benchStop", a.benchStop))
 	must(w.Bind("benchList", a.benchList))
