@@ -5,6 +5,8 @@ package main
 // ลิงก์ webhook ไม่อยู่ในซอร์สโค้ด: ใส่ตอน build ด้วย -ldflags "-X main.reportWebhook=..."
 
 import (
+	"golang.org/x/sys/windows/registry"
+
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -34,7 +36,7 @@ func trimRunes(s string, n int) string {
 func (a *app) canSendReport() bool { return reportWebhook != "" }
 
 // sendReport อัปโหลด zip รายงาน (ที่ engine สร้างไว้ใน TEMP) พร้อมข้อความ แล้วลบไฟล์ทิ้ง  คืนข้อความ error ("" = สำเร็จ)
-func (a *app) sendReport(zipPath, desc, contact string) string {
+func (a *app) sendReport(zipPath, desc, contact, extra string) string {
 	reportMu.Lock()
 	defer reportMu.Unlock()
 	if reportWebhook == "" {
@@ -100,10 +102,29 @@ func (a *app) sendReport(zipPath, desc, contact string) string {
 				{"name": "สถานะ", "value": plan, "inline": true},
 				{"name": "รหัสเครื่อง", "value": machineCode(machineGuid()), "inline": true},
 				{"name": "Windows build", "value": fmt.Sprint(winBuild()), "inline": true},
-			},
+			}, // ต่อด้วยสรุปเครื่องด้านล่าง
 			"timestamp": time.Now().UTC().Format(time.RFC3339),
 		}},
 	}
+	// สรุปเครื่องไว้บนการ์ดเลย ไม่ต้องเปิดไฟล์ (การ์ดจอ ซีพียู แรม สิ่งที่ผิดพลาดล่าสุดในโปรแกรม)
+	emb := payload["embeds"].([]map[string]any)[0]
+	fs := emb["fields"].([]map[string]any)
+	if g := gpuNames(); len(g) > 0 {
+		fs = append(fs, map[string]any{"name": "การ์ดจอ", "value": trimRunes(strings.Join(g, " / "), 200), "inline": true})
+	}
+	if c := cpuName(); c != "" {
+		fs = append(fs, map[string]any{"name": "ซีพียู", "value": trimRunes(c, 120), "inline": true})
+	}
+	if r := totalRAMMB(); r > 0 {
+		fs = append(fs, map[string]any{"name": "แรม", "value": fmt.Sprintf("%.0f GB", r/1024), "inline": true})
+	}
+	if fivemRunningAny() {
+		fs = append(fs, map[string]any{"name": "FiveM", "value": "เปิดอยู่ตอนส่ง", "inline": true})
+	}
+	if x := strings.TrimSpace(extra); x != "" {
+		fs = append(fs, map[string]any{"name": "ในโปรแกรมก่อนส่ง", "value": "```\n" + trimRunes(x, 900) + "\n```", "inline": false})
+	}
+	emb["fields"] = fs
 	pj, _ := json.Marshal(payload)
 	var body bytes.Buffer
 	mw := multipart.NewWriter(&body)
@@ -143,4 +164,15 @@ func cleanDiscordID(s string) string {
 		}
 	}
 	return s
+}
+
+// cpuName: ชื่อซีพียูจาก registry
+func cpuName() string {
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `HARDWARE\DESCRIPTION\System\CentralProcessor\0`, registry.QUERY_VALUE)
+	if err != nil {
+		return ""
+	}
+	defer k.Close()
+	v, _, _ := k.GetStringValue("ProcessorNameString")
+	return strings.TrimSpace(v)
 }

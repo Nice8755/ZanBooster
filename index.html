@@ -169,6 +169,12 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
   </div>
   <h3 style="margin:30px 0 12px">วิธีซื้อ</h3>
   <ol class="how"><li>เปิดโปรแกรม → หน้า <b>Premium</b> → คัดลอก <b>รหัสเครื่อง</b></li><li>เข้าดิส <a href="https://discord.gg/pCCqStQwmp" style="color:var(--c1)">ZAN HUB</a> เปิด Ticket แจ้งแพ็กที่ต้องการ พร้อมรหัสเครื่อง</li><li>โอนเงินแล้วส่งสลิป รับคีย์ไปใส่ในโปรแกรม ใช้ได้ทันที</li></ol>
+  <div class="cta" style="margin-top:22px"><a class="btn pri" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">⬇ ดาวน์โหลดฟรี</a><a class="btn" href="https://discord.gg/pCCqStQwmp">ซื้อคีย์ / ถามในดิส ZAN HUB</a></div>
+</div></section>
+
+<section id="reviews" style="padding-top:20px;display:none"><div class="wrap">
+  <h2>คนที่ใช้จริงว่าไง</h2><p class="sub">จากห้องรีวิวในดิส ZAN HUB</p>
+  <div class="rvw" id="rvw"></div>
 </div></section>
 
 <section id="faq" style="padding-top:20px"><div class="wrap">
@@ -183,12 +189,20 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
 
 <footer><div class="wrap">Zan Booster · <a href="https://discord.gg/pCCqStQwmp" style="color:var(--c1)">ZAN HUB</a> · โปรแกรมนี้ไม่ได้เกี่ยวข้องกับ Cfx.re หรือ Rockstar Games</div></footer>
 
+<style>.rvw{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}.rvw .card{padding:18px}.rvw p{margin:0 0 10px;line-height:1.6}.rvw small{color:var(--muted)}</style>
 <script>
 (() => {
   const $ = s => document.querySelector(s), RAW = 'https://raw.githubusercontent.com/Nice8755/ZanBooster/';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const vn = v => String(v).split('.').reduce((a, x) => a * 1000 + (+x || 0), 0);
   const thDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return d; } };
+
+  /* ---------- รีวิวจริงจากดิส: เจ้าของใส่ใน site/reviews.json [{"name":"...","text":"...","date":"2026-11-28"}] ---------- */
+  fetch('site/reviews.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).then(a => {
+    a = (Array.isArray(a) ? a : []).filter(x => x && x.text); if (!a.length) return;
+    $('#rvw').innerHTML = a.slice(0, 12).map(x => `<div class="card rv in"><p>“${esc(x.text)}”</p><small>${esc(x.name || 'ผู้ใช้ Zan Booster')}${x.date ? ' · ' + esc(thDate(x.date)) : ''}</small></div>`).join('');
+    $('#reviews').style.display = '';
+  }).catch(() => { });
 
   /* ---------- อัปเดตล่าสุด: เวอร์ชันจาก latest.json (สาขา main = ที่ทุกคนได้) รายการจาก changelog ในหน้าโปรแกรม ---------- */
   let REL = [], shown = 0;

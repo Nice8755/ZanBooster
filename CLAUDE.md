@@ -7,11 +7,11 @@
 - ข้อความในโปรแกรมต้องเป็นธรรมชาติ ไม่เหมือน AI เขียน
 
 ## โค้ดอยู่ที่ไหน
-- ทำงานบนสาขา `rebuild-4x` เท่านั้น: `recovered/ui.html` (หน้าจอ) และ `recovered/engine.ps1` (ปรับเครื่อง, Windows PowerShell 5.1)
-- สาขา `main` = ไฟล์ปล่อยให้ลูกค้า โค้ด Go ในนี้เก่า (v2.6) ห้าม build จากโค้ดนี้
+- ทำงานบนสาขา `rebuild-4x` เท่านั้น: `recovered/ui.html` (หน้าจอ), `recovered/engine.ps1` (ปรับเครื่อง, Windows PowerShell 5.1) และ `app/` (ตัวโปรแกรม Go)
+- ตั้งแต่ 4.20.01 ตัวปล่อยคือ exe ตัวใหม่ที่สร้างจาก `app/` ด้วย `tools/build-new.ps1` (ใส่ ui.html + engine.ps1 เข้าไปตอนสร้าง) ไม่มีขีดจำกัดพื้นที่แล้ว · Publish ใช้ตัวใหม่เป็นค่าเริ่มต้น
+- `"exe":"old"` = ตัวเก่า (ใส่ไฟล์เข้า exe 4.11.15 `beta/ZanBooster.exe` ด้วย `tools/build-release.ps1`) เก็บไว้เป็นทางสำรองฉุกเฉินเท่านั้น มีขีดจำกัด ui 1,055,130 / engine 117,970 ไบต์ · ห้ามแก้ `beta/ZanBooster.exe` (เครื่องมือถอดโค้ดใน `tools/re/` ใช้ไฟล์นี้)
+- สาขา `main` = ไฟล์ปล่อยให้ลูกค้า โค้ด Go ในสาขานี้เก่า (v2.6) ห้าม build จากสาขานี้
 - สาขา `rings` = ช่องเครื่องเจ้าของและ Premium (`rings.json`)
-- โค้ด Go หลัง v2.6 หายไป จึงใส่สองไฟล์ข้างบนกลับเข้าไปใน exe v4.11.15 (`beta/ZanBooster.exe` บน rebuild-4x ห้ามแก้ไฟล์นี้) ด้วย `tools/build-release.ps1`
-- พื้นที่ใน exe จำกัด: ui 1,055,130 ไบต์, engine 117,970 ไบต์ (ตัวสร้างตัดบันทึกเวอร์ชันเก่าให้เอง)
 - คำแปลอังกฤษอยู่ที่ `i18n/en.json` (ไม่อยู่ใน ui.html แล้ว) ข้อความใหม่ใน ui.html ให้เพิ่มคำแปลที่ไฟล์นี้ · ธีมจากเน็ตอยู่ที่ `themes/themes.json` รูปธีมสร้างด้วย `tools/make-theme-art.py` · โปรแกรมโหลดสองอย่างนี้จาก raw.githubusercontent สาขา rebuild-4x
 
 ## กฎปล่อยอัปเดต
@@ -58,4 +58,8 @@
 - สถานะ Discord: รหัสแอป 1575471055965921411 อยู่ใน `themes/themes.json` (rpc) รูปชื่อ `logo` ใน Developer Portal
 - ประกาศดิสลงเองผ่าน secret `DISCORD_WEBHOOK` (ห้องข่าวสาร) เป็นการ์ด embed ไม่ต้องลงซ้ำเอง
 - หน้าเว็บแนะนำ: `index.html` + `site/` บนสาขา rebuild-4x (ลิงก์หลัก https://zan-booster.pages.dev = Cloudflare Pages ดึงจากสาขา rebuild-4x เอง · nice8755.github.io/ZanBooster ยังใช้ได้และห้ามปิด เพราะตัวเล่นเพลงในโปรแกรมใช้ลิงก์นี้) · ส่วนอัปเดตดึงเองจาก latest.json (main) + changelog ใน recovered/ui.html (แสดงเฉพาะเวอร์ชันที่ปล่อยทุกคนแล้ว) ไม่ต้องแก้เว็บทุกรอบ · ตัวทดลองในเว็บ = recovered/ui.html#demo (ตัวจำลองในโหมด demo ข้ามหน้าแนะนำ/ภารกิจ) ฟีเจอร์ใหม่ที่เพิ่มหน้าใหม่ให้เพิ่มปุ่มหมวดใน CATS ของ index.html
-- exe ตัวใหม่ (โค้ด Go ใน `app/`, แผนที่ `app/PLAN.md`): ทดสอบที่ Actions "New exe (test build)" (push สาขา `claude/newexe*`: เทสต์ + สร้าง + ลองเปิดบน CI + VirusTotal + ภาพหน้าจอใน Artifacts) · ปล่อยด้วย publish-request.json ใส่ `"exe":"new"` (ไม่ใส่ = ตัวเก่าเหมือนเดิม) ใช้ได้เมื่อเจ้าของลองตัวใหม่บนคอมผ่านแล้วเท่านั้น · Microsoft/Kaspersky/ESET/BitDefender/Avast จับ = ไม่ปล่อยเอง · ห้ามสร้างด้วย `-s -w` (Defender จับ) · secret `REPORT_WEBHOOK` = ลิงก์ห้องรายงานปัญหาของตัวใหม่
+- exe ตัวใหม่ (โค้ด Go ใน `app/`, บันทึกการถอดโค้ดที่ `app/PLAN.md`): ทดสอบที่ Actions "New exe (test build)" (push สาขา `claude/newexe*`: เทสต์ + สร้าง + ลองเปิดบน CI + VirusTotal + ภาพหน้าจอใน Artifacts) · Microsoft/Kaspersky/ESET/BitDefender/Avast จับ = ไม่ปล่อยเอง · ห้ามสร้างด้วย `-s -w` (Defender จับ) · secret `REPORT_WEBHOOK` = ลิงก์ห้องรายงานปัญหา (ใส่ตอนสร้าง ไม่อยู่ในที่เก็บ)
+- ฟังก์ชันใหม่ฝั่งโปรแกรม: เพิ่มใน `app/*.go` แล้ว `w.Bind(...)` ใน `app/main.go` + เพิ่มตัวจำลองใน ui.html (ส่วน `if (!NATIVE)`) ให้เปิดในเบราว์เซอร์ได้
+- อัปเดตอัตโนมัติ (4.20.03): เจอเวอร์ชันใหม่ = โหลดแล้วเปิดใหม่เอง ไม่ถาม · FiveM เปิดอยู่ = รอปิดเกม (`window.fivemRunning`) · ลูกค้าได้ตัวล่าสุดทีเดียวเสมอ (latest.json มีแค่ตัวล่าสุด)
+- ไฟล์ Zan (ZanGrade.fx, Zan_Preset_*.ini) อยู่ในเครื่องเฉพาะตอนเกมเปิด (`zanWatch` เขียน/ลบ กันคัดลอก) อย่าเช็กว่าติดตั้ง Zan แล้วจากไฟล์พวกนี้ ให้ดู `plugins\ReShade.zanver`
+- รีวิวหน้าเว็บ: ใส่รีวิวจริงจากดิสใน `site/reviews.json` (ว่าง = ไม่แสดงส่วนรีวิว) ห้ามแต่งรีวิวเอง

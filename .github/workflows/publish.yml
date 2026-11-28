@@ -29,10 +29,10 @@ on:
         description: "everyone: type YES"
         default: ""
       exe:
-        description: "test/owner: old = patch the 4.11.15 exe (now) · new = Go exe from app/ (after the owner tested it)"
+        description: "test/owner: new = Go exe from app/ (normal, since 4.20.01) · old = patch the 4.11.15 exe (emergency fallback only)"
         type: choice
-        options: [old, new]
-        default: old
+        options: [new, old]
+        default: new
 
 permissions:
   contents: write
@@ -75,7 +75,7 @@ jobs:
             $s = "$($o.stage)"; $v = "$($o.version)"; $n = "$($o.notes)"; $c = "$($o.confirm)"; $x = "$($o.exe)"
             [IO.File]::WriteAllText("$env:RUNNER_TEMP/discord.txt", "$($o.discord)", [Text.UTF8Encoding]::new($false))
           } else { $s = $env:I_STAGE; $v = $env:I_VERSION; $n = $env:I_NOTES; $c = $env:I_CONFIRM; $x = $env:I_EXE }
-          if (-not $x) { $x = 'old' }; if ($x -notin 'old', 'new') { throw 'exe must be old or new' }
+          if (-not $x) { $x = 'new' }; if ($x -notin 'old', 'new') { throw 'exe must be old or new' }
           if ($s -notin 'test', 'owner', 'premium', 'everyone') { throw "bad stage" }
           $n = ($n -replace '[\r\n]+', ' ').Trim(); if ($n.Length -gt 500) { $n = $n.Substring(0, 500) }
           $c = $c -replace '[^A-Za-z]', ''; if ($v -notmatch '^\d\.\d\d\.\d\d$') { throw 'version must look like 4.11.30' }

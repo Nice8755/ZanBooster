@@ -52,16 +52,16 @@ type v3 [3]float64
 // zgv: ค่าทุกช่องของ ZanGrade (ลำดับช่องต้องตรงตัวเก่า)
 type zgv struct {
 	Black, Exposure, Clarity, Contrast, Saturation, Vibrance, SkinProtect, SkinLift float64
-	ShadowTint, HighTint                                                             v3
-	SplitAmt, Temp, Tint, BloomThresh, Bloom, Fade, Vignette, Sharp, Grain           float64
-	SkyDeep, SkyClouds, LightTint, LightGlow, RoadDark, RoadCool                     float64
-	LightColor, FoliageTint                                                          v3
-	Filmic, AO, HorizonDehaze, SunShafts, RoadGloss, SpecPop, Atmosphere             float64
-	CurveR, CurveG, CurveB, SkyGradient, NeonBoost, LensFlare, Halation, ChromaAb    float64
-	RainAuto, DNRole, RoadClean, Aurora, RoadLines, RoadLift, RoadFlat               float64
-	FoliageMix, FoliageSat, FoliageBright, WaterSat, CloudAmount, RainDrops          float64
-	LightTwoTone, Emissive, SunWarmth, FogAmount                                     float64
-	LightWarm, LightWhite, AuroraC1, AuroraC2, FogColor                              v3
+	ShadowTint, HighTint                                                            v3
+	SplitAmt, Temp, Tint, BloomThresh, Bloom, Fade, Vignette, Sharp, Grain          float64
+	SkyDeep, SkyClouds, LightTint, LightGlow, RoadDark, RoadCool                    float64
+	LightColor, FoliageTint                                                         v3
+	Filmic, AO, HorizonDehaze, SunShafts, RoadGloss, SpecPop, Atmosphere            float64
+	CurveR, CurveG, CurveB, SkyGradient, NeonBoost, LensFlare, Halation, ChromaAb   float64
+	RainAuto, DNRole, RoadClean, Aurora, RoadLines, RoadLift, RoadFlat              float64
+	FoliageMix, FoliageSat, FoliageBright, WaterSat, CloudAmount, RainDrops         float64
+	LightTwoTone, Emissive, SunWarmth, FogAmount                                    float64
+	LightWarm, LightWhite, AuroraC1, AuroraC2, FogColor                             v3
 }
 
 type zgKV struct{ K, V string }
