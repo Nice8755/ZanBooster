@@ -1,6 +1,6 @@
 {
-  "version": "4.20.08",
-  "sha256": "f858070d4a080f52b56315f57b220efff318b454a2c2b8762eabb507a1dbdccb",
+  "version": "4.20.09",
+  "sha256": "f5322b3ec8a0e014ffcd5fd1d73b13f7a3f8dbba92c3472cacb36c705e0ea005",
   "file": "release/ZanBooster.exe",
-  "notes": "ปิดเกมแล้วมีสรุปมุมจอ · จำ FPS แยกตามเซิร์ฟ · FiveM เด้งแล้วบอกสาเหตุพร้อมปุ่มแก้"
+  "notes": "สรุปหลังเล่นจบ · จำ FPS แยกตามเซิร์ฟ · ตัวช่วยตอนเกมเด้ง · ชวนวัด FPS ก่อนบูสต์"
 }
