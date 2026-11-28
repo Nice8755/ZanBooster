@@ -1074,7 +1074,7 @@ function Do-RsCustom {
     $m = ''; $fd = Get-FiveMData; $pl = if ($fd) { Join-Path (Split-Path $fd) 'plugins' }; $ini = if ($pl) { Join-Path $pl 'ReShade.ini' }
     if (-not $ini -or -not (Test-Path $ini)) { $m = 'noreshade' }
     elseif (Get-Process FiveM* -EA 0) { $m = 'running' }
-    elseif (-not (Get-ChildItem $pl -Recurse -Filter ZanGrade.fx -EA 0 | Select-Object -First 1)) { $m = 'nozan' }
+    elseif (-not (Test-Path (Join-Path $pl 'ReShade.zanver')) -and -not (Get-ChildItem $pl -Recurse -Filter ZanGrade.fx -EA 0 | Select-Object -First 1)) { $m = 'nozan' } # ไฟล์ Zan มีเฉพาะตอนเกมเปิด (กันคัดลอก) จึงดูว่าติดตั้ง ReShade ผ่าน Zan Booster แทน
     else {
         $c = Get-Config; $x = [IO.File]::ReadAllText($ini); $f = Join-Path $pl 'Zan_Custom.ini'
         $cur = [regex]::Match($x, '(?m)^PresetPath=(.*)$').Groups[1].Value.Trim()

@@ -1052,9 +1052,9 @@ func (a *app) zanFlush(dir string) {
 		os.Remove(m.Backup)
 		m.Backup, m.UserPre = "", ""
 		a.zanMemoSet(m)
-	}
-	if p, ok := zanPresets[m.Key]; ok {
-		reshadeSetPreset(plugins, filepath.Join(plugins, p.File))
+		if p, ok := zanPresets[m.Key]; ok { // ตรงตัวเก่า: ตั้งพรีเซ็ตเฉพาะตอนคืนสำรอง ไม่ทับพรีเซ็ตที่ผู้ใช้เลือกเอง (เช่น Zan_Custom.ini)
+			reshadeSetPreset(plugins, filepath.Join(plugins, p.File))
+		}
 	}
 	ini := filepath.Join(plugins, "ReShade.ini")
 	if strings.EqualFold(filepath.Base(u8IniGet(ini, "GENERAL", "PresetPath")), "Zan_Active.ini") {
