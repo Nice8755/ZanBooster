@@ -29,6 +29,12 @@ header .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:44px;align-items:
 .ver i{width:8px;height:8px;border-radius:50%;background:#3dff9a;box-shadow:0 0 10px #3dff9a;animation:pl 1.6s ease-in-out infinite}@keyframes pl{50%{opacity:.35}}
 h1{font-size:56px;line-height:1.08;margin:0 0 16px;letter-spacing:.5px}
 header p{font-size:19px;color:#c9cfe4;margin:0 0 26px}.cta{display:flex;gap:12px;flex-wrap:wrap}
+.ss{margin-top:12px;font-size:14px;color:#c9cfe4;max-width:560px}.ss summary{cursor:pointer;color:var(--c1);font-weight:600}
+.ss .w{margin-top:10px;background:#0b63c4;color:#fff;border-radius:6px;padding:14px 16px;font:13px "Segoe UI",sans-serif;line-height:1.5}
+.ss .w b{font-size:17px;font-weight:400;display:block;margin-bottom:6px}.ss .w u{color:#fff;font-weight:700}
+.ss .w .k{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}.ss .w .k span{border:1px solid #fff;padding:4px 12px}.ss .w .k .on{background:#fff;color:#0b63c4;font-weight:700;outline:3px solid #ffd54a}
+.ss ol{margin:10px 0 0;padding-left:20px;line-height:1.7}
+
 .note{margin-top:14px;font-size:13px;color:var(--mut)}
 .hero{position:relative}.hero img{width:100%;border-radius:20px;box-shadow:0 30px 80px -30px color-mix(in srgb,var(--c2) 80%,transparent),0 0 0 1px var(--line);display:block}
 .stats{display:flex;gap:22px;margin-top:26px;flex-wrap:wrap}.stats div b{display:block;font-size:26px;font-weight:900}.stats div span{font-size:13px;color:var(--mut)}
@@ -99,6 +105,10 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
     <p>ปรับ Windows ให้เกมได้ใช้เครื่องเต็มที่ ตรวจหาจุดที่ทำให้เสีย FPS แล้ววัดผลจริงในเกมให้เห็นกับตา ใช้ฟรีได้เลย</p>
     <div class="cta"><a class="btn pri" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">⬇ ดาวน์โหลดฟรี</a><a class="btn" href="#try">ลองใช้ในเว็บ</a><a class="btn" href="https://discord.gg/pCCqStQwmp">เข้าดิส ZAN HUB</a></div>
     <div class="note">Windows 10 / 11 · เปิดไฟล์แล้วใช้ได้เลย ไม่ต้องติดตั้ง</div>
+    <details class="ss"><summary>Windows ขึ้นหน้าต่างสีฟ้า "Windows protected your PC" ทำไง?</summary>
+<div class="w"><b>Windows protected your PC</b>Microsoft Defender SmartScreen prevented an unrecognized app from starting... <u>More info</u><div class="k"><span class="on">Run anyway</span><span>Don't run</span></div></div>
+<ol><li>กด <b>More info</b> (ตัวหนังสือใต้ข้อความ)</li><li>จะมีปุ่ม <b>Run anyway</b> โผล่ขึ้นมา กดได้เลย ขึ้นแค่ครั้งแรกครั้งเดียว</li></ol>
+<p style="margin:8px 0 0;font-size:13px;color:var(--mut)">หน้าต่างนี้ไม่ใช่การเจอไวรัส Windows ขึ้นกับโปรแกรมที่ยังไม่ได้ซื้อลายเซ็นจาก Microsoft และยังมีคนโหลดไม่เยอะ โปรแกรมไม่แก้ไฟล์เกมและไม่ยุ่งกับระบบกันโกง</p></details>
   </div>
   <div class="hero"><img src="site/cover.jpg" alt="Zan Booster"></div>
 </div></header>
@@ -189,7 +199,7 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
 
 <footer><div class="wrap">Zan Booster · <a href="https://discord.gg/pCCqStQwmp" style="color:var(--c1)">ZAN HUB</a> · <a href="site/server.html" style="color:var(--c1)">ปุ่มเข้าเซิร์ฟสำหรับเจ้าของเซิร์ฟ</a> · โปรแกรมนี้ไม่ได้เกี่ยวข้องกับ Cfx.re หรือ Rockstar Games</div></footer>
 
-<style>.rvw{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}.rvw .card{padding:18px}.rvw p{margin:0 0 10px;line-height:1.6}.rvw small{color:var(--muted)}</style>
+<style>.rvw{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}.rvw .card{padding:18px}.rvw p{margin:0 0 10px;line-height:1.6}.rvw small{color:var(--mut)}</style>
 <script>
 (() => {
   const $ = s => document.querySelector(s), RAW = 'https://raw.githubusercontent.com/Nice8755/ZanBooster/';
