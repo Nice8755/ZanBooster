@@ -9,9 +9,9 @@
     "notes": "อัปเดตเองอัตโนมัติ (รอปิดเกมก่อน) · แก้ปุ่มพร้อมใช้พรีเซ็ตขึ้นว่าให้กดพรีเซ็ต Zan ก่อน"
   },
   "vip": {
-    "version": "4.20.02",
-    "sha256": "d2cad75ca3733b770a13992fa125360d5e2d832ae765406e84965a9b787f9f3b",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/64725c29dfb138a4b46a6b2e097c91caa38bcc84/ZanBooster.exe",
-    "notes": "ปุ่มแจ้งปัญหาในโปรแกรมกลับมาใช้ได้แล้ว"
+    "version": "4.20.04",
+    "sha256": "06493a2c54045161acf9b09228dfef583a0ff5230e8ba9399942bebb5c901eb9",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ed366917f4c2367a1108ad93e53dc866e98198ed/ZanBooster.exe",
+    "notes": "อัปเดตเองอัตโนมัติ (รอปิดเกมก่อน) · แก้ปุ่มพร้อมใช้พรีเซ็ตขึ้นว่าให้กดพรีเซ็ต Zan ก่อน · พรีเซ็ตที่เลือกไว้ไม่ถูกเปลี่ยนกลับเอง"
   }
 }
