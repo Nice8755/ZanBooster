@@ -9,9 +9,9 @@
     "notes": "ปรับหน้าเว็บ: รับโปรแกรมผ่านดิส"
   },
   "vip": {
-    "version": "4.20.06",
-    "sha256": "4c378a5463e2aa17abd5d9e294badf22f32838187e4319a8d699b374f0aba8ce",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/4d4f448b48fbd5b480c5440723b1f2a14a2330d1/ZanBooster.exe",
-    "notes": "โหมดเล่นเกมให้เกมได้ซีพียูก่อนโปรแกรมเบื้องหลัง · แนะนำล็อกเพดาน FPS ลดดีเลย์ตอนการ์ดจอทำงานเต็ม · ตัววัดอาการกระตุก · การ์ด FPS หน้าหลัก · ชี้ธีมดูตัวอย่างได้"
+    "version": "4.20.08",
+    "sha256": "f858070d4a080f52b56315f57b220efff318b454a2c2b8762eabb507a1dbdccb",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/99308e0fb2c9f0fe100b14588070f53895a51f90/ZanBooster.exe",
+    "notes": "ปิดเกมแล้วมีสรุปมุมจอ · จำ FPS แยกตามเซิร์ฟ · FiveM เด้งแล้วบอกสาเหตุพร้อมปุ่มแก้"
   }
 }
