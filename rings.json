@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.20.04",
-    "sha256": "06493a2c54045161acf9b09228dfef583a0ff5230e8ba9399942bebb5c901eb9",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ed366917f4c2367a1108ad93e53dc866e98198ed/ZanBooster.exe",
-    "notes": "อัปเดตเองอัตโนมัติ (รอปิดเกมก่อน) · แก้ปุ่มพร้อมใช้พรีเซ็ตขึ้นว่าให้กดพรีเซ็ต Zan ก่อน"
+    "version": "4.20.05",
+    "sha256": "8eb0954e6d24da671ad18b408184ffeabab0e8c5575a04c56ba51c577b1392eb",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/e71aeee5650ca9773db1facf1fbb3003c8be4007/ZanBooster.exe",
+    "notes": "สรุปสัปดาห์มีเวลาเล่น FiveM กับจำนวนครั้งที่ล้างแรมให้ระหว่างเล่น และกดทำเป็นรูปไว้แชร์ได้ · ปุ่มคืนค่าเดิมทั้งหมด คืนค่าไดรเวอร์การ์ดจอให้ด้วย · แจ้งปัญหา: ส่งสเปกเครื่องกับสิ่งที่เกิดก่อนส่งไปให้ทีมงานด้วย ตอบได้เร็วขึ้น · ภาษาอังกฤษแปลครบทุกหน้า ไม่มีคำไทยปนกลางประโยคแล้ว"
   },
   "vip": {
     "version": "4.20.04",
