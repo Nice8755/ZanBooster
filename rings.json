@@ -9,9 +9,9 @@
     "notes": "แจ้งเมื่อ Windows คืนค่าที่บูสต์ไว้ · เว็บภาษาอังกฤษ"
   },
   "vip": {
-    "version": "4.20.09",
-    "sha256": "f5322b3ec8a0e014ffcd5fd1d73b13f7a3f8dbba92c3472cacb36c705e0ea005",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/70459ed78c7ce1d92966e1a045a2f9e123b0c505/ZanBooster.exe",
-    "notes": "สรุปหลังเล่นจบ · จำ FPS แยกตามเซิร์ฟ · ตัวช่วยตอนเกมเด้ง · ชวนวัด FPS ก่อนบูสต์"
+    "version": "4.20.10",
+    "sha256": "d720593ba3064ca107b70c450be312cdd72f8422a4820f60bce1a4f653c1c033",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/faa884ead13708f32c445b0bbd6aeb9f78d5b8a9/ZanBooster.exe",
+    "notes": "ชวนวัด FPS ก่อนบูสต์ · ปุ่มแชร์ผลเด่นขึ้น · แจ้งเมื่อ Windows คืนค่าที่บูสต์ไว้ · เว็บภาษาอังกฤษ"
   }
 }
