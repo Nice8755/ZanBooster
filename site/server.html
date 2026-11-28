@@ -51,7 +51,7 @@ button.p{background:linear-gradient(90deg,var(--c1),#7c5cff);color:#05070f;borde
     $('err').textContent = raw.trim() && !s ? 'รูปแบบไม่ถูก ใส่ได้แค่ cfx.re/join/โค้ด หรือ IP:Port' : '';
     const u = s ? base + encodeURIComponent(s) : '';
     $('out').value = u; $('try').href = u || '#';
-    $('md').value = u ? `เข้าเซิร์ฟผ่าน Zan Booster (ตั้งค่าเกมให้ตรงเซิร์ฟอัตโนมัติ): ${u}\nยังไม่มีโปรแกรม กดลิงก์เดิมแล้วเลือกดาวน์โหลด หรือเข้าแบบปกติได้` : '';
+    $('md').value = u ? `เข้าเซิร์ฟผ่าน Zan Booster (ตั้งค่าเกมให้ตรงเซิร์ฟอัตโนมัติ): ${u}\nยังไม่มีโปรแกรมก็กดลิงก์เดิม เข้าแบบปกติได้` : '';
   }
   async function copy(id, btn) {
     const v = $(id).value; if (!v) return;

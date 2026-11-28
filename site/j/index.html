@@ -29,8 +29,8 @@ small{display:block;color:var(--muted);margin-top:14px;font-size:12px}
   <p id="d">ถ้าเครื่องถามว่าจะเปิด Zan Booster ไหม กด "เปิด"</p>
   <div class="s" id="s"></div>
   <a class="b p" id="open" href="#">เปิด Zan Booster แล้วเข้าเซิร์ฟ</a>
-  <a class="b" id="dl" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">ยังไม่มีโปรแกรม? ดาวน์โหลดฟรี</a>
-  <small style="margin-top:6px">โหลดแล้ว Windows ขึ้นหน้าต่างสีฟ้า: กด More info → Run anyway</small>
+  <a class="b" id="dl" href="https://discord.gg/pCCqStQwmp">ยังไม่มีโปรแกรม? รับฟรีในดิส ZAN HUB</a>
+  <small style="margin-top:6px">เปิดแล้ว Windows ขึ้นหน้าต่างสีฟ้า: กด More info → Run anyway</small>
   <a class="b" id="plain" href="#">เข้าแบบปกติ (ไม่ใช้โปรแกรม)</a>
   <small>Zan Booster ตั้ง build · Pure mode · Pool size ของเซิร์ฟให้ก่อนเปิดเกม ไม่ต้องรีเกมหลายรอบ · <a href="../../" style="color:var(--c1)">ดูโปรแกรม</a></small>
 </div>
@@ -47,7 +47,7 @@ small{display:block;color:var(--muted);margin-top:14px;font-size:12px}
   const plain = 'fivem://connect/' + (/^[a-z0-9]{4,8}$/i.test(s) ? 'cfx.re/join/' + s : s);
   $('open').href = zan; $('plain').href = plain;
   setTimeout(() => { location.href = zan; }, 300);
-  setTimeout(() => { $('t').textContent = 'เข้าเซิร์ฟผ่าน Zan Booster'; $('d').textContent = 'ถ้าโปรแกรมไม่เปิด กดปุ่มด้านล่าง หรือดาวน์โหลดก่อน'; }, 2500);
+  setTimeout(() => { $('t').textContent = 'เข้าเซิร์ฟผ่าน Zan Booster'; $('d').textContent = 'ถ้าโปรแกรมไม่เปิด กดปุ่มด้านล่าง หรือรับโปรแกรมในดิสก่อน'; }, 2500);
 })();
 </script>
 </body>
