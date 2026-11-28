@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.20.01",
-    "sha256": "910f6c73ad9e996fc7676a87ed6932fd9294ce421bfa41a974e3428a6b9976ec",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2cecd3d6b9340acdbe4976362fc61df0c1b98435/ZanBooster.exe",
-    "notes": "ตัวโปรแกรมสร้างใหม่ทั้งตัว ฟีเจอร์ คีย์ และค่าที่ตั้งไว้อยู่ครบเหมือนเดิม"
+    "version": "4.20.02",
+    "sha256": "d2cad75ca3733b770a13992fa125360d5e2d832ae765406e84965a9b787f9f3b",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/64725c29dfb138a4b46a6b2e097c91caa38bcc84/ZanBooster.exe",
+    "notes": "ปุ่มแจ้งปัญหาในโปรแกรมกลับมาใช้ได้แล้ว"
   },
   "vip": {
     "version": "4.20.01",
