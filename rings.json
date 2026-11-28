@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.20.02",
-    "sha256": "d2cad75ca3733b770a13992fa125360d5e2d832ae765406e84965a9b787f9f3b",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/64725c29dfb138a4b46a6b2e097c91caa38bcc84/ZanBooster.exe",
-    "notes": "ปุ่มแจ้งปัญหาในโปรแกรมกลับมาใช้ได้แล้ว"
+    "version": "4.20.03",
+    "sha256": "5fc0cc1f49495fce68e8ef1953571da56b38b93cd0ee7da57ddbaf353f6fabaf",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/e77c2c41359073ee20bc68c4f202b42abd96f26a/ZanBooster.exe",
+    "notes": "อัปเดตเองอัตโนมัติ: มีเวอร์ชันใหม่โปรแกรมโหลดแล้วเปิดใหม่เองทันที ไม่ต้องกดปุ่ม ถ้าเปิด FiveM อยู่จะรอจนปิดเกมก่อน"
   },
   "vip": {
     "version": "4.20.02",
