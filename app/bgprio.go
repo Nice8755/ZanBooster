@@ -34,6 +34,7 @@ type bgPrio struct {
 	path string
 	m    map[uint32]bgEntry
 	last time.Time
+	peak int // มากสุดที่ลดไว้ในรอบเล่นนี้ (ใช้ในสรุปหลังเล่น)
 }
 
 func newBgPrio(dataDir string) *bgPrio {
@@ -99,6 +100,9 @@ func (b *bgPrio) lower() int {
 	if changed {
 		b.save()
 	}
+	if len(b.m) > b.peak {
+		b.peak = len(b.m)
+	}
 	return len(b.m)
 }
 
@@ -120,6 +124,6 @@ func (b *bgPrio) restore() {
 		}
 	}
 	b.m = map[uint32]bgEntry{}
-	b.last = time.Time{}
+	b.last, b.peak = time.Time{}, 0
 	b.save()
 }

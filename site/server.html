@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ปุ่มเข้าเซิร์ฟ Zan Booster</title>
+<meta name="description" content="สร้างลิงก์เข้าเซิร์ฟผ่าน Zan Booster ให้คนในดิสของคุณ">
+<link rel="icon" href="logo.png">
+<style>
+:root{--c1:#22d3ff;--bg:#06080f;--card:#0e1322;--line:rgba(255,255,255,.1);--muted:#9aa4c4}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(800px 500px at 20% 0%,rgba(34,211,255,.12),transparent 70%),var(--bg);color:#eef1f8;font-family:"Segoe UI","Leelawadee UI",Tahoma,sans-serif;padding:32px 16px}
+.c{max-width:620px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 24px}
+h1{font-size:22px;margin:0 0 6px}
+p,li{color:var(--muted);line-height:1.65;font-size:14px}
+label{display:block;font-weight:700;margin:18px 0 6px;font-size:14px}
+input,textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:10px;color:#eef1f8;padding:11px 12px;font:14px Consolas,monospace}
+textarea{height:86px;resize:vertical}
+.r{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+button,a.b{cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.06);color:#eef1f8;border-radius:10px;padding:9px 14px;font-weight:700;font-size:13px;text-decoration:none}
+button.p{background:linear-gradient(90deg,var(--c1),#7c5cff);color:#05070f;border:0}
+.err{color:#ff7a8a;font-size:13px;min-height:18px;margin-top:6px}
+.top{margin-bottom:14px}.top a{color:var(--c1);font-size:13px}
+</style>
+</head>
+<body>
+<div class="c">
+  <div class="top"><a href="../">← Zan Booster</a></div>
+  <h1>ปุ่มเข้าเซิร์ฟสำหรับเจ้าของเซิร์ฟ</h1>
+  <p>ใส่ลิงก์ cfx.re/join หรือ IP:Port ของเซิร์ฟคุณ ได้ลิงก์ไปแปะในดิส คนที่มี Zan Booster กดแล้วโปรแกรมตั้งค่าเกมให้ตรงกับเซิร์ฟ (build, Pure mode, Pool size) แล้วพาเข้าเซิร์ฟเลย คนที่ยังไม่มีโปรแกรมก็ยังเข้าแบบปกติได้จากหน้าเดียวกัน</p>
+  <label for="in">ลิงก์หรือ IP ของเซิร์ฟ</label>
+  <input id="in" placeholder="cfx.re/join/abc123 หรือ 1.2.3.4:30120" autocomplete="off">
+  <div class="err" id="err"></div>
+  <label for="out">ลิงก์สำหรับแปะ</label>
+  <input id="out" readonly>
+  <div class="r"><button class="p" id="cp1">คัดลอกลิงก์</button><a class="b" id="try" href="#" target="_blank" rel="noopener">ลองเปิด</a></div>
+  <label for="md">ข้อความประกาศ (แปะในดิสได้เลย)</label>
+  <textarea id="md" readonly></textarea>
+  <div class="r"><button id="cp2">คัดลอกข้อความ</button></div>
+  <p style="margin-top:18px">ลิงก์นี้ไม่เก็บข้อมูลอะไร แค่เปิดโปรแกรมในเครื่องคนกด · โปรแกรมไม่แก้ไฟล์เกมและไม่ยุ่งกับระบบกันโกงของเซิร์ฟ</p>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id), base = 'https://zan-booster.pages.dev/site/j/?s=';
+  function clean(v) {
+    v = v.trim().replace(/^fivem:\/\/connect\//i, '').replace(/^https?:\/\/(www\.)?cfx\.re\/join\//i, '').replace(/^cfx\.re\/join\//i, '').replace(/\/+$/, '');
+    return /^[A-Za-z0-9.:\-]{3,80}$/.test(v) ? v : '';
+  }
+  function upd() {
+    const raw = $('in').value, s = clean(raw);
+    $('err').textContent = raw.trim() && !s ? 'รูปแบบไม่ถูก ใส่ได้แค่ cfx.re/join/โค้ด หรือ IP:Port' : '';
+    const u = s ? base + encodeURIComponent(s) : '';
+    $('out').value = u; $('try').href = u || '#';
+    $('md').value = u ? `เข้าเซิร์ฟผ่าน Zan Booster (ตั้งค่าเกมให้ตรงเซิร์ฟอัตโนมัติ): ${u}\nยังไม่มีโปรแกรม กดลิงก์เดิมแล้วเลือกดาวน์โหลด หรือเข้าแบบปกติได้` : '';
+  }
+  async function copy(id, btn) {
+    const v = $(id).value; if (!v) return;
+    try { await navigator.clipboard.writeText(v); } catch (e) { $(id).select(); document.execCommand('copy'); }
+    const t = btn.textContent; btn.textContent = 'คัดลอกแล้ว'; setTimeout(() => btn.textContent = t, 1400);
+  }
+  $('in').addEventListener('input', upd);
+  $('cp1').onclick = e => copy('out', e.target); $('cp2').onclick = e => copy('md', e.target);
+  const q = new URLSearchParams(location.search).get('s'); if (q) { $('in').value = q; upd(); }
+})();
+</script>
+</body>
+</html>

@@ -173,6 +173,8 @@ func main() {
 	must(w.Bind("frameGenSet", a.frameGenSetAsync))
 	must(w.Bind("reshadeOp", a.reshadeAsync))
 	must(w.Bind("fivemRunning", fivemRunningAny))
+	must(w.Bind("gameSessions", a.gameSessions))
+	must(w.Bind("crashCheck", a.crashCheck))
 	must(w.Bind("upscaleOp", a.upscaleAsync))
 	must(w.Bind("openNvcp", a.openNvcp))
 	must(w.Bind("dldsrInfo", a.dldsrInfo))

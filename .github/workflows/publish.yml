@@ -121,6 +121,29 @@ jobs:
           $u = [IO.File]::ReadAllText("$PWD\recovered\ui.html")
           if ($env:STAGE -eq 'owner' -and -not $u.Contains("id=`"changelog`">[{`"v`": `"$env:VERSION`"")) { throw "changelog has no entry for $env:VERSION on top" }
 
+      # optional code signing: runs only when secrets SIGN_PFX (base64 of a .pfx) and SIGN_PFX_PASS exist.
+      # without them the exe ships unsigned exactly as before. a certificate on a cloud HSM needs its own step.
+      - name: Sign exe (optional)
+        if: steps.q.outputs.stage == 'test' || steps.q.outputs.stage == 'owner'
+        shell: powershell
+        env:
+          PFX: ${{ secrets.SIGN_PFX }}
+          PFX_PASS: ${{ secrets.SIGN_PFX_PASS }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not $env:PFX) { 'no signing certificate set, exe stays unsigned'; exit 0 }
+          $f = "$env:RUNNER_TEMP\ZanBooster.exe"; $pfx = "$env:RUNNER_TEMP\zb.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:PFX))
+          try {
+            $st = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" | Sort-Object FullName | Select-Object -Last 1
+            if (-not $st) { throw 'signtool not found' }
+            & $st.FullName sign /f $pfx /p $env:PFX_PASS /fd sha256 /tr http://timestamp.digicert.com /td sha256 /d "Zan Booster" $f
+            if ($LASTEXITCODE) { throw 'signing failed' }
+            & $st.FullName verify /pa $f
+            if ($LASTEXITCODE) { throw 'signature check failed' }
+            'signed'
+          } finally { Remove-Item $pfx -Force -ErrorAction SilentlyContinue }
+
       # test / owner: send the new exe to VirusTotal (secret VT_API_KEY) and print which scanners flag it
       - name: VirusTotal
         if: steps.q.outputs.stage == 'test' || steps.q.outputs.stage == 'owner'

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>เข้าเซิร์ฟผ่าน Zan Booster</title>
+<meta property="og:title" content="เข้าเซิร์ฟผ่าน Zan Booster">
+<meta property="og:description" content="กดแล้ว Zan Booster ตั้งค่าให้และพาเข้าเซิร์ฟในรอบเดียว">
+<meta property="og:image" content="https://zan-booster.pages.dev/site/logo.png">
+<link rel="icon" href="../logo.png">
+<style>
+:root{--c1:#22d3ff;--c2:#ff3ea5;--bg:#06080f;--card:#0e1322;--line:rgba(255,255,255,.1);--muted:#9aa4c4}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(800px 500px at 20% 10%,rgba(34,211,255,.14),transparent 70%),radial-gradient(700px 500px at 90% 90%,rgba(255,62,165,.12),transparent 70%),var(--bg);color:#eef1f8;font-family:"Segoe UI","Leelawadee UI",Tahoma,sans-serif;padding:16px}
+.c{width:100%;max-width:440px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 24px;text-align:center}
+img{width:72px;height:72px}
+h1{font-size:20px;margin:12px 0 6px}
+p{color:var(--muted);margin:0 0 16px;line-height:1.6;font-size:14px}
+.s{display:inline-block;font-family:Consolas,monospace;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:8px;padding:4px 10px;margin-bottom:16px;word-break:break-all}
+a.b{display:block;text-decoration:none;font-weight:700;border-radius:12px;padding:12px;margin-top:10px;border:1px solid var(--line);color:#eef1f8}
+a.p{background:linear-gradient(90deg,var(--c1),#7c5cff);color:#05070f;border:0}
+small{display:block;color:var(--muted);margin-top:14px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="c">
+  <img src="../logo.png" alt="">
+  <h1 id="t">กำลังเปิด Zan Booster...</h1>
+  <p id="d">ถ้าเครื่องถามว่าจะเปิด Zan Booster ไหม กด "เปิด"</p>
+  <div class="s" id="s"></div>
+  <a class="b p" id="open" href="#">เปิด Zan Booster แล้วเข้าเซิร์ฟ</a>
+  <a class="b" id="dl" href="https://github.com/Nice8755/ZanBooster/raw/main/release/ZanBooster.exe">ยังไม่มีโปรแกรม? ดาวน์โหลดฟรี</a>
+  <a class="b" id="plain" href="#">เข้าแบบปกติ (ไม่ใช้โปรแกรม)</a>
+  <small>Zan Booster ตั้ง build · Pure mode · Pool size ของเซิร์ฟให้ก่อนเปิดเกม ไม่ต้องรีเกมหลายรอบ · <a href="../../" style="color:var(--c1)">ดูโปรแกรม</a></small>
+</div>
+<script>
+(() => {
+  // รับเฉพาะ IP:Port หรือโค้ด cfx.re/join (ตัวอักษรที่ปลอดภัยเท่านั้น)
+  let s = new URLSearchParams(location.search).get('s') || '';
+  s = s.trim().replace(/^https?:\/\/(www\.)?cfx\.re\/join\//i, '').replace(/^cfx\.re\/join\//i, '');
+  const ok = /^[A-Za-z0-9.:\-]{3,80}$/.test(s);
+  const $ = id => document.getElementById(id);
+  if (!ok) { $('t').textContent = 'ลิงก์นี้ไม่ถูกต้อง'; $('d').textContent = 'ขอลิงก์ใหม่จากแอดมินเซิร์ฟ'; ['open', 'plain', 's'].forEach(i => $(i).style.display = 'none'); return; }
+  $('s').textContent = s;
+  const zan = 'zanbooster://join/' + s;
+  const plain = 'fivem://connect/' + (/^[a-z0-9]{4,8}$/i.test(s) ? 'cfx.re/join/' + s : s);
+  $('open').href = zan; $('plain').href = plain;
+  setTimeout(() => { location.href = zan; }, 300);
+  setTimeout(() => { $('t').textContent = 'เข้าเซิร์ฟผ่าน Zan Booster'; $('d').textContent = 'ถ้าโปรแกรมไม่เปิด กดปุ่มด้านล่าง หรือดาวน์โหลดก่อน'; }, 2500);
+})();
+</script>
+</body>
+</html>

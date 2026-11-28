@@ -54,6 +54,7 @@ type gmSettings struct {
 	EntLow bool  `json:"entLow,omitempty"` // ลดรถ/คนรอบตัว (ตัวเลือกตอนเปิดเกม)
 	TexLow bool  `json:"texLow,omitempty"` // ลดความละเอียดพื้นผิวรถ 512
 	Bg     *bool `json:"bg,omitempty"`     // ลดความสำคัญโปรแกรมเบื้องหลังตอนเล่น (ไม่ได้ตั้ง = เปิด)
+	Sum    *bool `json:"sum,omitempty"`    // สรุปหลังเล่นจบ (ไม่ได้ตั้ง = เปิด)
 }
 
 type gmStatus struct {
@@ -409,6 +410,9 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 		bg            = newBgPrio(a.dataDir)
 	)
 	stop := func() {
+		if st.Active && st.Since > 0 {
+			a.sessionSummary(st, bg.peak)
+		}
 		bg.restore()
 		if timerOn {
 			setTimerRes(false)
