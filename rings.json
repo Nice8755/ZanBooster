@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.20.03",
-    "sha256": "5fc0cc1f49495fce68e8ef1953571da56b38b93cd0ee7da57ddbaf353f6fabaf",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/e77c2c41359073ee20bc68c4f202b42abd96f26a/ZanBooster.exe",
-    "notes": "อัปเดตเองอัตโนมัติ: มีเวอร์ชันใหม่โปรแกรมโหลดแล้วเปิดใหม่เองทันที ไม่ต้องกดปุ่ม ถ้าเปิด FiveM อยู่จะรอจนปิดเกมก่อน"
+    "version": "4.20.04",
+    "sha256": "06493a2c54045161acf9b09228dfef583a0ff5230e8ba9399942bebb5c901eb9",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/ed366917f4c2367a1108ad93e53dc866e98198ed/ZanBooster.exe",
+    "notes": "อัปเดตเองอัตโนมัติ (รอปิดเกมก่อน) · แก้ปุ่มพร้อมใช้พรีเซ็ตขึ้นว่าให้กดพรีเซ็ต Zan ก่อน"
   },
   "vip": {
     "version": "4.20.02",
