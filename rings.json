@@ -9,9 +9,9 @@
     "notes": "ชวนวัด FPS ก่อนบูสต์ · ปุ่มแชร์ผลเด่นขึ้น · เซิร์ฟพาร์ทเนอร์"
   },
   "vip": {
-    "version": "4.20.08",
-    "sha256": "f858070d4a080f52b56315f57b220efff318b454a2c2b8762eabb507a1dbdccb",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/99308e0fb2c9f0fe100b14588070f53895a51f90/ZanBooster.exe",
-    "notes": "ปิดเกมแล้วมีสรุปมุมจอ · จำ FPS แยกตามเซิร์ฟ · FiveM เด้งแล้วบอกสาเหตุพร้อมปุ่มแก้"
+    "version": "4.20.09",
+    "sha256": "f5322b3ec8a0e014ffcd5fd1d73b13f7a3f8dbba92c3472cacb36c705e0ea005",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/70459ed78c7ce1d92966e1a045a2f9e123b0c505/ZanBooster.exe",
+    "notes": "สรุปหลังเล่นจบ · จำ FPS แยกตามเซิร์ฟ · ตัวช่วยตอนเกมเด้ง · ชวนวัด FPS ก่อนบูสต์"
   }
 }
