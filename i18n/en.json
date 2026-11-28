@@ -1,4 +1,10 @@
 {
+"วัด FPS ก่อนบูสต์ไหม": "Measure FPS before boosting?",
+"เข้าเกมวัด 30 วินาทีก่อน แล้วค่อยบูสต์ จากนั้นวัดอีกรอบ จะเห็นตัวเลขจริงว่าเครื่องคุณดีขึ้นเท่าไร\nไม่อยากวัด กดปิดแล้วกดบูสต์อีกครั้งได้เลย": "Measure in game for 30 seconds first, then boost and measure again. You'll see real numbers for how much your PC improved.\nDon't want to measure? Close this and press Boost again.",
+"วัดก่อน": "Measure first",
+"FPS เพิ่มขึ้น %d% จากรอบ \"%s\" กดปุ่มการ์ดรีวิวเพื่อแชร์ผลได้": "FPS went up %d% from \"%s\". Press the review card button to share it",
+"เซิร์ฟพาร์ทเนอร์ของ Zan": "Zan partner servers",
+"มีแล้ว": "Added",
 "FiveM เด้งตอน %s": "FiveM crashed at %s",
 "แรมหรือหน่วยความจำของเกมเต็ม": "The game ran out of memory",
 "มักเกิดตอนเล่นนาน ๆ หรือเซิร์ฟที่มีรถ/เสื้อผ้าเยอะ · ปิดโปรแกรมที่ไม่ใช้ เปิดล้างแรมอัตโนมัติในโหมดเล่นเกม ลด Texture Quality ลง 1 ขั้น ถ้าแรมน้อยกว่า 16 GB จะเจอบ่อย": "Usually after long sessions or on servers with lots of cars/clothing · Close apps you aren't using, turn on auto RAM cleaning in Game mode and lower Texture Quality one step. Common with less than 16 GB RAM",

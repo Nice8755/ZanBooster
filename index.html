@@ -187,6 +187,12 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
   <div class="rvw" id="rvw"></div>
 </div></section>
 
+<section id="partners" style="padding-top:20px;display:none"><div class="wrap">
+  <h2>เซิร์ฟพาร์ทเนอร์</h2><p class="sub">เซิร์ฟที่ใช้ปุ่มเข้าเซิร์ฟของ Zan Booster · กดแล้วโปรแกรมตั้งค่าเกมให้ตรงเซิร์ฟก่อนเข้า</p>
+  <div class="rvw" id="ptw"></div>
+  <p class="sub" style="margin-top:14px">เป็นเจ้าของเซิร์ฟ? <a href="site/server.html" style="color:var(--c1)">สร้างปุ่มเข้าเซิร์ฟ</a> แล้วทักในดิสเพื่อขึ้นรายชื่อ</p>
+</div></section>
+
 <section id="faq" style="padding-top:20px"><div class="wrap">
   <h2>คำถามที่พบบ่อย</h2>
   <details><summary>เปิดแล้ว Windows ขึ้น "Windows protected your PC"</summary><p>เป็นเพราะไฟล์ยังไม่มีลายเซ็นดิจิทัล กด <b>More info</b> → <b>Run anyway</b> ได้เลย โปรแกรมไม่แตะไฟล์เกมและคืนค่าได้ทุกข้อ</p></details>
@@ -212,6 +218,13 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
     a = (Array.isArray(a) ? a : []).filter(x => x && x.text); if (!a.length) return;
     $('#rvw').innerHTML = a.slice(0, 12).map(x => `<div class="card rv in"><p>“${esc(x.text)}”</p><small>${esc(x.name || 'ผู้ใช้ Zan Booster')}${x.date ? ' · ' + esc(thDate(x.date)) : ''}</small></div>`).join('');
     $('#reviews').style.display = '';
+  }).catch(() => { });
+
+  /* ---------- เซิร์ฟพาร์ทเนอร์: เจ้าของใส่ใน themes/themes.json → partners [{"name","connect","desc","icon"}] ว่าง = ไม่แสดง ---------- */
+  fetch('themes/themes.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : {}).then(j => {
+    const a = (Array.isArray(j.partners) ? j.partners : []).filter(x => x && x.name && /^[A-Za-z0-9.:\-]{3,80}$/.test(String(x.connect || ''))); if (!a.length) return;
+    $('#ptw').innerHTML = a.slice(0, 12).map(x => `<div class="card rv in" style="display:flex;gap:12px;align-items:center">${/^https:\/\//.test(x.icon || '') ? `<img src="${esc(x.icon)}" alt="" style="width:46px;height:46px;border-radius:12px;object-fit:cover">` : ''}<div style="flex:1;min-width:0"><b>${esc(x.name)}</b><small style="display:block">${esc(x.desc || '')}</small></div><a class="btn pri" href="site/j/?s=${encodeURIComponent(x.connect)}">เข้าเซิร์ฟ</a></div>`).join('');
+    $('#partners').style.display = '';
   }).catch(() => { });
 
   /* ---------- อัปเดตล่าสุด: เวอร์ชันจาก latest.json (สาขา main = ที่ทุกคนได้) รายการจาก changelog ในหน้าโปรแกรม ---------- */
