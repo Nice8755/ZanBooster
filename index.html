@@ -92,11 +92,12 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
 .rv{opacity:0;transform:translateY(18px);transition:opacity .6s,transform .6s}.rv.in{opacity:1;transform:none}
 @media (max-width:980px){.demo,.upd{grid-template-columns:1fr}.dside,.now{position:static}.ths{grid-template-columns:repeat(8,1fr)}.rs{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:820px){header .wrap,.feat{grid-template-columns:1fr}.trust{grid-template-columns:1fr}.price{grid-template-columns:1fr 1fr}h1{font-size:38px}nav a.l{display:none}.ths{grid-template-columns:repeat(6,1fr)}}
+@media (max-width:820px){nav a.l.lg{display:inline}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 </style>
 </head>
 <body>
-<nav><div class="wrap"><img src="site/logo.png" alt=""><b>ZAN <span class="gt">BOOSTER</span></b><span class="sp"></span><a class="l" href="#update">อัปเดต</a><a class="l" href="#try">ลองใช้</a><a class="l" href="#reshade">ReShade</a><a class="l" href="#features">ฟีเจอร์</a><a class="l" href="#price">ราคา</a><a class="l" href="#faq">คำถาม</a></div></nav>
+<nav><div class="wrap"><img src="site/logo.png" alt=""><b>ZAN <span class="gt">BOOSTER</span></b><span class="sp"></span><a class="l" href="#update">อัปเดต</a><a class="l" href="#try">ลองใช้</a><a class="l" href="#reshade">ReShade</a><a class="l" href="#features">ฟีเจอร์</a><a class="l" href="#price">ราคา</a><a class="l" href="#faq">คำถาม</a><a class="l lg" id="lgBtn" href="#" data-nt>EN</a></div></nav>
 
 <header><div class="wrap">
   <div>
@@ -207,11 +208,33 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
 
 <style>.rvw{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}.rvw .card{padding:18px}.rvw p{margin:0 0 10px;line-height:1.6}.rvw small{color:var(--mut)}</style>
 <script>
+/* ---------- ภาษาเว็บ TH / EN: คำแปลอยู่ที่ site/en.json (ข้อความใหม่ในหน้านี้ให้เพิ่มคำแปลที่นั่น) ---------- */
+window.WL = (() => { let l = null; try { l = localStorage.getItem('zbWebLang'); } catch (e) { } return l === 'en' || l === 'th' ? l : /^th/i.test(navigator.language || '') ? 'th' : 'en'; })();
+(() => {
+  const b = document.getElementById('lgBtn'); b.textContent = WL === 'en' ? 'TH' : 'EN';
+  b.onclick = e => { e.preventDefault(); const n = WL === 'en' ? 'th' : 'en'; try { localStorage.setItem('zbWebLang', n); localStorage.setItem('zb_lang', n); } catch (x) { } location.reload(); };
+  if (WL !== 'en') return;
+  document.documentElement.lang = 'en';
+  let D = {}; const TH = /[\u0E00-\u0E7F]/;
+  const one = t => { const k = t.trim(); if (!k || !TH.test(k)) return null; let v = D[k];
+    if (v == null) { let m; if ((m = k.match(/^เวอร์ชันล่าสุด v(.+)$/))) v = 'Latest v' + m[1]; else if ((m = k.match(/^(.+) กลางวัน$/))) v = m[1] + ' (day)'; else if ((m = k.match(/^(.+) กลางคืน$/))) v = m[1] + ' (night)'; }
+    return v == null ? null : t.replace(k, v); };
+  const tr = root => {
+    if (root.nodeType === 3) { if (root.parentElement && !root.parentElement.closest('script,style,[data-nt]')) { const v = one(root.nodeValue); if (v != null && v !== root.nodeValue) root.nodeValue = v; } return; }
+    if (root.nodeType !== 1 || root.closest('script,style,[data-nt]')) return;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let n; const L = []; while ((n = w.nextNode())) L.push(n); L.forEach(tr);
+    [root, ...root.querySelectorAll('[title],[alt],[placeholder],[aria-label]')].forEach(e => ['title', 'alt', 'placeholder', 'aria-label'].forEach(a => { const o = e.getAttribute && e.getAttribute(a); if (o) { const v = one(o); if (v != null && v !== o) e.setAttribute(a, v); } }));
+  };
+  const go = () => { tr(document.body); const t = one(document.title); if (t) document.title = t; document.querySelectorAll('meta[content]').forEach(m => { const v = one(m.content); if (v != null) m.content = v; }); };
+  fetch('site/en.json', { cache: 'no-cache' }).then(r => r.json()).then(j => { D = j; go(); new MutationObserver(ms => ms.forEach(m => { if (m.type === 'characterData') tr(m.target); else m.addedNodes.forEach(tr); })).observe(document.body, { childList: true, subtree: true, characterData: true }); }).catch(() => { });
+})();
+</script>
+<script>
 (() => {
   const $ = s => document.querySelector(s), RAW = 'https://raw.githubusercontent.com/Nice8755/ZanBooster/';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const vn = v => String(v).split('.').reduce((a, x) => a * 1000 + (+x || 0), 0);
-  const thDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return d; } };
+  const thDate = d => { try { return new Date(d + 'T00:00:00').toLocaleDateString(WL === 'en' ? 'en-GB' : 'th-TH', { day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return d; } };
 
   /* ---------- รีวิวจริงจากดิส: เจ้าของใส่ใน site/reviews.json [{"name":"...","text":"...","date":"2026-11-28"}] ---------- */
   fetch('site/reviews.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).then(a => {
@@ -229,7 +252,7 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
 
   /* ---------- อัปเดตล่าสุด: เวอร์ชันจาก latest.json (สาขา main = ที่ทุกคนได้) รายการจาก changelog ในหน้าโปรแกรม ---------- */
   let REL = [], shown = 0;
-  const relHtml = (c, i) => `<div class="card rel rv in"><h3>v${esc(c.v)} ${i === 0 ? '<span class="new">ล่าสุด</span>' : ''}<em>${esc(thDate(c.d))}</em></h3><ul>${(c.th || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
+  const relHtml = (c, i) => `<div class="card rel rv in"><h3>v${esc(c.v)} ${i === 0 ? '<span class="new">ล่าสุด</span>' : ''}<em>${esc(thDate(c.d))}</em></h3><ul>${((WL === 'en' && c.en) || c.th || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>`;
   function relMore(n) { const t = $('#tl'); t.insertAdjacentHTML('beforeend', REL.slice(shown, shown + n).map((c, k) => relHtml(c, shown + k)).join('')); shown += n; $('#more').style.display = shown < REL.length ? '' : 'none'; }
   $('#more').onclick = () => relMore(8);
   (async () => {
@@ -240,8 +263,10 @@ footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mut);font-siz
       const h = await (await fetch('recovered/ui.html', { cache: 'no-cache' })).text();
       const m = h.match(/id="changelog">([\s\S]*?)<\/script>/);
       REL = JSON.parse(m[1]).filter(c => !lv || vn(c.v) <= vn(lv.version)); // เฉพาะที่ปล่อยให้ทุกคนแล้ว
+      if (WL === 'en') REL = REL.filter(c => c.en && c.en.length); // อังกฤษ: แสดงเฉพาะรุ่นที่มีคำแปล
       $('#tl').innerHTML = ''; relMore(5);
-      if (!lv && REL[0]) { $('#uVer').textContent = 'v' + REL[0].v; $('#uNotes').textContent = (REL[0].th || [])[0] || ''; }
+      if (WL === 'en' && lv) { const c = REL.find(c => c.v === lv.version); if (c && c.en) $('#uNotes').textContent = c.en.join(' · '); }
+      if (!lv && REL[0]) { $('#uVer').textContent = 'v' + REL[0].v; $('#uNotes').textContent = ((WL === 'en' && REL[0].en) || REL[0].th || [])[0] || ''; }
     } catch (e) { $('#tl').innerHTML = '<div class="card rel">ดูประวัติอัปเดตได้ในโปรแกรม หน้า "มีอะไรใหม่"</div>'; }
   })();
 

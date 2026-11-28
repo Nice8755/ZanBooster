@@ -1,4 +1,6 @@
 {
+"Windows คืนค่าไป %d ข้อ": "Windows reset %d tweaks",
+"รอให้งานที่ทำอยู่เสร็จก่อน": "Wait for the current task to finish",
 "วัด FPS ก่อนบูสต์ไหม": "Measure FPS before boosting?",
 "เข้าเกมวัด 30 วินาทีก่อน แล้วค่อยบูสต์ จากนั้นวัดอีกรอบ จะเห็นตัวเลขจริงว่าเครื่องคุณดีขึ้นเท่าไร\nไม่อยากวัด กดปิดแล้วกดบูสต์อีกครั้งได้เลย": "Measure in game for 30 seconds first, then boost and measure again. You'll see real numbers for how much your PC improved.\nDon't want to measure? Close this and press Boost again.",
 "วัดก่อน": "Measure first",
