@@ -53,6 +53,7 @@ type gmSettings struct {
 	Hotkey *bool `json:"hotkey,omitempty"`
 	EntLow bool  `json:"entLow,omitempty"` // ลดรถ/คนรอบตัว (ตัวเลือกตอนเปิดเกม)
 	TexLow bool  `json:"texLow,omitempty"` // ลดความละเอียดพื้นผิวรถ 512
+	Bg     *bool `json:"bg,omitempty"`     // ลดความสำคัญโปรแกรมเบื้องหลังตอนเล่น (ไม่ได้ตั้ง = เปิด)
 }
 
 type gmStatus struct {
@@ -79,6 +80,7 @@ type gmStatus struct {
 	Hotkey    string         `json:"hk,omitempty"`
 	ArMB      float64        `json:"arMB,omitempty"` // เคลียร์แรมอัตโนมัติคืนไปกี่ MB
 	ArN       int            `json:"arN,omitempty"`  // กี่ครั้ง
+	BgN       int            `json:"bgN,omitempty"`  // โปรแกรมเบื้องหลังที่ลดความสำคัญอยู่
 }
 
 func (a *app) gmConfig() gmSettings {
@@ -404,8 +406,10 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 		lastWarn      time.Time
 		seenMarked    bool
 		pMask, pc, th = perfCoreMask()
+		bg            = newBgPrio(a.dataDir)
 	)
 	stop := func() {
+		bg.restore()
 		if timerOn {
 			setTimerRes(false)
 			timerOn = false
@@ -533,6 +537,12 @@ func (a *app) gameWatcher(publish func(string), quit func() bool, idleExit func(
 				}
 			} else if cfg.Aff && pMask != 0 && st.AffOK {
 				setAffinity(gp, pMask) // เผื่อมีอะไรมาเปลี่ยนกลับ
+			}
+			if cfg.Bg == nil || *cfg.Bg {
+				st.BgN = bg.lower()
+			} else if st.BgN > 0 {
+				bg.restore()
+				st.BgN = 0
 			}
 			// แรม
 			if cfg.Ram {

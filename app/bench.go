@@ -33,6 +33,8 @@ type benchRun struct {
 	Avg     float64 `json:"avg"`
 	Low1    float64 `json:"low1"`
 	Low01   float64 `json:"low01"`
+	Stut    float64 `json:"stut"`  // กระตุกกี่ครั้งต่อนาที (เฟรมช้ากว่าปกติเกิน 2 เท่า และเกิน 8 ms)
+	MaxFt   float64 `json:"maxFt"` // เฟรมที่ช้าที่สุด (ms)
 	GpuPct  float64 `json:"gpuPct"`
 	Latency float64 `json:"latency"`
 	CpuPct  float64 `json:"cpuPct"`
@@ -327,6 +329,19 @@ func summarize(ft, gb, lat []float64) benchRun {
 		return 1000 / (t / float64(n))
 	}
 	r := benchRun{Frames: len(ft), Avg: 1000 * float64(len(ft)) / sum, Low1: worst(0.01), Low01: worst(0.001)}
+	// กระตุก: เทียบกับเฟรมปกติ (มัธยฐาน) ของรอบนี้ จึงใช้เทียบข้ามเครื่อง/ข้ามรอบได้ (4.20.06)
+	if len(s) > 0 {
+		med, stut := s[len(s)/2], 0
+		for _, v := range ft {
+			if v > 2*med && v-med > 8 {
+				stut++
+			}
+		}
+		r.MaxFt = s[0]
+		if sum > 0 {
+			r.Stut = float64(stut) / (sum / 60000)
+		}
+	}
 	if len(gb) > len(ft)/2 {
 		g := 0.0
 		for _, v := range gb {
@@ -343,5 +358,6 @@ func summarize(ft, gb, lat []float64) benchRun {
 	}
 	round := func(v float64) float64 { return math.Round(v*10) / 10 }
 	r.Avg, r.Low1, r.Low01, r.GpuPct, r.Latency = round(r.Avg), round(r.Low1), round(r.Low01), math.Round(r.GpuPct), round(r.Latency)
+	r.Stut, r.MaxFt = round(r.Stut), round(r.MaxFt)
 	return r
 }
