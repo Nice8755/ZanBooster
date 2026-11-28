@@ -3,10 +3,10 @@
     "machines": [
       "ZB-M6SWR-KZ37U"
     ],
-    "version": "4.20.07",
-    "sha256": "86294add870af3457880ba75a08482ec834875802b958b60bbead4c73582ec79",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/952f9445be083aadb375bb283ac19a461a9a5421/ZanBooster.exe",
-    "notes": "สรุปหลังเล่นจบ · จำ FPS แยกตามเซิร์ฟ · ตัวช่วยตอน FiveM เด้ง"
+    "version": "4.20.08",
+    "sha256": "f858070d4a080f52b56315f57b220efff318b454a2c2b8762eabb507a1dbdccb",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/99308e0fb2c9f0fe100b14588070f53895a51f90/ZanBooster.exe",
+    "notes": "ปรับหน้าเว็บ: รับโปรแกรมผ่านดิส"
   },
   "vip": {
     "version": "4.20.06",
