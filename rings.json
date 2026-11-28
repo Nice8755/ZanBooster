@@ -9,9 +9,9 @@
     "notes": "ตัวโปรแกรมสร้างใหม่ทั้งตัว ฟีเจอร์ คีย์ และค่าที่ตั้งไว้อยู่ครบเหมือนเดิม"
   },
   "vip": {
-    "version": "4.12.37",
-    "sha256": "017999ddeaa4be3bc7754112f16a7a0e471a183f73221aa0e960d2b59fd2947c",
-    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/9d933354b6f70800962e04ae0f232385e43bbb5b/ZanBooster.exe",
-    "notes": "พรีเซ็ต ReShade ชุดใหม่ 5 โทน · ปุ่มพร้อมใช้พรีเซ็ต · วิธีใช้ ReShade"
+    "version": "4.20.01",
+    "sha256": "910f6c73ad9e996fc7676a87ed6932fd9294ce421bfa41a974e3428a6b9976ec",
+    "url": "https://raw.githubusercontent.com/Nice8755/ZanBooster/2cecd3d6b9340acdbe4976362fc61df0c1b98435/ZanBooster.exe",
+    "notes": "ตัวโปรแกรมสร้างใหม่ทั้งตัว ฟีเจอร์ คีย์ และค่าที่ตั้งไว้อยู่ครบเหมือนเดิม · หน้าจอเล็กหรือขยาย 125% ไม่ล้นกรอบแล้ว"
   }
 }
